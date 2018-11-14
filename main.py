@@ -6,27 +6,40 @@ Created on Tue Nov 13 15:22:54 2018
 @author: maxdh
 """
 
-#from lib.DataIO import mnistLib as mnist
 
 from lib.F2 import F2
 
-## -------------------------------------
-## IMPORT: MNIST
-## -------------------------------------
-#
-#images, lables = mnist.load_train_data('/home/maxdh/Documents/ITO/D - Training Data/MNIST/samples/', True)
-#
-##mnist.print_data_plt(images[17])
-#
-#for i in range(5):
-#    mnist.save_as_bmp(images[i], "output/images/image%04d.bmp" % (i))#(str(i).zfill(3)))
+from DataIO import mnistLib as mnist
+
+# -------------------------------------
+# IMPORT: MNIST
+# -------------------------------------
+
+print("# ---------------------------------------------
+print("# IMPORT: MNIST                        ")
+print("# ---------------------------------------------
+
+F2.load_MNIST_train_images("data/imagePool/MNIST/samples", range(10))
 
 # -------------------------------------
 # F2: Generate and save scatter plate
 # -------------------------------------
 
+print("# ---------------------------------------------
+print("# F2: Generate and save scatter plate  ")
+print("# ---------------------------------------------
+
 F2.generate_folder_structure()
-F2.create_scatterplate(F2.get_Parameter())
+F2.create_scatter_plate(F2.get_F2_script_parameter())
+
+
+# -------------------------------------
+# F2: Load scatter plate and calculate specle
+# -------------------------------------
+
+print("# ---------------------------------------------")
+print("# F2: Load scatter plate and calculate specle  ")
+print("# ---------------------------------------------")
 
 
 ## -------------------------------------

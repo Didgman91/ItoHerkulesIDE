@@ -11,26 +11,27 @@ from lib.F2 import F2
 
 from DataIO import mnistLib as mnist
 
+F2.generate_folder_structure()
+
 # -------------------------------------
 # IMPORT: MNIST
 # -------------------------------------
 
-print("# ---------------------------------------------
-print("# IMPORT: MNIST                        ")
-print("# ---------------------------------------------
-
-F2.load_MNIST_train_images("data/imagePool/MNIST/samples", range(10))
+print("# ---------------------------------------------")
+print("# IMPORT: MNIST                                ")
+print("# ---------------------------------------------")
+      
+imagePath = F2.load_MNIST_train_images("data/imagePool/MNIST/samples", range(10))
 
 # -------------------------------------
 # F2: Generate and save scatter plate
 # -------------------------------------
 
-print("# ---------------------------------------------
-print("# F2: Generate and save scatter plate  ")
-print("# ---------------------------------------------
-
-F2.generate_folder_structure()
-F2.create_scatter_plate(F2.get_F2_script_parameter())
+print("# ---------------------------------------------")
+print("# F2: Generate and save scatter plate          ")
+print("# ---------------------------------------------")
+      
+scatterPlateRandom = F2.create_scatter_plate(F2.get_F2_script_parameter())
 
 
 # -------------------------------------
@@ -40,7 +41,7 @@ F2.create_scatter_plate(F2.get_F2_script_parameter())
 print("# ---------------------------------------------")
 print("# F2: Load scatter plate and calculate specle  ")
 print("# ---------------------------------------------")
-
+F2.calculate_propagation(imagePath, scatterPlateRandom)
 
 ## -------------------------------------
 ## IMPORT: npy image

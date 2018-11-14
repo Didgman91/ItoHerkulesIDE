@@ -136,3 +136,6 @@ pip-selfcheck.json
 # End of https://www.gitignore.io/api/python
 
 python/output
+data
+!lib
+tmp

@@ -9,7 +9,7 @@ Created on Tue Nov 13 14:47:13 2018
 # How to install: pip install python-mnist
 
 #import random
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 import numpy as np
 from PIL import Image
@@ -36,17 +36,17 @@ def load_testing_data( folder, zipped=False ):
     
     return images, labels
     
-def print_data_plt( image, xPixel=0, yPixel=0 ):
-    "print _image_ with matplotlib; _xPixel_ pixels in x; _yPixel_ pixels in y"
-    
-    pixels = get_pixel_array(image, xPixel, yPixel)
-    
-    plt.figure()
-    plt.imshow(pixels, cmap='gray')
-    plt.axis('off')
-    
-    plt.show()
-    return
+#def print_data_plt( image, xPixel=0, yPixel=0 ):
+#    "print _image_ with matplotlib; _xPixel_ pixels in x; _yPixel_ pixels in y"
+#    
+#    pixels = get_pixel_array(image, xPixel, yPixel)
+#    
+#    plt.figure()
+#    plt.imshow(pixels, cmap='gray')
+#    plt.axis('off')
+#    
+#    plt.show()
+#    return
 
 def save_as_bmp(image, path, xPixel=0, yPixel=0 ):
     pixels = get_pixel_array(image, xPixel, yPixel)

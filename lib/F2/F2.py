@@ -10,12 +10,25 @@ import subprocess
 import time
 import os
 
+from PIL import Image
+from PIL import ImageOps
+
 from ..DataIO import mnistLib as mnist
 
 pathData = "data"
 
 pathScript = pathData + "/F2/intermediateData/script"
 pathScatterPlate = pathData + "/F2/intermediateData/scatterPlate"
+
+pathInput = "/F2/input"
+pathInputNIST = "/F2/input/NIST"
+pathIntermediateDataScatterPlate = "/F2/intermediateData/scatterPlate"
+pathIntermediateDataScript = "/F2/intermediateData/script"
+pathOutputSpeckle = "/F2/output/speckle"
+pathOutputDocumentation = "/F2/output/documentation"
+
+fileNameScriptCreateScatterPlate = "createScatterPlate.txt"
+fileNameScatterPlateRandom = ["ScatterPlateRandomX", "ScatterPlateRandomY"]
 
 def run_script(path):
     "starts the F2 programm with the path of the script file as argument"
@@ -50,30 +63,30 @@ def run_process(process, arg=""):
 
 def generate_folder_structure(path="data"):
     "Creats folders and subfolders related to the F2 process in the folder _path_."
-    os.makedirs(path+"/F2/input", 0o777, True)
-    os.makedirs(path+"/F2/intermediateData/scatterPlate", 0o777, True)
-    os.makedirs(path+"/F2/intermediateData/script", 0o777, True)
-    os.makedirs(path+"/F2/output/speckle", 0o777, True)
-    os.makedirs(path+"/F2/output/documentation", 0o777, True)
+    os.makedirs(path+pathInput, 0o777, True)
+    os.makedirs(path+pathIntermediateDataScatterPlate, 0o777, True)
+    os.makedirs(path+pathIntermediateDataScript, 0o777, True)
+    os.makedirs(path+pathOutputSpeckle, 0o777, True)
+    os.makedirs(path+pathOutputDocumentation, 0o777, True)
     
 def create_scatter_plate(parameter):
     "Creats the scatterplate and saves it in the folder _path_."
         
     text = ["x=RandomReal p1,p2,streuanz",
             "y=RandomReal p3,p4,streuanz ",
-            "Save \"{}\", x".format(pathScatterPlate + "/ScatterPlateRandomX"),
-            "Save \"{}\", y".format(pathScatterPlate + "/ScatterPlateRandomY")]
+            "Save \"{}\", x".format(pathScatterPlate + "/" +fileNameScatterPlateRandom[0]),
+            "Save \"{}\", y".format(pathScatterPlate + "/" +fileNameScatterPlateRandom[1])]
     
     script = parameter + text
     
-    with open(pathScript + "/createScatterPlate.txt", "w") as text_file:
+    with open(pathScript + "/" + fileNameScriptCreateScatterPlate, "w") as text_file:
         for i in range(len(script)):
             print(script[i], file=text_file)
     
-    run_script(pathScript + "/createScatterPlate.txt")
+    run_script(pathScript + "/" + fileNameScriptCreateScatterPlate)
     
-    scatterPlateRandom = [pathScatterPlate + "/ScatterPlateRandomX",
-                          pathScatterPlate + "/ScatterPlateRandomY"]
+    scatterPlateRandom = [pathScatterPlate + "/" +fileNameScatterPlateRandom[0],
+                          pathScatterPlate + "/" +fileNameScatterPlateRandom[1]]
     
     return scatterPlateRandom
             
@@ -85,14 +98,14 @@ def calculate_propagation(imagePath, scatterPlateRandom):
     propagateScript = []
     for i in range(len(imagePath)):
         rv = get_F2_script_load_image(imagePath[i])
-        imageScript = [imageScript, rv]
+        imageScript = imageScript + [rv]
         
         rv = get_F2_script_propagete(imagePath[i], scatterPlateRandom)
-        propagateScript = [propagateScript, rv]
+        propagateScript = propagateScript + [rv]
     
     
     for i in range(len(imagePath)):
-        script = parameterScript + imageScript[i], propagateScript[i]
+        script = parameterScript + imageScript[i] + propagateScript[i]
         
         with open(pathScript + "/calculatePropagation.txt", "w") as text_file:
             for i in range(len(script)):
@@ -162,7 +175,7 @@ def get_F2_script_parameter():
     
     return text
 
-def load_MNIST_train_images(pathMNIST, imageNumbers, pathData="data"):
+def load_MNIST_train_images(pathMNIST, imageNumbers):
     os.makedirs(pathData+"/F2/input/MNIST", 0o777, True)
     
     images, lables = mnist.load_train_data(pathMNIST)
@@ -175,6 +188,32 @@ def load_MNIST_train_images(pathMNIST, imageNumbers, pathData="data"):
                           pathData+"/F2/input/MNIST/image{:06}.bmp".format(imageNumbers[i]))
         
     return imagePath
+
+def load_NIST_image(imagePath, invertColor=False, resize=False, xPixel=0, yPixel=0):
+    "loads the frist _imageNumbers_ images from _pathNIST_"
+    os.makedirs(pathData + pathInputNIST, 0o777, True)
+    
+    rv = []
+    for ip in imagePath:
+        im = Image.open(ip)
+        
+        im = im.convert("RGB")  # 24 bit: required by F2
+        
+        if (resize == True):
+            im = im.resize((xPixel, yPixel))
+        
+        if (invertColor == True):
+            im = ImageOps.invert(im)
+        
+        base = os.path.basename(ip)
+        name = os.path.splitext(base)
+        
+        path = pathData + pathInputNIST + "/" + name[0] + ".bmp"
+        im.save(path)
+        rv = rv + [ path ]
+    
+    return rv
+    
 
 def get_F2_script_load_image(file):
     ""
@@ -192,9 +231,12 @@ def get_F2_script_load_image(file):
     
     return text
 
-def get_F2_script_propagete(fileName, scatterPlateRandom, pathData="data"):
+def get_F2_script_propagete(fileName, scatterPlateRandom):
     "returns only the part of the script to calculate the electrical field"
     outputPath= pathData + "/F2/output/speckle"
+    
+    fileName = os.path.basename(fileName)
+    fileName = os.path.splitext(fileName)[0]
     
     text = ["? \" \"",
             "? \"IFeld     \",\"Ip        \",\"Tk        \",\"Td        \",\"Ttot\"",
@@ -217,8 +259,8 @@ def get_F2_script_propagete(fileName, scatterPlateRandom, pathData="data"):
             " ",
             "! x=RandomReal p1,p2,streuanz ",
             "! y=RandomReal p3,p4,streuanz ",
-            " x=Load {}".format(scatterPlateRandom[0]),
-            " y=Load {}".format(scatterPlateRandom[1]),
+            " x=Load \"{}\"".format(scatterPlateRandom[0]),
+            " y=Load \"{}\"".format(scatterPlateRandom[1]),
             " Sphere ax,x,y,d/2,d/2,nwasser,0,lam",
             "",
             " If j .EQ. 1 ! gilt nur fuer erste Schicht",
@@ -226,8 +268,8 @@ def get_F2_script_propagete(fileName, scatterPlateRandom, pathData="data"):
             "   PupilFilter ax,obj ",
             "   Grid ax,p1,p2,p3,p4  ",
             "   a2=Illumination ax,PlaneWave, 1,0, 0,0,lam ! Beleuchtung mit Planwelle ",
-            "   !a2=Illumination ax,Gauss, 1,0,  10*mm , 10*mm,0,0, lam ! (x,y,z sind shift-Werte) ! ","Beleuchtung mit Gauss",
-            "   !a2=Illumination ax,AGauss, 1,0,  10*mm,20*mm , 10*mm,0,0, lam ! (x,y,z sind shift-Werte) ! ","Beleuchtung mit Gauss",
+            "   !a2=Illumination ax,Gauss, 1,0,  10*mm , 10*mm,0,0, lam ! (x,y,z sind shift-Werte) ! Beleuchtung mit Gauss",
+            "   !a2=Illumination ax,AGauss, 1,0,  10*mm,20*mm , 10*mm,0,0, lam ! (x,y,z sind shift-Werte) ! Beleuchtung mit Gauss",
             "   !PlotArray Abs[a2],\"Objekt\",400,400",
             " Else",
             "   PupilFilter a2,ax ! ab zweiter Schicht, belegt Array mit Filter",
@@ -251,7 +293,7 @@ def get_F2_script_propagete(fileName, scatterPlateRandom, pathData="data"):
             "   BMPSetPen2 128,128,128",
             "   ",
             "   BMPPlot feld, ePixelX, ePixelY",
-            "   BMPSave \"{}/Feld_{}.bmp\"".format(outputPath, fileName),
+            "   BMPSave \"{}/Feld_{}_.bmp\"".format(outputPath, fileName),
             "",
             "   BMPClear",
             "",
@@ -263,8 +305,8 @@ def get_F2_script_propagete(fileName, scatterPlateRandom, pathData="data"):
             "   BMPSave \"{}/Intensitaet_{}.bmp\"".format(outputPath, fileName),
             "",
             "   ",
-            "   SaveNPY \"{}/Feld_{}\", feld, j".format(outputPath, fileName),
-            "   SaveNPY \"{}/Intensitaet_{}\", intensity, j".format(outputPath, fileName),
+            "   SaveNPY \"{}/Feld_{}_\", feld, j".format(outputPath, fileName),
+            "   SaveNPY \"{}/Intensitaet_{}_\", intensity, j".format(outputPath, fileName),
             "! EndIf",
             " ",
             " a0=EnergyDensity a2",
@@ -304,7 +346,7 @@ def get_F2_script_propagete(fileName, scatterPlateRandom, pathData="data"):
             "BMPSetWin 450,360,750,660, 1,1,3,3",
             "BMPListPlot1d erg5,\"Transmission\",\"z\",\"T\"",
             "",
-            "BMPSave \"{}/nebel_{}.bmp\"".format(outputPath, fileName),
+            "BMPSave \"{}/nebel_{}_.bmp\"".format(outputPath, fileName),
             "",
             "End "]
             

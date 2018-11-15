@@ -6,83 +6,66 @@ Created on Tue Nov 13 15:22:54 2018
 @author: maxdh
 """
 
-import os
-
 from lib.F2 import F2
-
-from lib.DataIO import mnistLib as mnist
+from lib.toolbox import toolbox
+from lib.neuronalNetwork import neuronalNetwork
 
 F2.generate_folder_structure()
 
 # -------------------------------------
 # IMPORT: Image
 # -------------------------------------
-
-#print("# ---------------------------------------------")
-#print("# IMPORT: MNIST                                ")
-#print("# ---------------------------------------------")
+#toolbox.print_program_section_name("IMPORT: MNIST images")
 #      
 #imagePath = F2.load_MNIST_train_images("data/imagePool/MNIST/samples", range(10))
 
 
-#print("# ---------------------------------------------")
-#print("# IMPORT: NIST                                ")
-#print("# ---------------------------------------------")
+#toolbox.print_program_section_name("IMPORT: NIST images")
 #
-#      
-#imageFolder = "../../imagePool/NIST/by_write/hfs_0/f0000_14/c0000_14/"
-#
-#imageName = os.listdir(imageFolder)
-#
-#imagePath = []
-#
-#for name in imageName:
-#    extension = os.path.splitext(name)[1]
-#    if (extension == ".png"):
-#        imagePath = imagePath + [ imageFolder + name]
-#      
+#imagePath = toolbox.get_file_path_with_extension("../../imagePool/NIST/by_write/hfs_0/f0000_14/c0000_14/", "png")
 #imagePath = F2.load_NIST_image(imagePath[:10], True, True, 64, 64)
 
 
 
-
-# -------------------------------------
+# ---------------------------------------------
 # F2: Generate and save scatter plate
-# -------------------------------------
-
-print("# ---------------------------------------------")
-print("# F2: Generate and save scatter plate          ")
-print("# ---------------------------------------------")
+# ---------------------------------------------
+toolbox.print_program_section_name("F2: Generate and save scatter plate")
       
-#scatterPlateRandom = F2.create_scatter_plate(F2.get_F2_script_parameter())
-scatterPlateRandom = ['data/F2/intermediateData/scatterPlate/ScatterPlateRandomX', 'data/F2/intermediateData/scatterPlate/ScatterPlateRandomY']
+scatterPlateRandom = F2.create_scatter_plate(F2.get_F2_script_parameter())
+#scatterPlateRandom = ['data/F2/intermediateData/scatterPlate/ScatterPlateRandomX', 'data/F2/intermediateData/scatterPlate/ScatterPlateRandomY']
 
 
-# -------------------------------------
-# F2: Load scatter plate and calculate specle
-# -------------------------------------
-
-print("# ---------------------------------------------")
-print("# F2: Load scatter plate and calculate specle  ")
-print("# ---------------------------------------------")
+# -------------------------------------------------
+# F2: Load scatter plate and calculate speckle
+# -------------------------------------------------
+toolbox.print_program_section_name("F2: Load scatter plate and calculate speckle")
       
-imageFolder = "data/F2/input/NIST/"
 
-imageName = os.listdir(imageFolder)
-
-imagePath = []
-
-for name in imageName:
-    extension = os.path.splitext(name)[1]
-    if (extension == ".bmp"):
-        imagePath = imagePath + [ imageFolder + name]
+imagePath = toolbox.get_file_path_with_extension("data/F2/input/NIST/", "bmp")
         
 F2.calculate_propagation(imagePath, scatterPlateRandom)
 
-## -------------------------------------
-## IMPORT: npy image
-## -------------------------------------
+# ---------------------------------------------
+# IMPORT: npy image
+# ---------------------------------------------
+toolbox.print_program_section_name("IMPORT: npy image")
+
+imagePath = toolbox.get_file_path_with_extension("data/F2/output/speckle/", ["npy", "bin"])
+
+images = neuronalNetwork.load_np_images(imagePath)
+
+#import matplotlib.pyplot as plt
 #
+#for i in range(len(images)):
+#    plt.figure()
+#    plt.imshow(images[i], cmap='gray')
+#    plt.axis('off')
+#    plt.title(imagePath[i])
+#    
+#    
+#    plt.show()
+
 #image = np.load('/home/maxdh/Documents/ITO/tmp/Feld.npy')
 #
 #plt.figure()

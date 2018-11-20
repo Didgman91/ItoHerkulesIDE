@@ -8,11 +8,14 @@ Created on Thu Nov 15 16:58:44 2018
 
 import os
 from shutil import copyfile
+
 import numpy as np
 
 from PIL import Image
 
 from .model import get_model_deep_speckle_64x64
+from .model import getLossFunction
+from .model import getMetrice
 
 #from __future__ import print_function
 #
@@ -56,27 +59,49 @@ def loadModel():
     
     return model
 
-def loadBMPasNPY(imagePath):
+def loadTrainingDataAsNpy(imagePath, extension=["npy", "bin", "bmp"]):
+    path = loadDataAsNpy(imagePath, pathData + pathInputTrainingData, extension)
+    return path
+
+def loadGroundTruthDataAsNpy(imagePath, extension=["npy", "bin", "bmp"]):
+    path = loadDataAsNpy(imagePath, pathData + pathInputTrainingDataGroundTruth, extension)
+    return path
+    
+def loadDataAsNpy(imagePath, npyPath, extension=["npy", "bin", "bmp"]):
+    "This function will copy all listed files in _imagePath_ and writes a copy in the neuronal network input folder"
     rv = []
     for ip in imagePath:
         fileExtension = os.path.splitext(ip)[-1]
-        if fileExtension == ".bmp":
+        for ex in extension:
+            if ex[0] != ".":
+                ex = "." + ex
+            
             base = os.path.basename(ip)
             name = os.path.splitext(base)
+            data = []
             
-            img = Image.open(ip)
-            img.load()
-            data = np.asarray(img, dtype="int32")
+            if fileExtension == ".bmp":
+                img = Image.open(ip)
+                img.load()
+                data = np.asarray(img, dtype="int32")
+            elif (fileExtension == ".npy") | (fileExtension == ".bin"):
+                data = np.load(ip)
+            else:
+                continue
             
-            buffer = pathData + pathInputTrainingData + "/{}.npy".format(name[0]) 
+            buffer = npyPath + "/{}.npy".format(name[0]) 
             np.save(buffer, data)
             rv = rv + [buffer]
-        
     return rv
 
-def trainNetwork(inputData, groundTruth):
-    model = loadModel()
+def trainNetwork(trainingData, groundTruth, model):
     
+    # Compile model
+    model.compile(loss={'predictions':getLossFunction}, optimizer='adam', metrics=['accuracy', getMetrice])
+    
+    
+    # Fit the model
+    model.fit(trainingData, groundTruth, epochs=1, batch_size=10)
     
     
     return

@@ -11,7 +11,6 @@ from lib.toolbox import toolbox
 from lib.neuronalNetwork import neuronalNetwork
 
 F2.generate_folder_structure()
-neuronalNetwork.generateFolderStructure()
 #
 ## -------------------------------------
 ## IMPORT: Image
@@ -78,12 +77,13 @@ toolbox.print_program_section_name("NEURONAL NETWORK: load model")
 model = neuronalNetwork.loadModel()
 
 imagePath = toolbox.get_file_path_with_extension("data/F2/input/NIST", ["bmp"])
-neuronalNetwork.loadBMPasNPY(imagePath)
+imageGroundTruthPath = neuronalNetwork.loadGroundTruthDataAsNpy(imagePath)
 
 # ---------------------------------------------
 # NEURONAL NETWORK: train network
 # ---------------------------------------------
 toolbox.print_program_section_name("NEURONAL NETWORK: train network")
+
 
 
 

@@ -21,9 +21,10 @@ F2.generate_folder_structure()
 
 
 #toolbox.print_program_section_name("IMPORT: NIST images")
-#
-#imagePath = toolbox.get_file_path_with_extension("../../imagePool/NIST/by_write/hfs_0/f0000_14/c0000_14/", "png")
-#imagePath = F2.load_NIST_image(imagePath[:10], True, True, 64, 64)
+
+#imagePath = toolbox.get_file_path_with_extension("../../imagePool/NIST/by_write/hfs_0/f0000_14/c0000_14/", ["png"])
+imagePath = toolbox.get_file_path_with_extension_include_subfolders("../../imagePool/NIST/by_write/hfs_0/", ["png"])
+imagePath = F2.load_NIST_image(imagePath, True, True, 64, 64)
 
 
 
@@ -42,7 +43,7 @@ scatterPlateRandom = F2.create_scatter_plate(F2.get_F2_script_parameter())
 toolbox.print_program_section_name("F2: Load scatter plate and calculate speckle")
       
 
-imagePath = toolbox.get_file_path_with_extension("data/F2/input/NIST/", "bmp")
+imagePath = toolbox.get_file_path_with_extension("data/F2/input/NIST/", ["bmp"])
         
 F2.calculate_propagation(imagePath, scatterPlateRandom)
 
@@ -66,14 +67,15 @@ images = neuronalNetwork.load_np_images(imagePath)
 #    
 #    plt.show()
 
-#image = np.load('/home/maxdh/Documents/ITO/tmp/Feld.npy')
-#
-#plt.figure()
-#plt.imshow(image, cmap='gray')
-#plt.axis('off')
-#
-#plt.show()
-#
+# ---------------------------------------------
+# TRAIN: Neuronal Network
+# ---------------------------------------------
+
+toolbox.print_program_section_name("TRAIN: Neuronal Network")
+
+
+
+
 ## -------------------------------------
 ## COPY FILES TO SERVER
 ## -------------------------------------

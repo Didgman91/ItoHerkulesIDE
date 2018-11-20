@@ -8,6 +8,8 @@ Created on Thu Nov 15 18:54:05 2018
 
 import os
 
+import numpy as np
+
 def get_file_path_with_extension(pathFolder, extension):
     "returns a list with all files in the _pathFolder_ with a specific _extension_"
     if pathFolder[len(pathFolder)-1] != "/":
@@ -51,6 +53,20 @@ def get_file_path_with_extension_include_subfolders(pathFolder, extension):
                     filePath = filePath + [ rootBuffer + name]
             
     return filePath
+
+def load_np_images(pathImage, extension=["npy", "bin"]):
+    "loads the numpy images"
+    image = []
+    
+    for i in pathImage:
+        fileExtension = os.path.splitext(i)[-1]
+        for ex in extension:
+            if ex[0] != ".":
+                ex = "." + ex
+            if (fileExtension == ex):
+                image = image + [np.load(i)]
+        
+    return image
 
 
 def print_program_section_name(name):

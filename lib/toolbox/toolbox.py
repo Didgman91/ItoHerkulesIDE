@@ -20,7 +20,6 @@ def get_file_path_with_extension(pathFolder, extension):
     filePath = []
     
     for name in fileName:
-        name
         fileExtension = os.path.splitext(name)[1]
         for ex in extension:
             if ex[0] != ".":

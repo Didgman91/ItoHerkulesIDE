@@ -9,11 +9,12 @@ Created on Tue Nov 13 16:07:11 2018
 import subprocess
 import time
 import os
+import sys
 
 from PIL import Image
 from PIL import ImageOps
 
-from ..DataIO import mnistLib as mnist
+#from ..DataIO import mnistLib as mnist
 
 pathData = "data"
 
@@ -47,12 +48,14 @@ def run_process(process, arg=""):
     print("----- Start Subprocess ----")
     print("Process: {}".format(process))
     print("Argument: {}".format(arg))
+    sys.stdout.flush()
     process = subprocess.Popen([process, arg], cwd=os.getcwd())#, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=os.getcwd())
 #    output = process.communicate()
 #    exitCode = process.returncode
 
     exitCode = process.wait()
     print("ExitCode: {}".format(exitCode))
+    sys.stdout.flush()
     t = time.time() - start
     
     outputDecoded = {}
@@ -131,11 +134,11 @@ def get_F2_script_parameter():
             "",
             "!**************************** Nebelparameter",
             "d=40*mu",
-            "rhon=0.2 !g/m**3",
+            "rhon=0.3 !g/m**3",
             "dist=10*m  ",
             "dp=0.1*m    ! Simulationsgebiet",
             "sam=4096 !*3      ! Sampling",
-            "max=1       ! Anzahl Schichten",
+            "max=2       ! Anzahl Schichten",
             "!****************************",
             "",
             "",
@@ -175,19 +178,19 @@ def get_F2_script_parameter():
     
     return text
 
-def load_MNIST_train_images(pathMNIST, imageNumbers):
-    os.makedirs(pathData+"/F2/input/MNIST", 0o777, True)
-    
-    images, lables = mnist.load_train_data(pathMNIST)
-    
-    imagePath = []
-    
-    for i in range(len(imageNumbers)):
-        imagePath = imagePath + [pathData+"/F2/input/MNIST/image{:06}.bmp".format(imageNumbers[i])]
-        mnist.save_as_bmp(images[imageNumbers[i]],
-                          pathData+"/F2/input/MNIST/image{:06}.bmp".format(imageNumbers[i]))
-        
-    return imagePath
+#def load_MNIST_train_images(pathMNIST, imageNumbers):
+#    os.makedirs(pathData+"/F2/input/MNIST", 0o777, True)
+#    
+#    images, lables = mnist.load_train_data(pathMNIST)
+#    
+#    imagePath = []
+#    
+#    for i in range(len(imageNumbers)):
+#        imagePath = imagePath + [pathData+"/F2/input/MNIST/image{:06}.bmp".format(imageNumbers[i])]
+#        mnist.save_as_bmp(images[imageNumbers[i]],
+#                          pathData+"/F2/input/MNIST/image{:06}.bmp".format(imageNumbers[i]))
+#        
+#    return imagePath
 
 def load_NIST_image(imagePath, invertColor=False, resize=False, xPixel=0, yPixel=0):
     "loads the frist _imageNumbers_ images from _pathNIST_"
@@ -223,7 +226,7 @@ def get_F2_script_load_image(file):
             "h2=h1!MirrorX h1 ",
             "obj=Zeros[sam,sam]",
             "z=sam/2",
-            "v=2*4/2",
+            "v=40",
             "MatrixInsert obj,h2, z-v*iPixelX,z-v*iPixelY,z+v*iPixelX,z+v*iPixelY, Substitute",
             "NormalizeMax obj",
             "Clear h1,h2",

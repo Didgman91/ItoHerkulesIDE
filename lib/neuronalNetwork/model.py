@@ -22,36 +22,36 @@ import numpy as np
 
 
 
-## define conv_factory: batch normalization + ReLU + Conv2D + Dropout (optional)
-#def conv_factory(x, concat_axis, nb_filter,
-#                 dropout_rate=None, weight_decay=1E-4):
-#    x = BatchNormalization(axis=concat_axis,
-#                           gamma_regularizer=l2(weight_decay),
-#                           beta_regularizer=l2(weight_decay))(x)
-#    x = Activation('relu')(x)
-#    x = Conv2D(nb_filter, (5, 5), dilation_rate=(2, 2),
-#               kernel_initializer="he_uniform",
-#               padding="same",
-#               kernel_regularizer=l2(weight_decay))(x)
-#    if dropout_rate:
-#        x = Dropout(dropout_rate)(x)
-#
-#    return x
-#
-#
-## define dense block
-#def denseblock(x, concat_axis, nb_layers, growth_rate,
-#               dropout_rate=None, weight_decay=1E-4):
-#    list_feat = [x]
-#    for i in range(nb_layers):
-#        x = conv_factory(x, concat_axis, growth_rate,
-#                         dropout_rate, weight_decay)
-#        list_feat.append(x)
-#        x = Concatenate(axis=concat_axis)(list_feat)
-#
-#    return x
-#
-#
+# define conv_factory: batch normalization + ReLU + Conv2D + Dropout (optional)
+def conv_factory(x, concat_axis, nb_filter,
+                 dropout_rate=None, weight_decay=1E-4):
+    x = BatchNormalization(axis=concat_axis,
+                           gamma_regularizer=l2(weight_decay),
+                           beta_regularizer=l2(weight_decay))(x)
+    x = Activation('relu')(x)
+    x = Conv2D(nb_filter, (5, 5), dilation_rate=(2, 2),
+               kernel_initializer="he_uniform",
+               padding="same",
+               kernel_regularizer=l2(weight_decay))(x)
+    if dropout_rate:
+        x = Dropout(dropout_rate)(x)
+
+    return x
+
+
+# define dense block
+def denseblock(x, concat_axis, nb_layers, growth_rate,
+               dropout_rate=None, weight_decay=1E-4):
+    list_feat = [x]
+    for i in range(nb_layers):
+        x = conv_factory(x, concat_axis, growth_rate,
+                         dropout_rate, weight_decay)
+        list_feat.append(x)
+        x = Concatenate(axis=concat_axis)(list_feat)
+
+    return x
+
+
 ## define model U-net modified with dense block
 #def get_model_deep_speckle():
 #    inputs = Input((256, 256, 1))
@@ -272,7 +272,7 @@ def calcLossFunction(N, channels, pixelNumberX, pixelNumberY, g, p):
     
     return buffer
 
-def getMetrics(y_true, y_pred):
+def getMetric(y_true, y_pred):
     
     # calculate the Pearcon product-moment correlation coefficient
     buffer = np.corrcoef(y_true, y_pred[:,:,0]) # c=0: like in the demo.py 

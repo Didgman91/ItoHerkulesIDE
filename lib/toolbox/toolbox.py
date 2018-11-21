@@ -39,7 +39,7 @@ def get_file_path_with_extension_include_subfolders(pathFolder, extension):
     for root, dirs, files in os.walk(pathFolder):
         print(root)
         print("dirs: {}".format((len(dirs))))
-        print("files: {}".format(len(files)))
+        print("files: {}\n".format(len(files)))
     
         for name in files:
             fileExtension = os.path.splitext(name)[1]

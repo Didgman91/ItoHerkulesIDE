@@ -15,7 +15,7 @@ from PIL import Image
 
 from .model import get_model_deep_speckle_64x64
 from .model import getLossFunction
-from .model import getMetrice
+from .model import getMetric
 
 #from __future__ import print_function
 #
@@ -97,7 +97,7 @@ def loadDataAsNpy(imagePath, npyPath, extension=["npy", "bin", "bmp"]):
 def trainNetwork(trainingData, groundTruth, model):
     
     # Compile model
-    model.compile(loss={'predictions':getLossFunction}, optimizer='adam', metrics=['accuracy', getMetrice])
+    model.compile(loss={'predictions':getLossFunction}, optimizer='adam', metrics=['accuracy', getMetric])
     
     
     # Fit the model

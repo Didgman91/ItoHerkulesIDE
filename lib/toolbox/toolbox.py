@@ -7,6 +7,9 @@ Created on Thu Nov 15 18:54:05 2018
 """
 
 import os
+import sys
+import subprocess
+import time
 
 import numpy as np
 
@@ -81,3 +84,27 @@ def print_program_section_name(name):
     print("# {}".format(line))
     print("# {}".format(name))
     print("# {}".format(line))
+          
+def runProcess(process, arg=[""]):
+    "stars a process with an argument; return: output, t: time [s]"
+    
+    start = time.time()
+
+    print("----- Start Subprocess ----")
+    print("Process: {}".format(process))
+    print("Argument: {}".format(arg))
+    sys.stdout.flush()
+    p = subprocess.Popen([process] + arg, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=os.getcwd())
+    output = p.communicate()
+    exitCode = p.returncode
+
+    exitCode = p.wait()
+    print("ExitCode: {}".format(exitCode))
+    sys.stdout.flush()
+    t = time.time() - start
+    
+    outputDecoded = []
+    for i in range(len(output)-1):
+        outputDecoded = outputDecoded + [output[i].decode("utf-8")]
+    
+    return outputDecoded, exitCode, t

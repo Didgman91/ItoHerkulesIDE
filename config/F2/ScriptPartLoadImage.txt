@@ -1,0 +1,11 @@
+BMPInit iPixelX,iPixelY
+BMPLoad "{py_fileName}" ! 24Bit RGB
+BMP2Array h1
+h2=h1!MirrorX h1 
+obj=Zeros[sam,sam]
+z=sam/2
+v=40
+MatrixInsert obj,h2, z-v*iPixelX,z-v*iPixelY,z+v*iPixelX,z+v*iPixelY, Substitute
+NormalizeMax obj
+Clear h1,h2
+!****************************

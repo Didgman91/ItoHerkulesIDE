@@ -13,6 +13,8 @@ import time
 
 import numpy as np
 
+from PIL import Image, ImageOps
+
 def get_file_path_with_extension(pathFolder, extension):
     "returns a list with all files in the _pathFolder_ with a specific _extension_"
     if pathFolder[len(pathFolder)-1] != "/":
@@ -56,6 +58,36 @@ def get_file_path_with_extension_include_subfolders(pathFolder, extension):
             
     return filePath
 
+def loadImage(sourcePath, destinationPath, invertColor=False, resize=False, xPixel=0, yPixel=0):
+    ""
+    os.makedirs(destinationPath, 0o777, True)
+    
+    rv = []
+    for ip in sourcePath:
+        fileExtension = os.path.splitext(ip)[-1]
+        
+        im = Image.open(ip)
+        
+        im = im.convert("RGB")  # 24 bit: required by F2
+        
+        if (resize == True):
+            im = im.resize((xPixel, yPixel))
+        
+        if (invertColor == True):
+            im = ImageOps.invert(im)
+        
+        base = os.path.basename(ip)
+        name = os.path.splitext(base)
+        
+        if destinationPath[-1] != "/":
+            destinationPath += "/"
+            
+        path = destinationPath + name[0] + fileExtension
+        im.save(path)
+        rv = rv + [ path ]
+    
+    return rv
+
 def load_np_images(pathImage, extension=["npy", "bin"]):
     "loads the numpy images"
     image = []
@@ -69,7 +101,6 @@ def load_np_images(pathImage, extension=["npy", "bin"]):
                 image = image + [np.load(i)]
         
     return image
-
 
 def print_program_section_name(name):
     

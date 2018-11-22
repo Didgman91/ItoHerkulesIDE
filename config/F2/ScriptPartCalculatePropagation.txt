@@ -65,7 +65,7 @@ Do j,1,max
    BMPSave "{py_outputPath}/Intensitaet_{py_fileName}.bmp"
 
    
-   SaveNPY "{py_outputPath}/Feld_{py_fileName}_", feld, j
+   !SaveNPY "{py_outputPath}/Feld_{py_fileName}_", feld, j
    SaveNPY "{py_outputPath}/Intensitaet_{py_fileName}_", intensity, j
 ! EndIf
  

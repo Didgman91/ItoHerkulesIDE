@@ -10,6 +10,7 @@ from lib.F2 import F2
 from lib.toolbox import toolbox
 from lib.neuronalNetwork import neuronalNetwork
 
+
 #F2.generate_folder_structure()
 #
 ## -------------------------------------
@@ -24,10 +25,10 @@ from lib.neuronalNetwork import neuronalNetwork
 #
 ##imagePath = toolbox.get_file_path_with_extension("../../imagePool/NIST/by_write/hsf_0/f0000_14/c0000_14/", ["png"])
 #imagePath = toolbox.get_file_path_with_extension_include_subfolders("../../imagePool/NIST/by_write/hsf_0/f0000_14", ["png"])
-#imagePath = F2.load_NIST_image(imagePath[:100], True, True, 64, 64)
+#imagePath = F2.load_image(imagePath[:100], True, True, 64, 64)
 #
 #if imagePath == []:
-#    print("no files loaded")
+#    print("no files")
 #    exit()
 #
 ## ---------------------------------------------
@@ -35,7 +36,7 @@ from lib.neuronalNetwork import neuronalNetwork
 ## ---------------------------------------------
 #toolbox.print_program_section_name("F2: Generate and save scatter plate")
 #      
-#scatterPlateRandom = F2.create_scatter_plate(F2.get_F2_script_parameter())
+#scatterPlateRandom = F2.create_scatter_plate()
 ##scatterPlateRandom = ['data/F2/intermediateData/scatterPlate/ScatterPlateRandomX', 'data/F2/intermediateData/scatterPlate/ScatterPlateRandomY']
 #
 ## -------------------------------------------------
@@ -47,26 +48,18 @@ from lib.neuronalNetwork import neuronalNetwork
 #imagePath = toolbox.get_file_path_with_extension("data/F2/input/NIST/", ["bmp"])
 #        
 #F2.calculate_propagation(imagePath, scatterPlateRandom)
+
+
+#import matplotlib.pyplot as plt
 #
-## ---------------------------------------------
-## IMPORT: npy image
-## ---------------------------------------------
-#toolbox.print_program_section_name("IMPORT: npy image")
-#
-#imagePath = toolbox.get_file_path_with_extension("data/F2/output/speckle/", ["npy", "bin"])
-#
-#imagesSpeckle = toolbox.load_np_images(imagePath)
-#
-##import matplotlib.pyplot as plt
-##
-##for i in range(len(images)):
-##    plt.figure()
-##    plt.imshow(images[i], cmap='gray')
-##    plt.axis('off')
-##    plt.title(imagePath[i])
-##    
-##    
-##    plt.show()
+#for i in range(len(images)):
+#    plt.figure()
+#    plt.imshow(images[i], cmap='gray')
+#    plt.axis('off')
+#    plt.title(imagePath[i])
+#    
+#    
+#    plt.show()
 
 # ---------------------------------------------
 # NEURONAL NETWORK: load data
@@ -74,22 +67,30 @@ from lib.neuronalNetwork import neuronalNetwork
 neuronalNetwork.generateFolderStructure()
 toolbox.print_program_section_name("NEURONAL NETWORK: load data")
 
+print("the model is loading...")
 model = neuronalNetwork.loadModel()
+print("done")
 
+print("the training and test datasets are loading...")
 imagePath = toolbox.get_file_path_with_extension("data/F2/input/NIST", ["bmp"])
-imageGroundTruthPath = neuronalNetwork.loadGroundTruthDataAsNpy(imagePath)
+imageGroundTruthPath = neuronalNetwork.loadGroundTruthData(imagePath[:-10])
+imageTestGroundTruthPath = neuronalNetwork.loadTestGroundTruthData(imagePath[-10:])
 
-imagePath = toolbox.get_file_path_with_extension("data/F2/output/speckle/", ["npy", "bin"])
-imageSpecklePath = neuronalNetwork.loadTrainingDataAsNpy(imagePath)
+
+imagePath = toolbox.get_file_path_with_extension("data/F2/output/speckle/", ["bmp"])
+imageSpecklePath = neuronalNetwork.loadTrainingData(imagePath[:-10])
+imageTestSpecklePath = neuronalNetwork.loadTestData(imagePath[-10:])
+print("done")
+
 
 
 
 # ---------------------------------------------
 # NEURONAL NETWORK: train network
 # ---------------------------------------------
-#toolbox.print_program_section_name("NEURONAL NETWORK: train network")
+toolbox.print_program_section_name("NEURONAL NETWORK: train network")
 
-#model = neuronalNetwork.trainNetwork(imageSpecklePath[:-10], imageGroundTruthPath[:-10], model, fitEpochs=1, fitBatchSize=10)
+model = neuronalNetwork.trainNetwork(imageSpecklePath, imageGroundTruthPath, model, fitEpochs=3, fitBatchSize=10)
 
 
 # ---------------------------------------------
@@ -97,7 +98,7 @@ imageSpecklePath = neuronalNetwork.loadTrainingDataAsNpy(imagePath)
 # ---------------------------------------------
 toolbox.print_program_section_name("NEURONAL NETWORK: test network")
 
-neuronalNetwork.testNetwork(imageSpecklePath[-10:], model)
+neuronalNetwork.testNetwork(imageTestSpecklePath, model)
 
 
 ## -------------------------------------

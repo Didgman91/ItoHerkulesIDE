@@ -34,6 +34,7 @@ pathInputModel = "/neuronalNetwork/input/model"
 pathInputTrainingData = "/neuronalNetwork/input/trainingData"
 pathInputTrainingDataGroundTruth = "/neuronalNetwork/input/trainingData/groundTruth"
 pathInputTestData = "/neuronalNetwork/input/testData"
+pathInputTestDataGroundTruth = "/neuronalNetwork/input/testData/groundTruth"
 pathInputPretrainedWeights = "/neuronalNetwork/input/pretrainedWeights"
 pathIntermediateDataTrainedWeights = "/neuronalNetwork/intermediateData/trainedWeights"
 pathOutputPredictions = "/neuronalNetwork/output/predictions"
@@ -63,22 +64,42 @@ def loadModel():
     
     return model
 
-def loadTrainingDataAsNpy(imagePath):
-    path = loadDataAsNpy(imagePath, pathData + pathInputTrainingData)
+def loadTrainingData(imagePath):
+    path = toolbox.loadImage(imagePath, pathData + pathInputTrainingData)
     return path
 
-def loadGroundTruthDataAsNpy(imagePath):
-    path = loadDataAsNpy(imagePath, pathData + pathInputTrainingDataGroundTruth)
+def loadGroundTruthData(imagePath):
+    path = toolbox.loadImage(imagePath, pathData + pathInputTrainingDataGroundTruth)
     return path
-    
-def loadDataAsNpy(imagePath, npyPath):
-    "This function will copy all listed files in _imagePath_ and writes a copy in the neuronal network input folder"
+
+def loadTestData(imagePath):
+    path = toolbox.loadImage(imagePath, pathData + pathInputTestData)
+    return path
+
+def loadTestGroundTruthData(imagePath):
+    path = toolbox.loadImage(imagePath, pathData + pathInputTestDataGroundTruth)
+    return path
+
+#def loadTrainingDataAsNpy(imagePath):
+#    path = loadDataAsNpy(imagePath, pathData + pathInputTrainingData)
+#    return path
+#
+#def loadGroundTruthDataAsNpy(imagePath):
+#    path = loadDataAsNpy(imagePath, pathData + pathInputTrainingDataGroundTruth)
+#    return path
+#
+#def loadTestGroundTruthDataAsNpy(imagePath):
+#    path = loadDataAsNpy(imagePath, pathData + pathInputTestDataGroundTruth)
+#    return path
+#
+def getImageAsNpy(imagePath):
+    ""
     rv = []
     for ip in imagePath:
         fileExtension = os.path.splitext(ip)[-1]
 
-        base = os.path.basename(ip)
-        name = os.path.splitext(base)
+#        base = os.path.basename(ip)
+#        name = os.path.splitext(base)
         data = []
         
         if fileExtension == ".bmp":
@@ -92,13 +113,14 @@ def loadDataAsNpy(imagePath, npyPath):
         else:
             continue
         
-        buffer = npyPath + "/{}.npy".format(name[0]) 
-        np.save(buffer, data)
-        rv = rv + [buffer]
+        rv = rv + [data]
+    
+    rv = convertImageListToNpArray4d(rv)
+    
     return rv
 
 def convertImageListToNpArray4d(images):
-    
+    "4d array: 1dim: image number, 2d: x dimension of the image, 3d: y dimension of the image, 4d: channel"
     if type(images) is list:
         # stack a list to a numpy array
         images = np.stack((images))
@@ -124,24 +146,19 @@ def convertImageListToNpArray4d(images):
     
     return images
 
-def save4dNpyAsBmp(npyPath, bmpFolderPath=""):
+def save4dNpyAsBmp(npyPath, filename, bmpFolderPath=""):
     if bmpFolderPath == "":
         bmpFolderPath = pathData + pathOutputPredictions
         
     npy = np.load(npyPath)
     
-    counter = 0
-    for i in npy:
-        image = Image.fromarray(np.uint8(i*255)).convert('RGB')
-        image.save(pathData + pathOutputPredictions + "/{}.bmp".format(counter))
-        counter += 1
+    for i in range(len(npy)):
+        image = Image.fromarray(np.uint8(npy[i]*255)).convert('RGB')
+        image.save(pathData + pathOutputPredictions + "/{}.bmp".format(filename[i]))
 
 def trainNetwork(trainingDataPath, groundTruthPath, model, fitEpochs, fitBatchSize):
-    trainingData = toolbox.load_np_images(trainingDataPath)
-    groundTruth = toolbox.load_np_images(groundTruthPath)
-    
-    trainingData = convertImageListToNpArray4d(trainingData)
-    groundTruth = convertImageListToNpArray4d(groundTruth)
+    trainingData = getImageAsNpy(trainingDataPath)
+    groundTruth = getImageAsNpy(groundTruthPath)
     
     # Compile model
 #    model.compile(loss={'predictions':getLossFunction}, optimizer='adam', metrics=['accuracy', getMetric])
@@ -156,9 +173,12 @@ def trainNetwork(trainingDataPath, groundTruthPath, model, fitEpochs, fitBatchSi
     return model
 
 def testNetwork(testDataPath, model, trainedWeightsPath=""):
-    testData = toolbox.load_np_images(testDataPath)
-    testData = convertImageListToNpArray4d(testData)
+    testData = getImageAsNpy(testDataPath)
     
+    fileName = []
+    for ip in testDataPath:
+        base = os.path.basename(ip)
+        fileName += [os.path.splitext(base)[0]]
     
     if trainedWeightsPath == "":
         model.save_weights(pathData + pathIntermediateDataTrainedWeights + "/" + fileNameTrainedWeights)
@@ -168,7 +188,7 @@ def testNetwork(testDataPath, model, trainedWeightsPath=""):
     path = pathData + pathOutputPredictions + "/" + fileNamePredictions
     np.save(path, pred)
     
-    save4dNpyAsBmp(path)
+    save4dNpyAsBmp(path, fileName)
     
     return path
 

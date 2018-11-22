@@ -46,8 +46,11 @@ def generate_folder_structure(path="data"):
     os.makedirs(path+pathOutputSpeckle, 0o777, True)
     os.makedirs(path+pathOutputDocumentation, 0o777, True)
     
-def create_scatter_plate(parameter):
+def create_scatter_plate(parameter=""):
     "Creats the scatterplate and saves it in the folder _path_."
+    
+    if parameter == "":
+        parameter = get_F2_script_parameter()
     
     textFile = open("config/F2/ScriptPartCreateScatterPlate.txt", "r")
     lines = textFile.readlines()
@@ -87,9 +90,10 @@ def calculate_propagation(imagePath, scatterPlateRandom):
         script = parameterScript + imageScript[i] + propagateScript[i]
         
         with open(pathScript + "/calculatePropagation.txt", "w") as text_file:
-            for i in range(len(script)):
-                print(script[i], file=text_file)
+            for ii in range(len(script)):
+                print(script[ii], file=text_file)
         
+        print("F2 propagation calculation: Image {}/{}".format(i, len(imagePath)))
         run_script(pathScript + "/calculatePropagation.txt")
 
 def get_F2_script_parameter():
@@ -113,7 +117,7 @@ def get_F2_script_parameter():
 #        
 #    return imagePath
 
-def load_NIST_image(imagePath, invertColor=False, resize=False, xPixel=0, yPixel=0):
+def load_image(imagePath, invertColor=False, resize=False, xPixel=0, yPixel=0):
     "loads the frist _imageNumbers_ images from _pathNIST_"
     os.makedirs(pathData + pathInputNIST, 0o777, True)
     

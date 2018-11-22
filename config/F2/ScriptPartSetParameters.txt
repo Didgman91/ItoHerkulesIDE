@@ -19,7 +19,7 @@ rhon=0.3 !g/m**3
 dist=10*m  
 dp=0.1*m    ! Simulationsgebiet
 sam=4096 !*3      ! Sampling
-max=2       ! Anzahl Schichten
+max=1       ! Anzahl Schichten
 !****************************
 
 

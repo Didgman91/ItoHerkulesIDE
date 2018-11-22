@@ -48,14 +48,14 @@ Do j,1,max
    !feldMY=MirrorY intensity  
    !feldMYR90=Rotate90 feldMY
 
-   BMPInit ePixelX,ePixelY
-   BMPSetPen 255,255,255
-   BMPSetPen2 128,128,128
+   !BMPInit ePixelX,ePixelY
+   !BMPSetPen 255,255,255
+   !BMPSetPen2 128,128,128
    
-   BMPPlot feld, ePixelX, ePixelY
-   BMPSave "{py_outputPath}/Feld_{py_fileName}_.bmp"
+   !BMPPlot feld, ePixelX, ePixelY
+   !BMPSave "{py_outputPath}/Feld_{py_fileName}_.bmp"
 
-   BMPClear
+   !BMPClear
 
    BMPInit ePixelX,ePixelY
    BMPSetPen 255,255,255

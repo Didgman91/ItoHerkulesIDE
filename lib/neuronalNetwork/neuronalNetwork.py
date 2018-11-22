@@ -80,18 +80,6 @@ def loadTestGroundTruthData(imagePath):
     path = toolbox.loadImage(imagePath, pathData + pathInputTestDataGroundTruth)
     return path
 
-#def loadTrainingDataAsNpy(imagePath):
-#    path = loadDataAsNpy(imagePath, pathData + pathInputTrainingData)
-#    return path
-#
-#def loadGroundTruthDataAsNpy(imagePath):
-#    path = loadDataAsNpy(imagePath, pathData + pathInputTrainingDataGroundTruth)
-#    return path
-#
-#def loadTestGroundTruthDataAsNpy(imagePath):
-#    path = loadDataAsNpy(imagePath, pathData + pathInputTestDataGroundTruth)
-#    return path
-#
 def getImageAsNpy(imagePath):
     ""
     rv = []
@@ -105,11 +93,11 @@ def getImageAsNpy(imagePath):
         if fileExtension == ".bmp":
             img = Image.open(ip)#.convert('LA')
             img.load()
-            data = np.asarray(img, dtype="int32")
+            data = np.asarray(img, dtype="int32")/255
         elif (fileExtension == ".npy") | (fileExtension == ".bin"):
             data = np.load(ip)
             data = Image.fromarray(np.uint8(data*255))#.convert('LA')
-            data = np.asarray(data, dtype="int32")
+            data = np.asarray(data, dtype="int32")/255
         else:
             continue
         
@@ -139,6 +127,8 @@ def convertImageListToNpArray4d(images):
                 buffer += [np.asarray(b, dtype="int32")]
                 
             images = np.stack((buffer))
+    if images.max() > 1:
+        images = images / 255
     
     # reshape the numpy array (imageNumber, xPixels, yPixels, 1)
     if len(images.shape) == 3:

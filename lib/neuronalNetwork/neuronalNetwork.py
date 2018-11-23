@@ -27,158 +27,172 @@ from .model import getMetric
 #from keras.regularizers import l2
 
 
-pathData = "data"
-
-pathInput = "/neuronalNetwork/input"
-pathInputModel = "/neuronalNetwork/input/model"
-pathInputTrainingData = "/neuronalNetwork/input/trainingData"
-pathInputTrainingDataGroundTruth = "/neuronalNetwork/input/trainingData/groundTruth"
-pathInputTestData = "/neuronalNetwork/input/testData"
-pathInputTestDataGroundTruth = "/neuronalNetwork/input/testData/groundTruth"
-pathInputPretrainedWeights = "/neuronalNetwork/input/pretrainedWeights"
-pathIntermediateDataTrainedWeights = "/neuronalNetwork/intermediateData/trainedWeights"
-pathOutputPredictions = "/neuronalNetwork/output/predictions"
-pathOutputDocumentation = "/neuronalNetwork/output/documentation"
-
-fileNameTrainedWeights = "weights.hdf5"
-fileNamePredictions = "prediction.npy"
-
-def generateFolderStructure():
-    "Creats folders and subfolders related to the F2 process in the folder _path_."
-    os.makedirs(pathData + pathInput, 0o777, True)
-    os.makedirs(pathData + pathInputModel, 0o777, True)
-    os.makedirs(pathData + pathInputTrainingData, 0o777, True)
-    os.makedirs(pathData + pathInputTrainingDataGroundTruth, 0o777, True)
-    os.makedirs(pathData + pathInputTestData, 0o777, True)
-    os.makedirs(pathData + pathInputPretrainedWeights, 0o777, True)
-    os.makedirs(pathData + pathIntermediateDataTrainedWeights, 0o777, True)
-    os.makedirs(pathData + pathOutputPredictions, 0o777, True)
-    os.makedirs(pathData + pathOutputDocumentation, 0o777, True)
-
-def loadModel():
-    modelFile = "lib/neuronalNetwork/model.py"
-    copyfile(modelFile, pathData + pathInputModel + "/model.py")
+class neuronalNetworkCalss:
     
-    # model is defined in model.py
-    model = get_model_deep_speckle()
-    
-    return model
-
-def loadTrainingData(imagePath):
-    path = toolbox.loadImage(imagePath, pathData + pathInputTrainingData)
-    return path
-
-def loadGroundTruthData(imagePath):
-    path = toolbox.loadImage(imagePath, pathData + pathInputTrainingDataGroundTruth)
-    return path
-
-def loadTestData(imagePath):
-    path = toolbox.loadImage(imagePath, pathData + pathInputTestData)
-    return path
-
-def loadTestGroundTruthData(imagePath):
-    path = toolbox.loadImage(imagePath, pathData + pathInputTestDataGroundTruth)
-    return path
-
-def getImageAsNpy(imagePath):
-    ""
-    rv = []
-    for ip in imagePath:
-        fileExtension = os.path.splitext(ip)[-1]
-
-#        base = os.path.basename(ip)
-#        name = os.path.splitext(base)
-        data = []
+    def __init__(self, neuronalNetworkPathExtension=""):
+        "Creats folders and subfolders related to the F2 process in the folder _path_."
         
-        if fileExtension == ".bmp":
-            img = Image.open(ip)#.convert('LA')
-            img.load()
-            data = np.asarray(img, dtype="int32")/255
-        elif (fileExtension == ".npy") | (fileExtension == ".bin"):
-            data = np.load(ip)
-            data = Image.fromarray(np.uint8(data*255))#.convert('LA')
-            data = np.asarray(data, dtype="int32")/255
+        self.pathData = "data"
+        self.pathNeuronalNetworkData = "/neuronalNetwork"
+        
+        if neuronalNetworkPathExtension != "":
+            if neuronalNetworkPathExtension[-1] == '/':
+                neuronalNetworkPathExtension = neuronalNetworkPathExtension[:-1]
+            if neuronalNetworkPathExtension[0] == '/':
+                neuronalNetworkPathExtension = neuronalNetworkPathExtension[1:]
+            self.pathNeuronalNetworkData += neuronalNetworkPathExtension
+        
+        print("pathNeuronalNetworkData: {}".format(self.pathData + self.pathNeuronalNetworkData))
+        
+        
+        self.pathInput = self.pathNeuronalNetworkData + "/input"
+        self.pathInputModel = self.pathNeuronalNetworkData + "/input/model"
+        self.pathInputTrainingData = self.pathNeuronalNetworkData + "/input/trainingData"
+        self.pathInputTrainingDataGroundTruth = self.pathNeuronalNetworkData + "/input/trainingData/groundTruth"
+        self.pathInputTestData = self.pathNeuronalNetworkData + "/input/testData"
+        self.pathInputTestDataGroundTruth = self.pathNeuronalNetworkData + "/input/testData/groundTruth"
+        self.pathInputPretrainedWeights = self.pathNeuronalNetworkData + "/input/pretrainedWeights"
+        self.pathIntermediateDataTrainedWeights = self.pathNeuronalNetworkData + "/intermediateData/trainedWeights"
+        self.pathOutputPredictions = self.pathNeuronalNetworkData + "/output/predictions"
+        self.pathOutputDocumentation = self.pathNeuronalNetworkData + "/output/documentation"
+        
+        self.fileNameTrainedWeights = "weights.hdf5"
+        self.fileNamePredictions = "prediction.npy"
+        
+        os.makedirs(self.pathData + self.pathInput, 0o777, True)
+        os.makedirs(self.pathData + self.pathInputModel, 0o777, True)
+        os.makedirs(self.pathData + self.pathInputTrainingData, 0o777, True)
+        os.makedirs(self.pathData + self.pathInputTrainingDataGroundTruth, 0o777, True)
+        os.makedirs(self.pathData + self.pathInputTestData, 0o777, True)
+        os.makedirs(self.pathData + self.pathInputPretrainedWeights, 0o777, True)
+        os.makedirs(self.pathData + self.pathIntermediateDataTrainedWeights, 0o777, True)
+        os.makedirs(self.pathData + self.pathOutputPredictions, 0o777, True)
+        os.makedirs(self.pathData + self.pathOutputDocumentation, 0o777, True)
+    
+    def loadModel(self):
+        modelFile = "lib/neuronalNetwork/model.py"
+        copyfile(modelFile, self.pathData + self.pathInputModel + "/model.py")
+        
+        # model is defined in model.py
+        model = get_model_deep_speckle()
+        
+        return model
+    
+    def loadTrainingData(self, imagePath):
+        path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTrainingData)
+        return path
+    
+    def loadGroundTruthData(self, imagePath):
+        path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTrainingDataGroundTruth)
+        return path
+    
+    def loadTestData(self, imagePath):
+        path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTestData)
+        return path
+    
+    def loadTestGroundTruthData(self, imagePath):
+        path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTestDataGroundTruth)
+        return path
+    
+    def getImageAsNpy(self, imagePath):
+        ""
+        rv = []
+        for ip in imagePath:
+            fileExtension = os.path.splitext(ip)[-1]
+    
+    #        base = os.path.basename(ip)
+    #        name = os.path.splitext(base)
+            data = []
+            
+            if fileExtension == ".bmp":
+                img = Image.open(ip)#.convert('LA')
+                img.load()
+                data = np.asarray(img, dtype="int32")/255
+            elif (fileExtension == ".npy") | (fileExtension == ".bin"):
+                data = np.load(ip)
+                data = Image.fromarray(np.uint8(data*255))#.convert('LA')
+                data = np.asarray(data, dtype="int32")/255
+            else:
+                continue
+            
+            rv = rv + [data]
+        
+        rv = self.convertImageListToNpArray4d(rv)
+        
+        return rv
+    
+    def convertImageListToNpArray4d(self, images):
+        "4d array: 1dim: image number, 2d: x dimension of the image, 3d: y dimension of the image, 4d: channel"
+        if type(images) is list:
+            # stack a list to a numpy array
+            images = np.stack((images))
+        elif type(images) is np.array:
+            buffer=0    # do nothing
         else:
-            continue
+            print("error: type of _images_ not supported")
+            return 0
         
-        rv = rv + [data]
-    
-    rv = convertImageListToNpArray4d(rv)
-    
-    return rv
-
-def convertImageListToNpArray4d(images):
-    "4d array: 1dim: image number, 2d: x dimension of the image, 3d: y dimension of the image, 4d: channel"
-    if type(images) is list:
-        # stack a list to a numpy array
-        images = np.stack((images))
-    elif type(images) is np.array:
-        buffer=0    # do nothing
-    else:
-        print("error: type of _images_ not supported")
-        return 0
-    
-    # convert RGB image to gray scale image
-    if len(images.shape) == 4:
-        if images.shape[3] == 3:
-            buffer = []
-            for i in images:
-                b = Image.fromarray(np.uint8(i*255)).convert('L')
-                buffer += [np.asarray(b, dtype="int32")]
-                
-            images = np.stack((buffer))
-    if images.max() > 1:
-        images = images / 255
-    
-    # reshape the numpy array (imageNumber, xPixels, yPixels, 1)
-    if len(images.shape) == 3:
-        images = images.reshape((images.shape[0], images.shape[1], images.shape[2], 1))        
-    
-    return images
-
-def save4dNpyAsBmp(npyPath, filename, bmpFolderPath=""):
-    if bmpFolderPath == "":
-        bmpFolderPath = pathData + pathOutputPredictions
+        # convert RGB image to gray scale image
+        if len(images.shape) == 4:
+            if images.shape[3] == 3:
+                buffer = []
+                for i in images:
+                    b = Image.fromarray(np.uint8(i*255)).convert('L')
+                    buffer += [np.asarray(b, dtype="int32")]
+                    
+                images = np.stack((buffer))
+        if images.max() > 1:
+            images = images / 255
         
-    npy = np.load(npyPath)
+        # reshape the numpy array (imageNumber, xPixels, yPixels, 1)
+        if len(images.shape) == 3:
+            images = images.reshape((images.shape[0], images.shape[1], images.shape[2], 1))        
+        
+        return images
     
-    for i in range(len(npy)):
-        image = Image.fromarray(np.uint8(npy[i]*255)).convert('RGB')
-        image.save(pathData + pathOutputPredictions + "/{}.bmp".format(filename[i]))
-
-def trainNetwork(trainingDataPath, groundTruthPath, model, fitEpochs, fitBatchSize):
-    trainingData = getImageAsNpy(trainingDataPath)
-    groundTruth = getImageAsNpy(groundTruthPath)
+    def save4dNpyAsBmp(self, npyPath, filename, bmpFolderPath=""):
+        if bmpFolderPath == "":
+            bmpFolderPath = self.pathData + self.pathOutputPredictions
+            
+        npy = np.load(npyPath)
+        
+        for i in range(len(npy)):
+            image = Image.fromarray(np.uint8(npy[i]*255)).convert('RGB')
+            image.save(self.pathData + self.pathOutputPredictions + "/{}.bmp".format(filename[i]))
     
-    # Compile model
-#    model.compile(loss={'predictions':getLossFunction}, optimizer='adam', metrics=['accuracy', getMetric])
-    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam')
+    def trainNetwork(self, trainingDataPath, groundTruthPath, model, fitEpochs, fitBatchSize):
+        trainingData = self.getImageAsNpy(trainingDataPath)
+        groundTruth = self.getImageAsNpy(groundTruthPath)
+        
+        # Compile model
+    #    model.compile(loss={'predictions':getLossFunction}, optimizer='adam', metrics=['accuracy', getMetric])
+        model.compile(loss='sparse_categorical_crossentropy', optimizer='adam')
+        
+        
+        # Fit the model
+        model.fit(trainingData, groundTruth, epochs=fitEpochs, batch_size=fitBatchSize)
+        
+        model.save_weights(self.pathData + self.pathIntermediateDataTrainedWeights + "/" + self.fileNameTrainedWeights)
+        
+        return model
     
-    
-    # Fit the model
-    model.fit(trainingData, groundTruth, epochs=fitEpochs, batch_size=fitBatchSize)
-    
-    model.save_weights(pathData + pathIntermediateDataTrainedWeights + "/" + fileNameTrainedWeights)
-    
-    return model
-
-def testNetwork(testDataPath, model, trainedWeightsPath=""):
-    testData = getImageAsNpy(testDataPath)
-    
-    fileName = []
-    for ip in testDataPath:
-        base = os.path.basename(ip)
-        fileName += [os.path.splitext(base)[0]]
-    
-    if trainedWeightsPath == "":
-        model.save_weights(pathData + pathIntermediateDataTrainedWeights + "/" + fileNameTrainedWeights)
-    
-    pred = model.predict(testData, batch_size=2)
-    
-    path = pathData + pathOutputPredictions + "/" + fileNamePredictions
-    np.save(path, pred)
-    
-    save4dNpyAsBmp(path, fileName)
-    
-    return path
+    def testNetwork(self, testDataPath, model, trainedWeightsPath=""):
+        testData = self.getImageAsNpy(testDataPath)
+        
+        fileName = []
+        for ip in testDataPath:
+            base = os.path.basename(ip)
+            fileName += [os.path.splitext(base)[0]]
+        
+        if trainedWeightsPath == "":
+            model.save_weights(self.pathData + self.pathIntermediateDataTrainedWeights + "/" + self.fileNameTrainedWeights)
+        
+        pred = model.predict(testData, batch_size=2)
+        
+        path = self.pathData + self.pathOutputPredictions + "/" + self.fileNamePredictions
+        np.save(path, pred)
+        
+        self.save4dNpyAsBmp(path, fileName)
+        
+        return path
 

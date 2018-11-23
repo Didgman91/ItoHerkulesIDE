@@ -1,0 +1,2495 @@
+*************************************************************************
+F2 Befehlsliste Skriptsprache
+*************************************************************************
+
+Parameter RHS
+ s: String
+ i: integer Wert
+ r: Real Wert
+ c: complex
+ v: Variable
+
+Parameter LHS
+ a: Array
+ 
+optionale Parameter []
+Optionen in Textform <T>
+
+Startup-Werte Script:
+Uebergeben bei der Befehlszeile mit z.B. a=1 b=2 c=3
+
+ToDo List:
+- v1=Histogramm data,anz
+- astigmatischer Gauss
+   
+*************************************************************************
+*************************************************** Modul Kernel
+*************************************************************************
+
+----------------------------------------------------------
+Als Funktionen innerhalb von Ausdrücken sind zugelassen:
+----------------------------------------------------------
+  - Abs[] 
+  - Real[] 
+  - Imag[] 
+  - Sqr[] 
+  - Sqrt[] 
+  - Floor[] 
+  - Sin[] 
+  - Cos[] 
+  - Tan[] 
+  - Exp[]      ! auch Komplex!
+  - Log[] 
+  - ArcTan[] 
+  - ArcSin[] 
+  - ArcCos[] 
+  - DEG[] 
+  - RAD[]
+  ... und Funktionen der einzelnen Module
+  
+----------------------------------------------------------
+Arithmetik
+----------------------------------------------------------  
+  - + - * / 
+  - **n
+  - a.b (skalarprodukt, Matrixprodukt, Matrix-Vektor/VM Produkt)
+  
+  
+----------------------------------------------------------
+Vergleiche innerhalb von Ausdruecken:
+----------------------------------------------------------  
+  - .eq.   ==
+  - .ne.   !=
+  - .lt.   <
+  - .le.   <=
+  - .gt.   >
+  - .ge.   >=
+
+----------------------------------------------------------
+Logik-Operatoren (in absteigender Prioritaet)
+----------------------------------------------------------    
+  .not.
+  .and.
+  .or.
+
+----------------------------------------------------------
+Arrayzugriff (auch mit : Section-Operator) z.B.
+----------------------------------------------------------  
+  - a(1)
+  - a(1:3)
+  - a(1,1)
+  - a(2:4,2:4)
+  - a(b(1))
+  - a(1)=1
+  - a(1,1)=1
+  - a(1)=a(1)+1
+  Hack#1: Komplexe Zahlen sind Sections 1:2 = 1+2i
+  Hack#2: 0+0i ist gesamte Zeile/Spalte (oder :)
+  Hack#2: # ist Mitte des Arrays
+  
+----------------------------------------------------------
+section-Arrays auf LHS z.B.
+----------------------------------------------------------  
+   - a(1:10)=1
+   - b(2:5,3:7)=2
+   - a(:,1)
+   - a(:,:)
+   - a(#,:)
+
+----------------------------------------------------------
+Mitte des Arrays #
+----------------------------------------------------------  
+   - a(#)=1
+   - a(#+1)=1
+   - a(#,#) etc
+     
+---------------------------
+PI[]
+Pi[]  
+---------------------------
+  gibt Pi zurueck
+
+---------------------------
+RND[]
+Rnd[]  
+---------------------------
+  gibt Zufallszahl zurueck
+           
+---------------------------
+Rem  
+---------------------------
+  Komentarzeile
+  
+
+---------------------------
+Include file
+---------------------------
+  laed an dieser Stelle Textfile in Programmtext ein 
+    
+---------------------------
+!  
+---------------------------
+  Komentarzeile
+  
+  
+---------------------------
+End  
+---------------------------
+  Programm ende
+  
+---------------------------
+DynarrayFaktor r
+---------------------------
+  Bei dynamischer Array-Erweiterung: gibt Erweiterungsfaktor (r) an
+  
+---------------------------
+{  
+---------------------------
+  Angabe eines Vektors Mathematica Format, z.B. {1,2,3}
+  
+---------------------------
+{{  
+---------------------------
+  Angabe einer Matrix Mathematica Format, z.B. {{1,2,3},{1,2,3},{1,2,3}}
+  
+---------------------------
+Toc[]
+---------------------------
+  Systemzeit
+  
+---------------------------
+MemoryStatus[]
+---------------------------
+  gibt Anzahl reservierter Arrays zurueck
+  (fuer Debug Speicherlecks)
+
+---------------------------
+Linspace[x1,x2,n]
+---------------------------
+  generiert n Punkte zwischen x1 und x2
+
+---------------------------
+MeshgridX[x]
+MeshgridY[y]
+---------------------------
+  generiert 2D Array aus 1d (wie in Matlab)
+   
+---------------------------
+ExportMM "Filename",Arrayname,[i]
+---------------------------
+  Exportiert Array in Mathematica-Text-Format
+  - i Counter, fügt Zahl zu filename hinzu
+  
+---------------------------
+ExportML "Filename",Arrayname,[i]
+---------------------------
+  Exportiert Array im Matlab-Textformat
+  - i Counter, fügt Zahl zu filename hinzu
+    
+---------------------------
+Save Filename,Arrayname,[i]
+SaveNPY Filename,Arrayname,[i]  
+---------------------------
+  Speichert Array in F2-Binaer-Format (oder Numpy NPY-Format)
+  - s1 Filename
+  - s2 Arrayname
+  - i Counter, fuegt Zahl zu filename hinzu
+  
+---------------------------
+Info s
+---------------------------
+  Gibt Dateiinformationen eines Binär-Arrays
+  - s Filename
+  
+---------------------------
+a=Load s[,i]
+---------------------------
+  Laed Array in F2-Binaer-Format
+  - s Filename
+  - i counter optional
+  
+---------------------------
+a=DlmImport s,i1,i2
+---------------------------
+  Ascii delimited Matrix 
+  - s Filename
+  - i1/2 Dimensionen
+  
+---------------------------
+a=Complex a1,a2
+Cmplx[]
+---------------------------
+  Erzeugt Komplex-Array aus Real-Array
+  -a1 Matrix Realteil ("0" = Nullarray)
+  -a2 Matrix Imaginärteil ("0" = Nullarray)
+  
+---------------------------
+c=UnitCircle a
+---------------------------
+  Erzeugt Komplex-Array c aus Real-Array a indem es als Phasenwert betrachtet wird
+
+---------------------------
+a=Abs a1  
+---------------------------
+  Betrag eines Real o. Complex-Arrays
+  - a1 Quellarray
+  
+---------------------------
+a=Real a1 
+---------------------------
+  Realteil eines Arrays/Wert
+  - a1 Quellarray/Quellwert
+  
+---------------------------
+a=Imag a1  
+---------------------------
+  Imaginärteil eines Arrays/Wert
+  - a1 Quellarray/Quellwert
+  
+---------------------------
+Transpose a1
+Transpose[a] 
+---------------------------
+  Transponiert Matrix a1
+  
+---------------------------
+a=Rotate90 a1  
+---------------------------
+  Rotiert Matrix a1 um 90 Grad
+  
+---------------------------
+a=Rotatem90 a1 
+---------------------------
+  Rotiert Matrix a1 um -90 Grad
+
+---------------------------
+a=MirrorX a1  
+---------------------------
+  Spiegelt Matrix an x-Achse
+  
+---------------------------
+a=MirrorY a1 
+---------------------------
+  Spiegelt Matrix an y-Achse
+  
+    
+---------------------------
+a=MirrorXY a1 
+---------------------------
+  Spiegelt Matrix an y-Achse
+
+---------------------------
+a=Array <T> i1,i2 [,r1,r2]
+---------------------------
+  Reserviert und befüllt Matrix vom Typ <T>
+  - <T> Integer, Real, Complex, Double8
+  - i1/2 Dimensionen
+  - r1/2 real,imaginärteil der Werte
+  
+---------------------------
+a=CloneArray a1
+---------------------------
+  erzeugt a mit gleicher Dimension,Grid wie a1 (ohne Inhalt)
+
+---------------------------
+a=CopyArray a1
+---------------------------
+  erzeugt a mit gleicher Dimension,Grid und Inhalt wie a1 
+  
+---------------------------
+a=Array1d <T> i1,i2 [,r1,r2]
+---------------------------
+  Reserviert und befüllt Matrix vom Typ <T>
+  - <T> Integer, Double, Complex, Double8
+  - i1 Dimension
+  - r1/2 real,imaginärteil der Werte
+   
+---------------------------
+Grid a, xs,xe,ys,ye
+---------------------------
+  Definiert Koordinatensystem auf Matrix a
+  - xs,xe  X-Koordinate -/+
+  - ys,ye  Y-Koordinate -/+
+
+---------------------------
+Ungrid a
+---------------------------
+  loescht Koordinatensystem auf Matrix a
+  
+---------------------------
+a=MirrorExtendY a1
+---------------------------
+  erweitert Matrix a1 durch Spiegelung an y Achse
+  
+
+---------------------------
+MatrixInsert a1,a2, x1,y1,x2,y2, <T>,[c1]
+---------------------------
+  fuegt (skalierte) Matrix a2 in a1 an Position x1,y1,x2,y2 ein
+  - <T> Methode: Substitute,Add
+  - c1  Skalierungsfaktor der Matrixwerte complex
+
+---------------------------
+MatrixInsert2 a1,a2, <T,r>
+---------------------------
+  fuegt a2 zentrisch in a1 ein
+  - <T> Methode des AntiAlising mit Parameter r
+    Linear (r=Breite linearer Bereich)
+    Gauss (r=Halbwertsbreite)
+    Passepartout (r=Breite exp Abfall)
+  
+---------------------------
+a=Sum a1[,a2,a3]
+Sum[a1] 
+---------------------------
+  Berechnet Summe aller Matrixeintraege
+  Bei Complex wird Betrag genommen
+      
+---------------------------
+a=Intensity a1 [,a2,a3]
+Intensity[a1] 
+---------------------------
+  Berechnet Intensitaetsfeld Betrag im Quadrat
+  qqq -(reell) aus komplexen skalaren Feldern
+  - Option: Vektorfeld bestehend aus 3 Komponenten
+    Man kann einzelne Felder duch "0" ausblenden
+
+---------------------------
+a=IntegralIntensity a1 [,a2,a3] 
+---------------------------
+  Berechnet aufintegrierte Intensität aus komplexen skalaren Feldern
+  summe intensität/Pixelanzahl
+  - Option: Vektorfeld bestehend aus 3 Komponenten
+    Man kann einzelne Felder duch "0" ausblenden
+    
+---------------------------
+a=EnergyDensity a1 [,a2,a3] 
+---------------------------
+  Berechnet aufintegrierte mittlere Intensität=Energiedichte aus komplexen skalaren Feldern
+  summe intensität/Pixelanzahl
+  - Option: Vektorfeld bestehend aus 3 Komponenten
+    Man kann einzelne Felder duch "0" ausblenden
+      
+---------------------------
+Clear a1[,a2,...] 
+---------------------------
+  Löscht Matrix aus Speicher
+
+---------------------------
+a=Array1d <T>,i1 [,r1,r2] 
+---------------------------
+  Dimensioniert 1d Array
+  - <T> Integer, Double, Complex, Double8 
+  - r1/2 Startwerte realteil,imagteil
+  
+---------------------------
+Grid1d a,r1,r2
+---------------------------
+  Definiert Koordinatensystem auf Vektor a
+  - r1/2  X-Koordinate links/rechts
+
+---------------------------
+? ["Text"],['(FORMAT)'][r],..
+Print ["Text"],['(FORMAT)'][r],..
+a=ArrayPrint ["Text"],['(FORMAT)'][r],..
+---------------------------
+  Gibt Werte/Text aus
+  Array in ein 1d Int-Array
+  Zahlen evtl mit Fortran Formatstring '(I4.4)' vorne dran
+  Text ohne Format
+  
+---------------------------
+Do v,i1,[i2],i3
+Do v=i1,[i2],i3
+---------------------------
+  Start einer Do-Schleife
+  - v Laufvariable
+  - i1 Start
+  - i2 increment
+  - i3 Ende
+  
+---------------------------
+EndDo  
+---------------------------
+   Ende einer Do-Schleife
+   
+---------------------------
+Subroutine name(v1,v2,v3,...)
+---------------------------
+  Start einer Subroutine
+  v1 etc Variablen, die mit call-Werten initialisiert werden
+  Vorsicht globale Variablen !
+  
+---------------------------
+EndSub  
+---------------------------
+   Ende einer Subroutine
+   
+---------------------------
+Call name(v1,v2,v3...)
+---------------------------
+   Ruft Subroutine "name" auf
+   Werte v1, v2 werden auf die entsprechenden Variablen in Subroutine kopiert
+      
+---------------------------
+Inc v,r
+---------------------------
+  Erhöht Variablenwert (skalar oder Array) um r
+  
+---------------------------
+Dec v,r  
+---------------------------
+  Erniedrigt Variablenwert um r
+  
+---------------------------
+Accu2d source,dest[,<T>]
+---------------------------
+  Addiert mit der Methode <T> (default: Amplitude) ein Quellarray zu einem Ziel-Array
+  - a1 Quellarray 
+  - a2 Zielarray
+  - <T> Amplitude,Intensity
+  
+---------------------------
+Append[a,b]
+---------------------------
+  fuegt 1d Array a element b (oder Array b) hinzu
+  
+---------------------------
+n=Dimensions array[,d]
+Size[array(,dimension)]  
+---------------------------
+  Gibt Anzahl Elemente in Dimension d zuueck
+    
+---------------------------
+QuietOn  
+---------------------------
+  Nur wenig Statusmeldungen
+  
+---------------------------
+QuietOff  
+---------------------------
+  Wieder viele Statusmeldungen
+  
+---------------------------
+a=Arg a1
+Arg[a1] 
+---------------------------
+  Gibt das Argument der komplexen matrix a1 zurück
+  Gibt das Argument der komplexen Zahl a1 zurück
+  
+---------------------------
+If a <T> b
+---------------------------
+  If Test nach Fortran Syntax
+  - <T>: .EQ., .NE., .GE., .GT., .LT., .LE.
+  gleich,ungleich,größer oder gleich,größer,kleiner, kleiner gleich
+   
+---------------------------
+EndIf  
+---------------------------
+  Beendet If test
+  
+---------------------------
+ElseIf  a <T> b
+---------------------------
+  Test der Bedingung wie in if
+  
+---------------------------
+Else  
+---------------------------
+  alle übrigen
+  
+---------------------------
+Floor v
+---------------------------
+  macht v ganzzahlig (durch kleiner-machen)
+  
+---------------------------
+Quit 
+---------------------------
+  Stop Programm
+
+---------------------------
+a1=GetLine a2,l
+a1=GetColumn a2,c 
+---------------------------
+  Holt Zeile/Spalte eines 2D Arrays in 1D Array
+
+*************************************************************************
+*************************************************** Modul benchmark
+*************************************************************************
+
+---------------------------
+LinpackBenchmark100 
+---------------------------
+  Benchmark nach dem Linpack 100 Standard
+  
+---------------------------
+LinpackBenchmark1000
+---------------------------
+  Benchmark nach dem Linpack 1000 Standard
+
+
+
+*************************************************************************
+*************************************************** Modul FEM
+*************************************************************************
+
+
+---------------------------
+SparseFilling r
+---------------------------
+  Gibt maximalen Füllfaktor einer Sparse-matrix an
+  
+  
+---------------------------
+HashTry i
+---------------------------
+  Gibt maximale Anzahl an Fehler-Hits des Hash-Algol an
+  
+   
+---------------------------
+TreeMax i 
+---------------------------
+  Maximale Anzahl Suchbaum-Äste
+  
+  
+---------------------------
+fe=HMOImport "File" [,<T>=??,...]
+---------------------------
+  importiert Geometrie vom "hmo"-Format in ein "FE"-Objekt
+  <T>:
+  - Scale=r1  Skalierung der Geometrie
+  - Tol=r1  Toleranz zur Punkterkennung
+  
+  
+---------------------------
+ft=FemTree fe [,"Name",...]
+---------------------------
+  generiert Baumstruktur aus FE-Geometrie mit gegebenen Komponentennamen
+  
+  
+---------------------------
+fm=Material fe,"komponente" [,"Feldname"=r1, ...] 
+---------------------------
+  Belegt Fem-Model fm der jeweiligen Komponente mit physikalischen Daten
+  
+  
+---------------------------
+fm=Boundary fe,"komponente" [,"Variable"=r1, ...] 
+---------------------------
+  Belegt Fem-Model fm den Rand gegeben durch "komponente" mit Randbedingungen
+
+
+---------------------------
+fm=Periodical fe,"Feld","Komponente",ft [,<T>=???]
+---------------------------
+  Periodische Randbedingungen eines Feldes einer Komponente
+  - ft Tree dieser Komponente
+  <T>:
+  -DX r Periode x
+  -DY r Periode y
+  -DZ r Periode z
+  -Pn i1,i2 Verschiebung durch zwei Knotennummern angeben
+
+  
+---------------------------
+fs=LinearFem <T>,fe,fm
+---------------------------
+  Lineares FEM-Gleichungssystem fs aufstellen
+  - <T> SDF-skalare Diffusion, SHG-skalare Helmholzgleichung
+  - fe FEM Elemente
+  - fm FEM Modell   
+
+
+---------------------------
+fl=LinearSolve <T>,fs 
+---------------------------
+  Löst Lineares FEM Gleichungssystem
+  <T>  Methode:  PBCG,GMRES,PARADISO,GMRESILU0,GMRESILUT,PBCGILU0,PBCGILUT,TEST
+  
+  
+---------------------------
+a=GetField "Feld",fl
+---------------------------
+  Holt Feldwerte von "Feld" aus Lösung fl in ein 1d-Array geordnet nach Knotennummern
+  
+  
+---------------------------
+a=FEGrid fe,ft,lsg, x1,x2,y1,y2,nx,ny
+---------------------------
+  Lösung eines Feldes a1 auf einem Grid berechnen
+  - fe Femelemente
+  - ft Tree der Elemente
+  - lsg Lösungsvektor
+  - r1/2 x1/2
+  - r3/4 y1/2
+  - r5/6 nx/ny Anzahl Punkte
+  
+  
+---------------------------
+MeshRefine fe,i1 [,i2]
+---------------------------
+  verfeinert 2D-Netz der Elemente fe
+  - i1 Verfeinerungslevel
+  - i2 debugflag
+  
+  
+---------------------------
+HMOExport fe,"Name"
+---------------------------
+  exportiert Geometrie ins hmo-Format
+  
+  
+---------------------------
+LsgTol r
+---------------------------
+  Toleranz linearer Gleichungs-Löser
+  
+  
+---------------------------
+LsgItMax i 
+---------------------------
+  maximale iterationen, iterative LGS Solver
+  
+  
+---------------------------
+a=FEGrid3d fe,ft,a1, r1,r2,r3,r4,r5,r6, r7-r16
+---------------------------
+  2D - Lösung auf 3Dgrid berechnen
+  !!! TODO !!!
+  - fe Femelemente
+  - ft Tree der Elemente
+  - a1 Lösungsvektor
+  - r1/2 x1/2
+  - r3/4 y1/2
+  - r5/6 nx/ny Anzahl Punkte
+  
+  
+---------------------------
+fm=PlaneWave fe,"komponente",["feld"=???,...]
+---------------------------
+  Belegt Komponente mit ebener Welle
+  !!! TODO !!!
+
+*************************************************************************
+*************************************************** Modul FourierOptics
+*************************************************************************
+
+---------------------------
+a=Fourier a1, i1,i2,<T> 
+---------------------------
+  macht aus 2D Array a1 FReihenentwicklung
+  - i1/2 Anzahl Moden x/y Richtung
+  - <T> Simpson,
+
+---------------------------
+IFourier 
+---------------------------
+  wie Fourier nur inverse Trafo
+
+---------------------------
+a=SlTrafo a1,a2,a3, r1, r2,r3, ,r4,r5,r6, r7 
+---------------------------
+  !!! TODO !!!
+  Wandelt ein Vektorfeld (a1-a3) in das Microsim SL-Format um
+  - r1 Lambda
+  - r2/3 Periode x/y
+  - r4-6 kx-z
+  - r7 Typ 0-Spol, 1-Ppol
+  
+---------------------------
+Box a1, x1,x2,y1,y2,c1 [,w]
+---------------------------
+  Schreibt in das Array a1 eine Box
+  - r1/2  x1/2
+  - r3/4  y1/2
+  - c1 Wert Box (Komplex) 
+  - r5 Drehwinkel
+  
+---------------------------
+Pixel a1, x,y,c
+FFTPixel a1, kx,ky,c
+---------------------------
+  Schreibt in das Array a1 ein Pixel von Wert c
+  FFTPixel wird dabei normiert auf symmetrisch FFT Norm 
+
+---------------------------
+BoxR a1, x,y, lx,ly, c,[,w]
+---------------------------
+  Schreibt in das Array a1 eine Box
+  - r1/2  x/y Zentrum 
+  - r3/4  x/y Breite
+  - c1 Wert Box (Komplex)
+  - r5 Drehwinkel
+    
+--------------------------- 
+Circle a1, x,y, rx,ry, wertre,[wertim,phi]
+---------------------------
+  Schreibt in das Array a1 einen ausgef. Kreis
+  - x/y zentrum (evtl auch Arrays)
+  - rx/y  radius x/y
+  - wert re/im Fuellwert Circle (Komplex)
+  - phi Drehwinkel  
+
+--------------------------- 
+Triangle a1, x1,y1,x2,y2,x3,y3, c1
+---------------------------
+  Schreibt in das Array a1 ein ausgef. Dreieck
+  - xi/yi  Eckpunkte
+  - c1 Wert Dreieck (Komplex)
+  
+--------------------------- 
+LineGrating a1, cd,p,shift,w,c1,c2,[,bb]
+---------------------------
+  Schreibt in das Array a1 ein Liniengitter (bei shift=0 zentriert auf Mitte CD-Linie)
+  (bei BB zentriert auf Mitte BB)
+  Winkel=0 Vertikalgitter
+  - CD
+  - Periode
+  - shift
+  - w Winkel (Grad)
+  - c1/c2 Werte CD-Linie,Zwischenraum (Komplex)
+  - bounding box {x1,y1,x2,y2}
+
+---------------------------
+a=Sl2Near a1,a2,a3, r1, r2,r3, ,r4,r5,r6, r7 
+---------------------------
+  !!! TODO !!!
+  - r1 Lambda
+  - r2/3 Periode x/y
+  - r4-6 kx-z
+  - r7 Typ 0-Spol, 1-Ppol
+
+  
+---------------------------
+a=Evanescent 
+---------------------------
+  !!! TODO !!!
+  Filter: lässt nur die evanescenten Moden der 2D Fourierreihe übrig
+  
+  
+---------------------------
+Propagating 
+---------------------------
+  !!! TODO !!!
+  Filter: lässt nur die propagierende Moden der 2D Fourierreihe übrig
+  
+  
+---------------------------
+a=NaFilter a1, r1,r2
+---------------------------
+  beschneidet Pupille mit vorgegebener NA eines Objektives
+  - a1 Feld in Pupille
+  - r1 NA 
+  - r2 Wellenlaenge
+  
+  
+---------------------------
+a=FFT1d a1
+a=FFT2d a1
+---------------------------
+  FFT des Feldes a1
+  
+  
+---------------------------
+a=IFFT2d a1
+---------------------------
+  inverse 2D FFT des Feldes a1
+  
+  
+---------------------------
+a=FFTShift a1
+---------------------------
+  Umsortieren der FFT-Koeff: Array-Mitte kx/y=0
+
+---------------------------
+KFFTShift anzx,anzy,kx,ky
+---------------------------
+  gibt die Beugungsordnung an der jew Pos zuueck (kx,ky Arrays)
+  
+---------------------------
+a=IFFTShift a1 
+---------------------------
+  Rücksortieren der FFT-Koeff: Array-0/0 kx/y=0
+
+---------------------------
+KIFFTShift anzx,anzy,kx,ky
+---------------------------
+  gibt die Beugungsordnung an der jew Pos zuueck (kx,ky Arrays)
+  
+---------------------------
+ClipNA a1, lam,na 
+---------------------------
+   beschneidet Pupille mit vorgegebener NA
+   benoetigt k-Grid auf a1
+   -lam Wellenlaenge
+   -na
+ 
+---------------------------
+a=Illumination a1,<TYP+Parameter> 
+---------------------------
+  belegt ein Array mit einer Beleuchtung (Array*Beleuchtung)
+  je nach Typ verschiedene Parameter
+  ebene Welle:
+    -> a=Illumination a1,PlaneWave ,Betrag,Phase,Winkelphi,Winkeltheta,lambda
+  Gauß-Welle:
+    -> a=Illumination a1,Gauss, Betrag,Phase,omega0,x,y,z,lambda  (x,y,z sind shift-Werte)
+  Astigmatischer Gauss:
+    -> a=Illumination a1,AGauss, Betrag,Phase,omegax,omegay,x,y,z,lambda  (x,y,z sind shift-Werte)
+  Weisslicht-Wavelet:
+    -> a=Illumination a1,WLwavelet, Intensität1,Intensität2,Weglängendiff,Einfallswinkel 1,Einfallswinkel 2,phi,lambda1,lambda2,nlam
+  Kugelwelle:
+    -> a=Illumination a1,Spherical,Intensität, xpos,ypos,deltazpos,lambda
+  alle Winkel in GRAD
+  Grid wird uebertragen
+
+---------------------------
+a=PupilPhaseShift a1,<Typ+Parameter> 
+---------------------------
+  belegt ein Array a1 mit einem Phasenshift (Array*Phasenshift)
+  Linsenfunktion paraxial:
+    -> a=PupilPhaseShift a1,Lens,Fokus,Radius,Lambda[,Transmission Apertur]
+  Linsenfunktion (alle Planwellen treffen mit Phase 0 auf Fokus):
+    -> a=PupilPhaseShift a1,IdealLens,Fokus,Radius,Lambda[,Transmission Apertur]
+  Keil:  
+    -> a=PupilPhaseShift a1,Wedge,phi,theta,lambda
+  Zylinderlinse: 
+    -> a=PupilPhaseShift a1,ZLens,phi,Fokus,Durchmesser,Lambda  Zylinderlinse
+  alle Winkel in GRAD ! , evtl wird Grid a1 an a weitergegeben 
+
+---------------------------
+IdealLens a1, r1,r2, r3, r4, r5, r6
+---------------------------
+  2D Wellenfeld a1 nach Anwendung einer idealen Linse
+  -r1/2  Periode x,y Simulationsgebiet
+  -r3 NA-Filter
+  -r4 Fokus Linse
+  -r5 Apertur Linse
+  -r6 Wellenlänge
+  !! Achtung sehr aufwaendige Rechnung !!
+    
+---------------------------
+NormalizeMax a1[,max]
+=NormalizeMax[a1]
+---------------------------
+  Normiert das Array/Vektor a1 auf Maximum=max (default=1)
+
+---------------------------
+NormalizeAv a1
+---------------------------
+  Normiert das Array a1 auf Durchschnitt=1
+  
+---------------------------
+NormalizeAvInt a1
+---------------------------
+  Normiert das Array a1 auf Durchschnittsintensität=1
+
+---------------------------
+NormalizeMinMax a1,[min,max]
+---------------------------
+  Feld hat danach Minimum 0 und Maximum 1 (defaultwerte)
+  
+---------------------------
+NormalizeLog a,f
+---------------------------
+  Normiert das Array a1 auf logarithmische Helligkeitsverteilung
+  f: Skalierungsfaktor Log Funktion, je groesser desto flacher (z.B. 5)
+      
+---------------------------
+PupilFilter a1,a2 [,Methode]
+---------------------------
+  belegt ein Array a1 mit einem Filter a2 (Array*Filterarray)
+  Methoden:
+   - Mult (standard)
+   - LogicalOr (wenn a1=0 oder a2=0 dann wird jeweils anderer Wert genommen)
+   - LogicalNot (nur wo a2=0 wird a1 genommen)
+  
+---------------------------
+Sphere a1, x,y,  rx,ry, n,k, lam, [phi]
+---------------------------
+  Schreibt phasenshift + Absorption eines Rotationsellipsoids ins Array a1
+  Rotationsachse ist große Halbachse
+  - x/y Zentrum Kugellinse (Wert od. Array)
+  - rx/ry Radius
+  - n/k  Brechzahl Linse real/imag
+  - lam Wellenlänge
+  - phi Drehwinkel
+  
+  
+---------------------------
+a=PupilPropagation a1, lam, px,py, dist 
+---------------------------
+  Propagiert PUPILLE (FT Feld) a1
+  - r1 lambda
+  - r2/3 periodex/y
+  - r4 Propagationsdistanz
+  
+  
+---------------------------
+PwPropagation a1, lam, px,py, na, dist 
+(CUDA Version wenn NVIDIA)
+---------------------------
+  Propagiert FELD a1 mit der FFT-Beampropagation- Methode
+  - r1 lambda
+  - r2/3 periodex/y
+  - r4 NA-Limit, alle kleineren werden propagiert (wenn na=0 alle,auch evanesz. werden propagiert)
+  - r5 Propagationsdistanz
+
+---------------------------
+PwPropagationNF a1, lam, px,py, na, dist 
+(Spezielle Version mit Nahfeld-Energiekorrektur)
+(CUDA Version wenn NVIDIA)
+---------------------------
+  Propagiert FELD a1 mit der FFT-Beampropagation- Methode
+  - lam lambda
+  - px/y periodex/y
+  - na NA-Limit, alle kleineren werden propagiert
+  - dist Propagationsdistanz
+  
+---------------------------
+PwResPropagation arr, lam, Vpx,Vpy, na, {dist}, fak 
+(CUDA Version wenn NVIDIA)
+---------------------------
+  Propagiert komplexes feld arr mit der FFT-Beampropagation- Methode und Resampling
+  - lambda
+  - Vpx,Vpy periodex/y (muessen Variablen sein da update gemnacht wird !)
+  - NA-Limit, alle kleineren werden propagiert
+  - {dist} Array an Propagationsschritten
+  - fak verkleinerungsfaktor Resampling
+       
+---------------------------
+Heavyside a1,r1
+---------------------------
+  Anwendung der Heavyside Funktion H(x,y)*level auf das Feld a1 (z.B. binärisierung Hologramm)
+  - r1 level
+  
+
+---------------------------
+a=Shift a1, r1,r2 
+---------------------------
+  Feld a1 wird kopiert, +lateral verschoben
+  - r1/2 Verschiebung x/y (wenn Grid auf a1 dann in Gridkoordinaten)
+
+  
+---------------------------
+a=LateralShear a1, r1,r2 
+---------------------------
+  Feld a1 wird kopiert, lateral verschoben und zum unverschobenen Feld addiert
+  - r1/2 Verschiebung x/y (wenn Grid auf a1 dann in Gridkoordinaten)
+
+
+---------------------------
+a=RotationalShear a1, r1,r2, r3 
+---------------------------
+  Feld a1 wird kopiert, rotiert und zum nicht-rotierten Feld addiert
+  - r1/2 Rotationszentrum x/y
+  - r3 Rotationswinkel in Grad
+   
+   
+---------------------------
+a=RadialShear a1, r1,r2, r3 
+---------------------------
+  Feld a1 wird kopiert, vergrößert und zum nicht-vergrößerten Feld addiert
+  - r1/2 Ursprung Vergrößerung x/y
+  - r3 Vergrößerung
+  
+  
+---------------------------
+a=Pupil a1, lam, px,py [,na]
+a=IPupil a1, lam, px,py [,na]
+---------------------------
+  Macht aus Feld Pupille (IPupil - umgekehrt)
+  intern pupil: fftshift(fft(ifftshift()
+        ipupil: fftshift(ifft(ifftshift() 
+  - lam Wellenlaenge
+  - px/py periodex/y
+  - na NA-Limit (0 unlimited)
+
+
+---------------------------
+Apodisation a1,r1,r2
+---------------------------
+  Blendet Feld a1 zum Rand hin aus
+  - r1 Radius Blende
+  - r2 Randbreite 
+  
+
+---------------------------
+a=EnergyDetektor a1 [,d1] 
+---------------------------
+  d1 Detektor als Empfindlichkeitsarray (1 Max,0 Nix)
+  option d1 nicht gegeben: vollflächig
+  Berechnet aufintegrierte Intensität=Energie (wenn multipliziert mit Pixelflaeche)
+  aus skalarem Feld a1
+  summe intensität Pixel*Empfindlichkeit
+  
+---------------------------
+a=EnergyDensityDetektor a1 [,d1] 
+---------------------------
+  wie EnergyDetektor nur 
+  Berechnet aufintegrierte mittlere Intensität=Energiedichte aus skalarem Feld a1
+  summe intensität Pixel*Empfindlichkeit / Pixelanzahl
+  
+---------------------------
+a=LineDetektor a1,{x1,y1},{x2,y2} 
+---------------------------
+  Berechnet aufintegrierte mittlere Intensität=Energiedichte aus skalarem Feld a1
+  entlang einer Linie
+  summe intensität Pixel*Empfindlichkeit / Pixelanzahl
+
+---------------------------
+a(1:n)=LineScan a1,{x1,y1},{x2,y2},n,d 
+---------------------------
+  Platziert entlang einer Linie {x1,y1},{x2,y2} orthogonal dazu n Liniendetektoren
+  der Laenge d
+
+
+---------------------------
+K2Sp ax,ay,az, as,ap, lam,px,py
+---------------------------
+  Wandelt Pupillen mit k-Koordinaten in s/p Koordinaten ( nur propagierend sonst 0)
+  - a1,a2,a3 Quellen-Arrays Komponenten mit k-Koordinaten (Grid!)
+  - a4,a5 s/P Ziel-Arrays
+  - r1 Lambda
+  - i1 Flag +1 Reflexion,-1 Transmission
+  - c1 Brechzahl
+       
+---------------------------
+Sp2K as,ap, ax,ay,az, lam,px,py
+---------------------------
+  Wie K2Sp nur 
+  - a1,a2 s/P Quell-Arrays
+  - a1,a2,a3 Ziel-Arrays Komponenten mit k-Koordinaten
+     
+*************************************************************************
+*************************************************** Modul Fractals
+*************************************************************************
+
+
+---------------------------    
+Apfelmann a1,a2,a3, r1,r2,r3,i1 [,i2[,<T>]]
+---------------------------
+  Berechnet Mandelbrot-Menge, auf RGB Arrays
+  - a1-a3 RGB Arrays
+  - r1/2 x/y Startpunkt
+  - r3 Vergroesserung eines Pixels
+  - i1 Max Anzahl iterationen
+  - i2 AntiAlising Faktor
+  - <T> Colormap: "Discrete","Smooth"
+  
+  
+---------------------------
+BTerrain a1,i1,r1,r2
+---------------------------
+  Fraktale Oberflaeche mittels Brownscher Gebietszerteilung
+  - a1 Array
+  - i1 Anzahl Zerlegungen
+  - r1 hoehenincrement
+  - r2 hoehendecrement
+
+
+
+*************************************************************************
+*************************************************** Modul GPU (OPENCL)
+*************************************************************************
+
+---------------------------
+GPUInfo 
+---------------------------
+  Gibt Typ Grafikhardware aus
+  
+  
+---------------------------
+GPUInit 
+---------------------------
+  Initialisiert OpenCL
+  
+  
+---------------------------
+GPUExit 
+---------------------------
+  OpenCL freigeben
+  
+  
+---------------------------
+GPUTest dim,[nocheck,wginfo]
+---------------------------
+  Test diverser Multiplikationen Matrizen der Dimension dim
+  nocheck - wenn gegeben und !=0 dann kein CPUTest
+  wginfo=1 : empfohlene workgroupsize wird angegeben
+
+*************************************************************************
+*************************************************** Modul MATERIALS
+*************************************************************************
+
+---------------------------
+EulerE[] SpeedOfLight[] ElectronMass[] AvogadroConstant[] BoltzmannConstant[]
+VacuumPermeability[] ElectronCharge[] GravitationalConstant[] PlanckConstant[]
+VacuumPermittivity[] ProtonMass[] NeutronMass[] ElectronMagneticMoment[]
+RydbergConstant[] SolarConstant[] SolarRadius[] SolarLuminosity[]
+---------------------------
+  Physikalische Konstanten    
+  
+---------------------------
+c=Dispersion r1,<T>
+---------------------------
+  Gibt die Komplexe Brechzahl c des Materials <T> bei einer Wellenlänge
+  - r1 Wellenlänge
+  - <T> Ag,Au,Bk7,Ps
+    Silber,Gold,Standardglas,Polystyrol
+
+
+*************************************************************************
+*************************************************** Modul MATH
+*************************************************************************
+
+---------------------------
+MOD[a,b]
+---------------------------
+  FUNKTION: Rest der Division a/b
+  
+---------------------------
+FNorm[a]
+---------------------------
+  Froebius Norm einer Matrix/Vektor
+   
+---------------------------
+Max[a]
+Min[a]
+---------------------------
+  Maximum/Minimum einer Matrix/Vektor
+  
+---------------------------
+MaxPos1[a],MaxPos2[a]
+MinPos1[a],MinPos2[a]
+---------------------------
+  Position Maximum/Minimum einer Matrix/Vektor
+  bei 2d zweite koordinate mit MaxPos2
+  
+---------------------------
+DimX[a]
+DimY[a]
+---------------------------
+  Dimensionen einer Matrix/Vektor
+
+---------------------------
+MatrixConditionNumber[a]
+---------------------------
+  Gibt die Konditionszahl einer Matrix zurueck
+
+---------------------------
+CMPLX[r1,r2]
+---------------------------
+  FUNKTION: Komplexe Zahl aus Real und Imaginaerteil
+  - r1/2 re,im
+  
+---------------------------
+CONJG[c1]
+---------------------------
+  FUNKTION: konjugiert komplexe zahl
+
+---------------------------
+Pol2Kart r,phi, x,y
+Pol2Kart[r,phi] Erg:{x,y}
+---------------------------
+  Wandelt Polar- in kartresische Koordinaten
+  - r Radius
+  - phi Winkel phi in grad
+  - x/y Ergebnis x,y
+  
+---------------------------
+Kart2Pol r1,r2, r3,r4
+Kart2Pol[x,y] Erg:{r,phi}
+---------------------------
+  Wandelt kartresische Koordinaten in Polar-
+  - r1-2 x-y
+  - r3/4 Ergebnis r,phi (grad)
+  
+---------------------------
+Sp2Kart r1,r2,r3     (Ausgabe als Text)
+Sp2Kart[r,phi,theta]     (Rueckgabe als Vektor {x,y,z})
+---------------------------
+  Wandelt spärische in kartresische Koordinaten
+  - r1 Radius
+  - r2 Winkel phi in grad
+  - r3 Winkel theta in grad
+
+---------------------------
+SpLoc2Kart r,phi,theta, locr,locphi,loctheta, x,y,z
+Kart2SpLoc r,phi,theta, x,y,z, locr,locphi,loctheta
+---------------------------
+  Wandelt Vektor auf Tangentialebene Sphäre in kartesischen Vektor und umgekehrt 
+    
+---------------------------
+Kart2Sp r1,r2,r3 (Ausgabe als Text)
+Kart2Sp[x,y,z] (Rueckgabe als Vektor {r,phi,theta})
+---------------------------
+  Wandelt kartresische Koordinaten in spärische
+  - r1-3 x-z
+
+---------------------------
+a=Toeplitz1d a1 
+---------------------------
+  macht aus 1d-FT a1 2d-Toeplitz matrix (complex)
+
+---------------------------
+Rect1d a1, r1,r2
+---------------------------
+  Rechteckfunktion
+  - r1/2 Startx,Endx
+  
+---------------------------
+a=Fourier1d a1, i1
+---------------------------
+  Wandelt Array a1 in Fourierreihe um (Simpson Formel)
+  - i1 Anzahl Koeffizienten
+  
+---------------------------
+Sin1d a1,r1,r2
+---------------------------
+  Funktion a1=Sin(k*x+phi)
+  - r1 k
+  - r2 phi
+  
+---------------------------
+Zeros arr
+Zeros[dimx] 
+Zeros[dimx,dimy] 
+---------------------------
+  array=0
+ 
+---------------------------
+Ones arr
+Ones[dimx,dimy]
+---------------------------
+  array=Einheitsarray
+  
+---------------------------
+a=MMmul a1,a2
+---------------------------
+  Matrix-Multiplikation erg=a1*a2, a1=a1*a2, a2=a1*a2
+    
+---------------------------
+v2=MVmul a1,v1
+---------------------------
+  Matrix-Vektor Multiplikation v2=a1*v1
+
+---------------------------
+r=Vcorr v1,v2
+---------------------------
+  Korrelation (Cos Winkel) zwischen zwei Vektoren 
+  
+---------------------------
+Rect2d a1, r1,r2, r3,r4
+---------------------------
+  Rechteckfunktion auf Array a1 
+  -r1/2 Startx,Endex
+  -r3/4 Starty,Endey
+
+---------------------------
+a=Fourier2d a1, i1,i2
+---------------------------
+  Fouriertranformation a1
+  - i1/2 Anzahl Moden a
+
+---------------------------
+a=IFourier2d a1
+---------------------------
+  inverse Fouriertranformation a1, a1 braucht grid
+  
+---------------------------
+Sin2d arr, kx,ky, phi0, ampl_re,ampl_im
+---------------------------
+  2d Sinusfunktion
+  - r1/2 kx,ky
+  - r3 phi
+  - r4/5 Amplitude real/imag
+  
+---------------------------
+SinCrossGrating arr, {kx,ky}, amp,[offs]
+---------------------------
+  2d Sinusgitter mit (komplexer)Amplitude amp
+  - Option Amplituden-Offset
+  
+---------------------------
+Gauss1d v, r1, r2,r3
+---------------------------
+  Gaussfunktion 1d y=f(x,x0,sigma)
+  - v Wert y der Fkt in Variable
+  - r1 Ort x der Funktionsauswertung
+  - r2 Offset x0 Gausfunktion
+  - r3 sigma Halbwertsbreite
+  
+---------------------------
+a=IsNaN a1 
+---------------------------
+  Gibt die Orte der NaN-Werte eines Arrays a1, a: (nan->1 sonst 0)
+  
+---------------------------
+RemoveNaN 
+---------------------------
+  !!! TODO !!!
+  
+---------------------------
+NaNStatus a1,v
+---------------------------
+   Gibts NaNs in a1?  -> in Variable v (nan->1 sonst 0)
+  
+---------------------------
+Raster arr, zaehler, i,j, wert
+IRaster arr, i,j, zaehler, wert
+---------------------------
+ Rastert Array a1 ab, gesteuert durch zaehler 
+ wenn grid def dann Rueckgabe koordinaten, sonst index
+  - x/y Koordinaten des Rasterpunktes i1
+  - Wert
+
+---------------------------
+SetRaster a1, i1,v3
+---------------------------
+ Setzt Rasterpunkt i von Array a1
+ - v3 Wert
+    
+---------------------------
+Cauchy1D v, r1,r2,r3
+---------------------------
+  Cauchy-Lorentz 1D Funktion
+  - r1 Auswertepunkt, 
+  - r2 x0 verschiebung,
+  - r3 b Breite
+  
+---------------------------
+a=Cauchy r1,r2, r3, r4, r5 
+---------------------------
+  1D Cauchy Lorentz Funktion, Array-Variante
+  - r1/2 Intervall x-Achse
+  - r3 Anzahl Punkte
+  - r4 Zentrum X0
+  - r5 Parameter "b"
+
+---------------------------
+Random v, r1,r2
+---------------------------
+  Erzeugt Zufallszahl in Variable v
+  - r1/2 Intervall start/ende
+
+---------------------------
+a=RandomReal r1,r2,i1,[i2]
+a=RandomInt r1,r2,i1,[i2]
+a=RandomSign r,i1,[i2]
+a=RandomGauss mu,sigma2,i1,[i2]
+---------------------------
+  Zufallszahlen, 1D/2D Arrayvariante (reals oder Ints oder +/-r)
+  - r1/2 Intervall
+  - i1/2 Anzahl (2D: x/y Anzahl)
+  
+---------------------------
+a=RandomPhase i1,[i2]
+---------------------------
+  Zufallswerte komplex, Betrag 1
+  - i1/2 Anzahl
+  
+---------------------------
+a=ListCorrelate  a1,a2
+---------------------------
+  Korrelliert 1d Listen a1,a2
+  
+---------------------------
+Real2Grid a1, r1,r2,i,j
+---------------------------
+  Wandelt Gridkoordinaten von a1 an der Stelle r1/2
+  
+---------------------------
+Grid2Real a1, i1,i2, x,y
+---------------------------
+  Wandelt Koordinaten der Matrix a1 der Spalten/Zeilenposition r1/2
+
+---------------------------
+a=ArrayResample array,{nx,ny}[,{sx,sy}]  
+---------------------------  
+- resampled array mit neuer Anzahl Samples nx,ny 
+- macht intern eine Tiefpassfilterung 
+- Einbettung in ein Array a der urspruenglichen Samplinggroesse
+- Wenn sich am Sampling nix aendert, wird nur kopiert
+- Option neues Sampling {sx,sy}
+  
+---------------------------
+a=ArraySubset a1, r1,r2, r3,r4
+---------------------------
+  array = ArraySubset Array,x1,x2,y1,y2
+  holt unterarray aus a1
+  - r1/2  x1/2
+  - r3/4  y1/2
+  ! Existiert grid sind es Koordinaten sonst indizes
+  
+---------------------------
+a=ArraySubset2 a1, x,y [, dx,dy]
+---------------------------
+  wie ArraySubset nur Mittelpunkt+deltas
+  - r1/2  x, y
+  - r3/4  dx, dy
+  wenn nur 2 variablen gegeben, dann ist r1/2 dx,dy 
+  
+---------------------------
+MsK2Sp ax,ay,az, as,ap, lam, flag, refn
+---------------------------
+  Wandelt Pupillen mit k-Koordinaten in s/p Koordinaten wie in Microsim
+  - a1,a2,a3 Quellen-Arrays Komponenten mit k-Koordinaten (Grid!)
+  - a4,a5 s/P Ziel-Arrays
+  - r1 Lambda
+  - i1 Flag +1 Reflexion,-1 Transmission
+  - c1 Brechzahl
+            
+---------------------------
+MsSp2K a1,a2, a3,a4,a5, r1, i1, c1
+---------------------------
+  Wie K2Sp nur 
+  - a1,a2 s/P Quell-Arrays
+  - a1,a2,a3 Ziel-Arrays Komponenten mit k-Koordinaten
+  
+---------------------------
+FFTGrid a1, periodex,periodey
+---------------------------
+  versieht ein FFT Array a1 mit k-Gridwerten, O in Mitte
+  - r1 lambda
+  - r2/3 Periode x/y
+
+---------------------------
+NAGrid a1, lambda,periodex,periodey,brechzahl
+---------------------------
+  versieht ein FFT Array a1 mit Na-Gridwerten
+  - r1 lambda
+  - r2/3 Periode x/y
+  - r4 Brechzahl reell
+
+---------------------------
+PhaseUnwrapping a1, r1
+---------------------------
+  PhaseUnwrapping eines Arrays a1
+  - r1 Toleranz zur Erkennung Phasensprung
+
+---------------------------
+GridSet a1,r1,r2,c1   
+---------------------------
+  Setzt einen (Grid)-Koordinatenpunkt
+  
+---------------------------
+a=ArrayResize2D a1, i1,i2 [,i3]
+---------------------------
+  Resampling Array a1
+  Ziel=ArrayResize2D quelle,sizex,sizey,[AntiAlising] 
+  - i1/2 neue Dimension x/y
+  - i3 Anzahl Anti-Alizing Samplings
+
+---------------------------
+a=FWT2D a1
+a=FWT1D a1
+---------------------------
+  Wavelet Transformation des Feldes a1
+
+---------------------------
+a=IFWT2D a1
+a=IFWT1D a1
+---------------------------
+  inverse Wavelet Transformation des Feldes a1  
+
+---------------------------
+Compression2D a1,f
+Compression1D a1,f
+---------------------------
+  komprimiert Feld, alle Werte <f*Max werden =0  
+
+---------------------------
+anz=MatrixNonZeros[a1]
+---------------------------
+  Gibt Anzahl Elemenete .ne. 0 zurueck 
+
+---------------------------
+MatrixDifferenzNorm a1,a2,var
+---------------------------
+  Gibt a1-a2 als Matrix-Norm (froebenius) zurueck in var 
+  
+---------------------------
+a=MSparse d,m[,w]
+---------------------------
+  Gibt eine d-dimensionale Matrix mit m w-Eintraegen an zufaelligen Stellen (default w=1)
+     
+---------------------------
+s=OMP phi,v,m, status
+---------------------------
+  signal s mittels Orthogonal Matching Pursuit bestimmen
+  phi - Messmatrix
+  v - Datenvektor
+  m - sparsity
+  status - 0 ok, 1 OMP nonorthogonal
+  
+---------------------------
+x=LlsGels a,b
+---------------------------
+  Linear Least Squares des Systems A.x=b
+ 
+---------------------------
+a1d=Reshape arr2d
+a2d=Reshape arr1d,zeilenlaenge
+---------------------------
+  Reshape von 2d auf 1d oder umgekehrt
+
+---------------------------
+a1=Histogram arr,start,end,anz
+---------------------------
+  erzeugt 1d Array a1 mit Anzahl Werte in den anz Intervallen 
+
+---------------------------
+erg=GaussFit arr, s1,s2,s3, a1,sigma,mu, fwhm 
+---------------------------
+  Gaussfit des Arrays mit Startwerten s1..s3 fuer a1,sigma,mu
+  rueckgabe fitwerte und gefittete Variablen und FWHM in Pixel 
+      
+*************************************************************************
+*************************************************** Modul MIE
+*************************************************************************
+
+---------------------------
+MieNear pol,lam,refn,radius,anzpkt,faktor, fx,fy,fz, illum,scattfield
+---------------------------
+  Mie Rechnung -> Schnitt durch die Kugel
+  - r1 Polarisation , parallel (1) senkrecht (2) zum grid ( x - z ) plane
+  - r2 Wellenlänge
+  - c1 Brechzahl
+  - r3 Radius
+  - r4 Anzahl Punkte
+  - r5 faktor, gibt an wie gross die Simulationsumgebung zum KugelDURCHMESSER ist
+  - fx,fy,fz Ergebnis Feld komplex (mit passendem Grid)
+  - illum Amplitude Beleuchtung (komplex)
+  - scattfield =1 :nur gestreutes Feld erzeugen      
+  
+---------------------------
+MieFar3d pol,lam,nref,rad,npts,fak, phi,theta , ax,ay,az, illum,scattfield,[dist]
+---------------------------
+  - Mie Rechnung mit beliebig einfallender ebener Welle
+    phi,theta Kugelkoordinaten Einfallsrichtung mit theta=0 auf Einfallsebene
+  - polarisationsinput im strahlfesten s/p Koordinatensystem !
+  - Polarisationsoutput im globalen kartesischen Kosys
+  - nur gestreutes Feld erzeugen mit scattfield=1 (dann: einfallende Welle separat propagieren)
+    muss man so machen bei propagation wenn Feldspruenge an Grenzen sind !!!
+        
+  - pol Polarisation , parallel/theta(1) senkrecht/phi(2) zum grid ( x - z ) plane
+  - lam Wellenlänge
+  - nref Brechzahl (komplex)
+  - rad Radius
+  - npts Anzahl Punkte
+  - fak faktor, gibt an wie gross die Simulationsumgebung zum Kugeldurchmesser
+  - phi/theta Winkel der Auswertungsebene bzgl. der einfallenden Strahlung in Grad
+  - a1 Ergebnis Phase
+  - ax/y/z Ergebnis Feld x-z (mit passendem Grid)
+  - illum Amplitude Beleuchtung (komplex)     
+  - scattfield =1 :nur gestreutes Feld erzeugen 
+  - dist Option Auswerteradius in KUGELRADIEN !! (default=1)
+  
+---------------------------
+a=MieInternal r1,r2,r3,r4,r5,r6,r7 
+---------------------------
+ Mie Streuung innerhalb Kugel
+ - r1 Polarisation , parallel (1) senkrecht (2) zum grid ( x - z ) plane
+ - r2 Wellenlänge
+ - r3 Radius
+ - r4/5 Brechzahl 
+ - r6 Anzahl Punkte
+ - r7 Dimension
+ 
+---------------------------
+a=MieExternal r1,r2,r3,r4,r5,r6,r7 
+---------------------------
+  wie MieInternal, nur Feld ausserhalb Kugel
+  
+---------------------------
+a=WlMieInternal r1,r2,r3,r4,r5,r6,r7,r8,r9 
+---------------------------
+  wie MieInternal, nur zusätzlich Weisslicht
+  - r1 Polarisation , parallel (1) senkrecht (2) zum grid ( x - z ) plane
+  - r2/3/4 Wellenlänge Start/Ende/Step
+  - r5 Radius
+  - r6/7 Brechzahl 
+  - r8 Anzahl Punkte
+  - r9 Dimension
+  
+---------------------------
+a=WlMieExternal r1,r2,r3,r4,r5,r6,r7,r8,r9 
+---------------------------
+  wie WlMieInternal, nur Feld ausserhalb Kugel
+  
+---------------------------
+a=WlDisMieExternal  r1,r2,r3,r4,r5,r6,r7
+---------------------------
+  wie WlMieExternal, es wird aber Dispersion von Polystyrol verwendet
+  - r1 Polarisation , parallel (1) senkrecht (2) zum grid ( x - z ) plane
+  - r2/3/4 Wellenlänge Start/Ende/Step
+  - r5 Radius
+  - r6 Anzahl Punkte
+  - r7 Dimension
+  
+---------------------------
+a=WlDisMieInternal  r1,r2,r3,r4,r5,r6,r7
+---------------------------
+  ... es wird aber Dispersion von Polystyrol verwendet
+  - r1 Polarisation , parallel (1) senkrecht (2) zum grid ( x - z ) plane
+  - r2/3/4 Wellenlänge Start/Ende/Step
+  - r5 Radius
+  - r6 Anzahl Punkte
+  - r7 Dimension
+  
+---------------------------
+MieInsert r2,c1,r3,r4,r5, a1,a2 ,a3,a4
+---------------------------
+  Mie Rechnung -> Schnittebene nach Kugel
+  Ergebnis wird in Gesamtmatrix eingefügt (komplexe Addition)
+  Anregungsamplitude wird durch Mittelung gebildet
+  Abweichungen vom Mittelwert bleiben erhalten
+  - r2 Wellenlänge
+  - c1 Brechzahl
+  - r3 Radius
+  - r4 Anzahl Punkte
+  - r5 faktor, gibt an wie gross die Simulationsumgebung zum Kugeldurchmesse
+  - a1-2 Ergebnis/Anregungsfeld Feld x/y
+  - a3/4 x/y Positionen des Kugelmittelpunktes (Real oder RealArray)
+         
+*************************************************************************
+*************************************************** Modul PLOT
+*************************************************************************
+
+---------------------------
+PlotOn
+PlotOff
+---------------------------
+Plotfunktionalitaet wird an/ausgeschaltet
+
+---------------------------
+SaveTitleOn
+SaveTitleOff
+---------------------------
+Beim Speichern wird der PlotLabel mitabgespeichert oder nicht
+
+---------------------------
+LogPlotArray a,f,"Titel", i1,i2, [<T>[=r],...]
+---------------------------
+wie PlotArray nur dass logarithmische Helligkeitsverteilung geplottet wird
+  f: Skalierungsfaktor Log Funktion, je groesser desto flacher (z.B. 5)
+ 
+---------------------------
+PlotArray a,"Titel", i1,i2, [<T>[=r],...]
+---------------------------
+  Zeichnet ein Falschfarbenbild des 2d Arrays a. Bei komplexen Feldern wird Betrag gebildet.
+  - i1/2 Anzahl Punkte des Plots
+  - <T>
+   UpperBound=r  Oberer Wert der Farbskala
+   LowerBound=r  unterer ""
+   MagnifyX=r    laterale Ausdehnung Feld wird vergrößert     
+   MagnifyY=r    ""
+   StartX=r      Startpunkt des Plots  
+   StartY=r 
+   Grid          Grid wird am Rand geplottet
+   Background i1,i2   RGB-Farbwerte {r,g,b} (max=1) des Hintergrunds,Texts
+   LegendL/LegendR  =0 Legende wird nicht gezeichnet
+   LogL=f    Logplot linker Plot mit Faktor f
+   LogR=f    Logplot rechter Plot mit Faktor f
+   ClippingX x1,x2  logischer Bereich innerhalb der Matrix
+   ClippingY y1,y2
+   ColorBarFormat "String"
+   Mirror  1:X, 2: Y, 3:XY
+   LegendIntervall Start,Endpunkt Farbskala Legende
+   
+---------------------------
+DoublePlotArray a,b,"Titel", i1,i2, [<T>[=r],...]
+---------------------------
+  Wie PlotArray, nur dass beide Arrays nebeneinander geplottet werden
+  
+  
+---------------------------
+ListLinePlot a,"Titel", i1,i2,[SchnittX/SchnittY=pos, Intervall={i1,i2}]
+(ListLinePlot2 a,b,"...)
+---------------------------
+  Zeichnet ein Linienplot des 1d Arrays a (a und b).
+  - i1/2 Anzahl Punkte des Plots
+  - option SchnittX bei 2d Array pos des x/y Schnitts
+  - option Intervall nur der Ausschnitt wird geplottet
+
+---------------------------
+PlotVec vx,vy,vz,"Titel", anzx,anzy, spacing
+---------------------------
+  Plotet ein Array von Vektoren
+  spacing in Bildschirmpixel 
+  Vektoren sind auf spacing normiert
+  vz wird farbcodiert
+  
+---------------------------
+PlotRay a1,"Titel", i1,i2, i3 [,a2]
+---------------------------
+  Plotet Vektoren im Format:
+    Array 6 Einträge: x,y,z,dx,dy,dz
+  - i1/i2 Anzahl Punkte des Plots
+  - i3 Projektion Vektor:  1-x=0 2-y=0 3-z=0
+  - a2 optional Farbtabelle :
+    4 Eintraege: n,r,g,b ( Startwert Vektor, Farbwerte)
+
+
+---------------------------
+Color r1,r2,r3, a1
+---------------------------
+  fuegt dem Vektorenarray a1, einen Farbkanal r1/2/3 (rot,gruen,blau) hinzu
+  
+  
+---------------------------
+ColorMap <T>
+---------------------------
+  Farbcodierung der 2D Plots
+  - <T> Red,Green,Blue,White,Rainbow,InvertedRed,InvertedGreen,InvertedBlue,InvertedWhite
+        InvertedRainbow
+             
+             
+---------------------------
+ClosePlot
+---------------------------
+  Schliesst letzten Plot 
+  
+  
+---------------------------
+SaveBitmap "Filename", r1,r2 [,i1]
+---------------------------
+  Speichert aktuellen Plot als Bitmap 
+   - r1/2 Anzahl Punkte die gespeichert werden
+   - i1 Zähler, der Filenamen hinzugefügt wird
+   
+---------------------------
+PlotGL  a,"Titel", i1,i2, [<T>[=r],...]
+---------------------------
+  OpenGL 3D Hoehenplot des 2D Feldes a
+  - i1/2 Anzahl Punkte des Plots
+  - <T> Optionen siehe PlotArray   
+
+---------------------------
+PlotGLContour  a,"Titel"
+---------------------------
+  OpenGL 3D Konturplot der 3D-Contourdaten (1d Feld)
+  3D-Daten im Array: 15 Werte pro Quad colr,colg,colb, x1,y1,z2, x2.... x4,y4,z4
+  
+---------------------------
+PlotRGB a1,a2,a3,"Titel",i1,i2, [f]
+---------------------------
+  Plotet Farbkanäle a1-a3 als RGB-Bild
+   - i1/2 Anzahl Punkte des Plots
+   - option: Faktor mit denen das Max in Intensitaet gedaempft ist
+   
+---------------------------
+PlotBMP  "Titel",i1,i2 [,x0,y0 [,<T>]]
+---------------------------
+  Plotet Bitmap als RGB-Bild
+   - i1/2 Anzahl Punkte des Plots
+   - Option x0,y0 Start des Plots
+   - Option <T>: Postprocessing
+     MultiplePlot: Fuegt Plot zu vorhergehenden(!) BMP-Plot hinzu
+     Max f: Faktor mit denen das Max in Intensitaet multipl ist
+      
+*************************************************************************  
+*************************************************** Modul RAYOPTICS
+*************************************************************************
+
+---------------------------
+RenderRays[]
+---------------------------
+  Anzahl Strahlen insgesamt
+
+---------------------------
+RenderSourceRays[]
+RenderSourceRaysNVS[] (unterhalb Detektionslimit)
+---------------------------
+  Anzahl Strahlen die eine Quelle getroffen haben
+
+---------------------------
+RenderMeanPath[]
+RenderMeanPathNVS[] (unterhalb Detektionslimit)
+---------------------------
+  Mittlere Pfadlaenge 
+  
+---------------------------
+
+---------------------------
+  Mittlere Pfadlaenge von sehr dunklen Strahlen
+
+---------------------------
+PhysRender  xp,yp, obj,mat, r,g,b, num [, anz,start,end,tr,tg,tb]
+Render  xp,yp, obj,mat, r,g,b  [, anz,start,end,tr,tg,tb]
+---------------------------
+  Physik. korrekter Renderer /einfacher Renderer
+   - xp/yp anzahl x/y Punkte
+   - obj Renderobjekt-Liste
+   - mat Material-Liste
+   - r/g/b Ergebnisarrays in rgb Darstellung
+   - num Anzahl Strahlen pro Pixel
+   - Option TOF slices (max 16, sind in einer Zeile angeordnete Bilder) mit 
+     # anz Anzahl slices
+     # start,end Intervall Pfadlaenge 
+     # tr,tg,tb Arrays 
+   
+---------------------------
+RenderSky skyint,{skycol},sunint,sunrad,{sunpos},{suncol}
+---------------------------
+  skyint Helligkeit
+  {skycol} Farbe rgb
+  sunint Intensitaet
+  sunrad radius
+  sunpos {} position
+  {suncol} Farbe rgb
+  
+---------------------------
+RenderCam T,<>
+---------------------------
+  Definiert einen Kamerapfad
+  - T Typ: Pinhole, Fisheye
+  - <> Daten je Typ:
+    Pinhole: {CamFocuspoint}, CamFocusLength, r5-RotAngle, {Fixpoint}
+    Fisheye: {CamFocuspoint},{CamFixpoint},scaletheta
+    
+---------------------------
+AppendRenderObject obj,T,<>
+---------------------------
+  Fuegt der Objektliste obj, Renderobjekte hinzu
+  T Objekttyp,Parameter
+  - Sphere, mat, {sx, sy, sz}, sr, [{qr, qg, qb}]
+    Materialnummer,Ort der Kugel,Radius, Quellenfarbe/Intensitaet
+
+---------------------------
+AppendRenderMaterial mat,{r,g,b}, ref,ws,as, rd,ad ,n
+---------------------------
+  Fuegt der Materialliste mat, Materialien hinzu
+  - {r,g,b} Farbwert
+  - ref reflektivität specular
+  - ws wahrscheinlickeit specular
+  - as Winkel specular
+  - rd reflektivität diffuse
+  - ad Winkel diffuse
+  - n Brechzahl (Komplex)
+ 
+---------------------------
+a=Pupil2Ray a1, r1,r2,r3, r4,r5, i1,i2, r6
+---------------------------
+  Wandelt Pupille a1 in Strahlen-Feld um
+  - a1 Feldaray
+  - r1-3 x-z Start der Pupille
+  - r4/5 Azsdehnung x/y derPupille
+  - i1/2 Ray Sampling
+  - r6 Wellenlänge
+  
+---------------------------
+a=FPTrace a1, r1, r2,r3, r4,r5, r6
+---------------------------
+  Physical propagation mit vorwärts-raytracing
+  - a1 pupille
+  - r1 Wellenlänge
+  - r2 Apertur
+  - r3 Dicke
+  - r4/5 Radius 1/2 der Linse
+  - r6 Brechzahl
+        
+---------------------------
+a=CCD a1, i1,i2, r1,r2 
+---------------------------
+  Stellt CCD in Strahlengang a1
+  - i1/2 Anzahl Pixel
+  - r1/2 Pixelsize
+  
+---------------------------
+a=IFPTrace a1, r1, r2, r3, r4,r5, r6 
+---------------------------
+  Wie FPTrace nur Rückwärts Raytracing
+  
+---------------------------
+a=PlotTLens r1,r2, r3,r4, r5
+---------------------------
+  Plottet Konturen dicker Linse
+  - r1 Apertur
+  - r2 Dicke
+  - r3/4 Radien Linse
+  - Brechzahl 
+      
+---------------------------
+a=TraceTLens r1,r2, r3,r4, r5,r6, r7,r8, r9, r10,r11
+---------------------------
+  Raytracing von a durch dicke Linse
+  - r1 Apertur
+  - r2 Dicke
+  - r3/4 Radien Linse
+  - r5/6 RAY startx/y
+  - r7/8 RAYend x/y (Mitte Linse)
+  - r9 Brechzhl
+  - r10/11 Gegenstands/Bildweite
+      
+---------------------------
+v=TLensEffFokus r1, r2,r3, r4
+---------------------------
+  Fokus von Hauptebene in v
+  - r1 Dicke,
+  - r2/3 Krümmungsradien
+  - r4 Brechzahl
+      
+---------------------------
+v=TLensHaupt1 r1, r2,r3, r4
+---------------------------
+  Gibt erste Hauptebene zurück
+  - r1 Dicke,
+  - r2/3 Krümmungsradien
+  - r4 Brechzahl
+  
+---------------------------
+v=TLensHaupt2  r1, r2,r3, r4
+---------------------------
+  wie TLensHaupt1 nur zweite Hauptebene 
+  
+
+---------------------------
+v=TLensFokus r1, r2,r3, r4
+---------------------------
+  Gibt Fokus zurück
+  - r1 Dicke,
+  - r2/3 Krümmungsradien
+  - r4 Brechzahl
+  
+  
+---------------------------
+v=FLens2[f1,f2,a]
+---------------------------
+  Gibt Fokus des 2er Linsensystems (duenne Linsen) zurück
+  - f1/2 Fokus Einzellinsen
+  - a Abstand
+
+---------------------------
+RayInterface r1,r2, r3,r4,r5, r6,r7,r8 
+---------------------------
+  Berechnet Brechung am Interface
+  - r1/2 Brechzahlen
+  - r3-5 K-Vektor
+  - r6-8 Normalenvektor
+
+---------------------------
+MCSL a1,a2,r1,i1, r2,r3, r4,r5,dp,dp
+---------------------------
+  Berechnet Monte Carlo Streusimulation Singlelayer
+  - a1/a2 Ergebnisarray Pupille/Feld -> Transmission
+  - r1 Schichtdicke
+  - i1 Anzahl Photonen 
+  - r2/3 Streukoeff[mm-1]/Absorptionskoeff[mm-1]
+  - r4 Anisotropie
+  - r5 Lambda
+  - r6/7 Periode x/y der Arrays
+
+---------------------------
+Anamorphose r,g,b, ep,f,fp,r,zm,size,aa,xloop,yloop 
+---------------------------
+  Berechnet Zylinderspiegel-Zerrbild der Bitmap , Ergebnis in r,g,b
+  - ep {x,y,z} Eintrittspupille Kamera
+  - f  Fokus Kamera
+  - fp {x,y,z} Ziel kamera
+  - r  Zylinder Radius
+  - zm {x,y,z} Mittelpunkt Zylinder
+  - size Groesse Bild
+  - aa AntiAlising Anzahl subpixel
+  - xloop {x,y,z} (start,end,step)
+  - yloop {x,y,z}
+
+*************************************************************************
+*************************************************** Modul GLIB
+*************************************************************************  
+
+---------------------------
+BMPInit x,y 
+---------------------------
+  reserviert Bitmap mit x,y Punkten
+  
+---------------------------
+BMPNormalize 
+---------------------------
+  Skalierung: Alle Farbkanaele Max=255
+  
+---------------------------
+BMPLog f
+---------------------------
+  Skalierung: Alle Farbkanaele Max=255, logarithmische Helligkeitsverteilung
+  f: Skalierungsfaktor Log Funktion, je groesser desto flacher (z.B. 5)
+
+---------------------------
+BMPLevel f
+---------------------------
+  Skalierung: Alles oberhalb f*Mittelwert wird zu Max=255
+
+---------------------------
+BMPCls r,g,b 
+---------------------------
+  löscht Bitmap mit r,g,b
+    
+---------------------------
+BMPLoad name[,i]
+---------------------------
+  holt Bitmap "name" [oder "name00i.bmp"]
+  24Bit RGB
+ 
+---------------------------
+BMPSave name[,i]
+---------------------------
+  speichert Bitmap in "name",[oder "name00i.bmp"]
+
+---------------------------
+BMP2Array r,g,b 
+BMP2Array h
+---------------------------
+  holt Bitmap in r,g,b - Arrays (bei nur einem Array: Helligkeit 0-255)
+
+---------------------------
+Array2BMP r,g,b 
+---------------------------
+  macht aus r,g,b - Arrays BMP
+  
+---------------------------
+BMPPlot array, anzx,anzy [,{r,g,b}] 
+---------------------------
+  Einen Plot des Arrays array mit Aufloesung anzx/anzy
+  Option Farbe {r,g,b}
+      
+---------------------------
+BMPClear  
+---------------------------
+  gibt Bitmapspeicher frei
+
+---------------------------
+CIEColorRendering a1,lam
+---------------------------
+  Addiert Intensitätsfeld a1 der Wellenlänge lam zu Bitmap hinzu
+  gemaess CIE-Normfarbsystem 
+  
+---------------------------
+CIE2RGB 
+---------------------------
+  transformiert Bitmap in RGB-Format 
+
+---------------------------
+BMPSubstitute s1,s2,s3, d1,d2,d3 
+---------------------------
+  ersetzt rgb-Wert s1-3 durch d1-3
+    
+
+---------------------------
+BMPColorMap cmap
+---------------------------
+  vorgefertigte ColorMap
+  - GreenPinkTones
+  - DarkTerrain
+  - Rainbow
+  - BW
+
+---------------------------
+BMPSetPen r,[g,b]
+BMPSetPen2 r,[g,b]
+---------------------------
+  Setzt rgb Zeichenstift
+  Wenn nur r dann Pos ColorMap (0-255)
+  
+---------------------------
+BMPDrawLine xa,ya,xe,ye
+BMPDrawLineW xa,ya,xe,ye
+---------------------------
+  zeichnet Linie in Bitmap/Fenster
+    
+---------------------------
+BMPDrawBox xa,ya,xe,ye
+BMPDrawBoxW xa,ya,xe,ye
+---------------------------
+  zeichnet Box in Bitmap/Fenster
+
+---------------------------
+BMPPoint x,y
+BMPPointW x,y
+---------------------------
+  zeichnet Punkt in Bitmap/Fenster
+
+---------------------------
+BMPSetWin xp1,yp1,xp2,yp2,  xl1,yl1,xl2,yl2
+---------------------------
+  Definiert Fenster auf Bitmap
+  xp/yp physikalische Koord (int)
+  xl..  logische Koord (real)
+
+---------------------------
+BMPCls
+BMPClsW 
+---------------------------
+  Loescht BMP/Fenster
+
+---------------------------
+BMPPrintText x,y,"text"
+BMPPrintText90 x,y,"text"
+---------------------------
+  schreibt Text horizontal/vertikal
+  
+---------------------------
+BMPListPlot2d array,"title","xaxis","yaxis",[OPT]
+BMPListPlot1d array,"title","xaxis","yaxis",[OPT]
+(BMPListPlot1d2 arra1,array2,"...)
+---------------------------
+  1D/2D Plot in aktuellem Fenster
+  <OPT>:
+  hold=1 letztes skaling verwenden
+  colorbar=1   colorbar rechts (nur 2d)
+  scaley=1   scale-bar rechts (nur 1d)
+  scale=d  scale-bar im Bild unten rechts mit Laenge d (in logischen Koordinaten)
+  scaletext="text" scale-bar Text 
+  NB: beschreibbarer bereich Fenster -26pt
+  
+*************************************************************************
+*********************************************  Modul Thin Film Stacks TFS
+*************************************************************************  
+
+---------------------------
+c=FresnelRs[r1, c1,c2]
+---------------------------
+  liefert Rs Koeffizient eines Interface
+  - r1 Einfallswinkel
+  - c1/2 Brechzahl Interface  
+
+---------------------------
+c=FresnelRp[r1, c1,c2]
+---------------------------
+  liefert Rp Koeffizient eines Interface
+  - r1 Einfallswinkel
+  - c1/2 Brechzahl Interface  
+
+---------------------------
+c=FresnelTs[r1, c1,c2]
+---------------------------
+  liefert Ts Koeffizient eines Interface
+  - r1 Einfallswinkel
+  - c1/2 Brechzahl Interface  
+
+---------------------------
+c=FresnelTp[r1, c1,c2]
+---------------------------
+  liefert Tp Koeffizient eines Interface
+  - r1 Einfallswinkel
+  - c1/2 Brechzahl Interface  
+ 
+---------------------------
+Jones2Sp c1,c2,r1,r2, c3,c4
+---------------------------
+  Wandelt Jonesvektor in sp-Koordinaten 
+  - c1/2 Jonesx/y
+  - r1/2 nax,nay koordinaten der Eintrittspupille
+  - c3/4 s/p
+
+---------------------------
+Sp2Jones c1,c2,r1,r2 c3,c4
+---------------------------
+  Wandelt sp-Koordinaten in Jonesvektor 
+  - c1/2 s/p
+  - r1/2 nax,nay koordinaten der Eintrittspupille
+  - c3/4 Jonesx/y  
+  
+---------------------------
+Jones2SpRefl c1,c2,r1,r2, c3,c4
+---------------------------
+  Wandelt Jonesvektor in sp-Koordinaten  (Reflexionsvariante)
+
+---------------------------
+Sp2JonesRefl c1,c2,r1,r2 c3,c4
+---------------------------
+  Wandelt sp-Koordinaten in (Reflexionsvariante) 
+
+---------------------------
+c=Ang2Kx[lam, phi,theta]
+c=Ang2Ky[lam, phi,theta]
+c=Ang2Kz[lam, phi,theta]
+---------------------------
+  liefert kx,ky,kz einer windschiefen (Einfallswinkel KuKo mit theta=0 z-Achse)
+
+---------------------------
+phi=K2Phi[lam, kx,ky]
+theta=K2Theta[lam, kx,ky]
+---------------------------
+  liefert aus kx,ky einer windschiefen Welle Einfallswinkel KuKo mit theta=0 z-Achse in Grad
+
+---------------------------
+c=NM2Phi[lam,px,py, nx,ny]
+c=NM2Theta[lam,px,py, nx,ny]
+---------------------------
+  liefert Beugungswinkel einer konischen Beugungsordnung nx,ny in Grad
+
+---------------------------
+c=NM2Kx[lam,px,py, nx,ny]
+c=NM2Ky[lam,px,py, nx,ny]
+---------------------------
+  liefert kx,ky einer konischen Beugungsordnung nx,ny
+  
+---------------------------
+c=PlwPhase[lam,phi,theta,dist]
+---------------------------
+  liefert (komplex) lateralen phasenshift einer ebenen Welle bei Propagation um dist
+
+*************************************************************************
+****************************************  Modul DM Differenzielle Methode
+*************************************************************************
+
+---------------------------
+DmQuietOn
+DmQuietOff
+---------------------------
+  unterdrueckt Ausgabe bei DM
+
+---------------------------
+DmInfo
+---------------------------
+  Gibt Auskunft über eincompilierte Eigenschaften wie SP/DP Arithmetik
+
+---------------------------
+DmParameter Nx,Ny,Ftx,Fty 
+---------------------------
+  Algor. Parameter
+  - Nx/Ny: Anzahl Moden (entweder skalar dann [-m,+m], oder von {ms,me} als [ms,me])
+  - Ftx/Fty: Anzahl FFT Moden
+
+    
+---------------------------
+mod=DmAddLayer d,Typ,[{p1}],#S,#L,Struktur,[{p2}]
+mod=DmAddLayerS filename, d,Typ,[{p1}],#S,#L,Struktur,[{p2}]
+mod=DmAddLayerL filename, d,Typ,[{p1}],#S,#L,Struktur,[{p2}]
+---------------------------
+  Fuegt zu Model mod einen Layer oben hinzu
+  - d Dicke
+  - Typ Integrator (RkImp,ImpMid,ItImpMid,CudaImpMid,CudaRkImp)
+  - {p1} Integrator spezifische Parameter
+    maxit,maxres,stategie(Init0,InitLast),Typ(MKLBCG,GPUBCG,FWTBCG),CLevel
+    Anzahl iterationen, genauigkeit iterativer Solver, Strategie BCG Iteration,Level
+    Typ GPUBCG zusaetzlich Groupx,Groupy Anzahl Gruppenmitglieder
+    Level ist bei FWTBCG-Kompressionslevel, bei MKLBCG der adaptive Faktor
+  - #S Anzahl SMatrix Schichten
+  - #L Anzahl Integrationsschritte/SMatrix-Schicht
+  - Struktur (Zylinder,HZylinder,KZylinder,Sphere,Cone,Quad)
+  - {p2} Strukturparameter/Brechzahlen    
+  Strukturen:
+    Zylinder: Durchmesser,n Außen, n Innen,[shift]
+    HZylinder: Aussen-,Innendurchmesser, n Aussen, n Zylinder, n Innen,[shiftx,shiftz]
+    KZylinder: Konzentrische Zylinder  {Durchmesser von aussen->innen}, n Aussen, n Zylinder, [shiftx,shiftz]
+    Sphere (zentriert Mitte Schicht): Durchmesser, n aussen, n innen,[shiftx,shiftz]
+    Ellipsoid (zentriert Mitte Schicht): Durchmesser dx,dz,dy, n aussen, n innen,[shiftx,shiftz]
+    Cone:  dx,dy,durchmesser unten,durchmesser oben,n aussen,n innen,[shiftx,shiftz]  
+    KCone: dx,dy,{durchmesser unten},{durchmesser oben},n aussen,n innen,[shiftx,shiftz]  
+    Quad: Kantenlaenge x,Kantenlaenge y,n aussen,n innen,[shiftx,shiftz]
+  S-Variante: nach Berechnung wird Fnm-Matrix abgespeichert (Vorsicht: spezifische Wahl von Beleuchtung,Modenzahl etc)
+  L-Variante: statt Berechnung wird Fnm-Matrix geladen (HACK! darf sich nix an Wellenlaenge,Einfallswinkel,Modenzahl aendern)    
+  
+---------------------------
+DmParseModel mod,px,py,lam, phi,psi, nc,ns
+---------------------------
+  erzeugt interne Datenstruktur aus Model mod
+  - px/py: Periode [nm]
+  - lam: Wellenlaenge
+  - phi (Einfallswinkel zur y-Achse) / psi (Einfallswinkel zur x-Achse)  (Grad)
+  - nc/ns: Brechzahl cover/Substrat  
+ 
+
+---------------------------
+erg=Dm2d "DMtmp-file"   
+---------------------------
+  Differenzielle Methode 2D
+  Parameter DM durch DmParseModel
+  - erg: Ergebnis-Array komplex
+  - pfad, wenn gegeben wird dort TMP-speicher eingerichtet, wenn nicht ("") -> RAM 
+ 
+
+---------------------------
+erg=Dm2dNF  "NFtmp-file"
+---------------------------
+  Differenzielle Methode 2D, speichert Zusatzinfos in erg fuer Nahfeldberechnung
+  Parameter DM durch DmParseModel
+  - erg: Ergebnis-Array komplex
+  - pfad, wenn gegeben wird dort TMP-speicher eingerichtet, wenn nicht ("") -> RAM 
+
+---------------------------
+erg=Dm2Layer  layer
+---------------------------
+  Differenzielle Methode 2D, berechnet nur Fnm-Matrix der S-Matrixschicht layer
+  
+---------------------------
+DmClear 
+---------------------------
+  Loescht alle Zwischenspeicher Differenzielle Methode 
+
+  
+---------------------------
+a=DmGet erg,typ,pol 
+---------------------------
+  Extrahiert Ergebnisse aus Ergebnisarray (1d) der Beugungsrechnung ins 1d Komplex-Array a
+  (Notwendig: geparstes DM-Model)
+  - erg: Ergebnisarray DM/NF
+  - typ: Rs,Rp,Ts,Tp,A1Ex,A1Ey,A1Ez,B2Ex,B2Ey,B2Ez,(alle E-Felder auch als H) Effizenzen Er,Et,Ex,Ey,Ez 
+  - pol: Polwinkel
+  
+  Extrahiert Ergebnisse aus Ergebnisarray (2d) der Nahfeld/Fernfeldrechnung ins 1d Komplex-Array a
+  (Notwendig: geparstes DM-Model)
+  - erg: Ergebnisarray Nahfeld/Fernfeldrechnung
+  - typ: Ex,Ey,Ez (alle E-Felder auch als H)
+  - pol: Polwinkel
+  
+---------------------------
+qqq Todo
+a=DmImgXZ ergDM/NF,{xa,xe,za,ze},y0,{anzx,anzz}
+a=DmImgXY ergDM/NF,{xa,xe,ya,ye},z0,anzx,typ,pol  
+---------------------------
+  Berechnet Propagierte Felder aus Ergebnisarray ins 2d Komplex-Array a
+  (Notwendig: geparstes DM-Model)
+  - erg: Ergebnisarray
+  - {xa ...} Fenster
+  - anz x/z-Sampling, ( y Sampling durch ODE-Step vorgegeben!() 
+  
+---------------------------
+a=DmNearXZ ergNF,{xa,xe,za,ze},y0,{anzx,anzz}
+a=DmNearXY ergNF,{xa,xe,ya,ye},z0,anzx
+---------------------------
+  - wie DmGetImg nur Nahfelder
+      
+---------------------------
+erg=Dm2dGetSystemMatrix y
+---------------------------
+  Differenzielle Methode 2D holt Systemmatrix an Stelle y
+  - erg: Array komplex
+  
+---------------------------
+erg=Dm2dGetSTMatrix y
+---------------------------
+  Differenzielle Methode 2D holt Strukturmatrix an Stelle y
+  - erg: Array komplex
+  
+---------------------------
+erg=Dm2dGetN y
+Dm2dGetN[y]
+---------------------------
+  Differenzielle Methode 2D holt Brechzahlverteilung an Stelle y
+  - erg: Array komplex
+
+---------------------------
+Dm2dGetNV y, nx,ny,nz
+---------------------------
+  Differenzielle Methode 2D holt Normalenvektorverteilung nx,ny,nz an Stelle y
+
+---------------------------
+Dm2dContour[y]
+---------------------------
+  bildet Brechzahlkontur Brechzahlverteilung an Stelle y
+
+---------------------------
+qqq Dm2dFEContour[y]
+---------------------------
+  bildet Brechzahlkontur als GL-Diskretisierung
+      
+---------------------------
+qqq Dm2dTestNV[y]
+---------------------------
+  bildet Winkel zwischen NV und Kontur Schnittobjekt
+    
+---------------------------
+a=DmGetOrder[erg,ordx,ordy] 
+---------------------------
+  Holt Beugungsordnung aus Ergebnisarray
+  - erg: Ergebnisarray von DmGet
+  - ord: Nummer Ordnung
+  
+---------------------------
+a=DmGetLocalPos[ypos]
+---------------------------
+  Holt lokale y Pos (innerhalb Schicht)   
+
+---------------------------
+a=DmGetGlobalPos[yloc,layer] 
+---------------------------
+  Bildet globale Pos aus Schicht+lokale ypos  
+  
+---------------------------
+a=DmGetLayer[ypos] 
+---------------------------
+  Holt schichtnummer in der sich ypos befindet 
+  
+---------------------------
+a=DmGetPhi[nax,nay] 
+---------------------------
+  Holt aus nax,nay Koordinate "phi" (Einfallswinkel zur y-Achse) in grad
+
+---------------------------
+a=DmGetPsi[nax,nay] 
+---------------------------
+  Holt aus nax,nay Koordinate "psi" (Einfallswinkel zur x-Achse) in grad
+
+*************************************************************************
+*************************************************** Modul IMG
+*************************************************************************
+
+---------------------------
+SHinfo files,path, num
+---------------------------
+  Listet alle Bitmaps der Art "files" (mit *) des Pfades path
+  Variable hat dann Anzahl gefunden Files
+  Filenamen haben das Shema : NAMEposition_num.bmp
+  Metadaten position und num werden in eine interne Liste eingetragen 
+
+---------------------------
+SHgetimage num,xanz,yanz, pos
+---------------------------
+  bmp der Nummer num (siehe SHinfo) wird in den BMP-Speicher geladen
+  pos enthalt Metadata "pos"
+
+---------------------------
+SHaddimage start,ende, anzx,anzy, anz
+---------------------------
+  Addiert alle BMPs mit pos zwischen start,ende auf
+  anz enthaelt Anzahl Bilder
+  wenn quiteflag=0 dann werden Meldungen ausgegeben
+
+---------------------------
+arr2d=SHvarimage start,ende, anzx,anzy, anz
+---------------------------
+  liefert Standardabweichung im Intervall start,ende
+  
+---------------------------
+arr2d=SHimageIntervall istart,iende,iref, tol, anzx,anzy
+---------------------------
+  Sucht das intervall (pro punkt in arr2d) bei dem der Bildwert 
+  nur um tol verschieden ist zum Referenzbild iref
+  
+
+*************************************************************************
+*************************************************** Modul Cuda
+*************************************************************************
+
+---------------------------
+CudaInit
+---------------------------
+  Init Cuda Device + Ausgabe Eigenschaften
+  
+---------------------------
+CudaTest
+---------------------------
+  Testrechnung
+
+---------------------------
+CudaReset
+---------------------------
+  fuehrt cudaDeviceReset() aus
+
+
+*************************************************************************
+************************************ Modul Fast Multipole Scattering FMPS
+*************************************************************************
+
+---------------------------
+QQQ
+---------------------------
+  QQQ
+        
+*************************************************************************
+*************************************************************************
+      

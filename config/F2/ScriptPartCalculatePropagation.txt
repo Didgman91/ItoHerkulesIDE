@@ -1,7 +1,7 @@
-? \" \"
-? \"IFeld     \",\"Ip        \",\"Tk        \",\"Td        \",\"Ttot\"
-? \"--------------------------------------------------------------------\"
-? \" \"
+? " "
+? "IFeld     ","Ip        ","Tk        ","Td        ","Ttot"
+? "--------------------------------------------------------------------"
+? " "
 
 winkel=0
 
@@ -12,15 +12,16 @@ erg3(1:max)=0.0
 erg4(1:max)=0.0
 erg5(1:max)=0.0
 
+xAll=Load "{py_scatterPlateRandomX}"
+yAll=Load "{py_scatterPlateRandomY}"
+
 Do j,1,max
  
  ax(1:sam,1:sam)=Cmplx[1,0]
  Grid ax,p1,p2,p3,p4
  
-! x=RandomReal p1,p2,streuanz 
-! y=RandomReal p3,p4,streuanz 
- x=Load "{py_scatterPlateRandomX}"
- y=Load "{py_scatterPlateRandomY}"
+ x=xALL(:,j)
+ y=yAll(:,j)
  Sphere ax,x,y,d/2,d/2,nwasser,0,lam
 
  If j .EQ. 1 ! gilt nur fuer erste Schicht
@@ -30,7 +31,7 @@ Do j,1,max
    a2=Illumination ax,PlaneWave, 1,0, 0,0,lam ! Beleuchtung mit Planwelle 
    !a2=Illumination ax,Gauss, 1,0,  10*mm , 10*mm,0,0, lam ! (x,y,z sind shift-Werte) ! Beleuchtung miauss
    !a2=Illumination ax,AGauss, 1,0,  10*mm,20*mm , 10*mm,0,0, lam ! (x,y,z sind shift-Werte) ! eleuchtunmit Gauss",
-   !PlotArray Abs[a2],\"Objekt\",400,400
+   !PlotArray Abs[a2],"Objekt",400,400
  Else
    PupilFilter a2,ax ! ab zweiter Schicht, belegt Array mit Filter
  EndIf
@@ -40,10 +41,10 @@ Do j,1,max
 
 ! If MOD[j,5] .eq. 1
 ! If j .EQ. 1
-   feld=ArrayResize2D Abs[a2], ePixelX,ePixelY
-      
-   intensity=Intensity feld   
+   intensityOrg=Intensity a2
 
+   intensity=ArrayResize2D intensityOrg, ePixelX,ePixelY
+   
    !feldMX=MirrorX intensity 
    !feldMY=MirrorY intensity  
    !feldMYR90=Rotate90 feldMY
@@ -62,11 +63,12 @@ Do j,1,max
    BMPSetPen2 128,128,128
    
    BMPPlot intensity, ePixelX, ePixelY
-   BMPSave "{py_outputPath}/Intensitaet_{py_fileName}.bmp"
-
+   BMPSave "{py_outputPath}/Intensity_{py_fileName}_layer", j
+   
+   BMPClear
    
    !SaveNPY "{py_outputPath}/Feld_{py_fileName}_", feld, j
-   SaveNPY "{py_outputPath}/Intensitaet_{py_fileName}_", intensity, j
+   !SaveNPY "{py_outputPath}/Intensity_{py_fileName}_layer", intensity, j
 ! EndIf
  
  a0=EnergyDensity a2
@@ -95,16 +97,16 @@ BMPSetPen2 128,128,128
 
 BMPColorMap BW
 BMPSetWin 10,10,310,300, 1,1,sam,sam
-BMPListPlot1d erg1,\"GesamtEnergie Feld\",\"z\",\"Efeld\"
+BMPListPlot1d erg1,"GesamtEnergie Feld","z","Efeld"
 
 BMPSetWin 450,10,750,310, 1,1,3,3
-BMPListPlot1d erg2,\"Energie Pupille\",\"z\",\"Epup\"
+BMPListPlot1d erg2,"Energie Pupille","z","Epup"
 
 BMPSetWin 10,360,310,660, 1,1,sam,sam
-BMPListPlot1d2 erg3,erg4,\"Koll./Diff. Transmission\",\"z\",\"T\"
+BMPListPlot1d2 erg3,erg4,"Koll./Diff. Transmission","z","T"
 
 BMPSetWin 450,360,750,660, 1,1,3,3
-BMPListPlot1d erg5,\"Transmission\",\"z\",\"T\"
+BMPListPlot1d erg5,"Transmission","z","T"
 
 BMPSave "{py_outputPath}/nebel_{py_fileName}_.bmp"
 

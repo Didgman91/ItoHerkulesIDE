@@ -10,7 +10,7 @@ import os
 from PIL import Image
 from PIL import ImageOps
 
-from ..toolbox.toolbox import runProcess
+from ..toolbox import toolbox
 
 #from ..DataIO import mnistLib as mnist
 
@@ -26,6 +26,7 @@ pathIntermediateDataScript = "/F2/intermediateData/script"
 pathOutputSpeckle = "/F2/output/speckle"
 pathOutputDocumentation = "/F2/output/documentation"
 
+fileNameScriptCalculatePropagation = "calculatePropagation.txt"
 fileNameScriptCreateScatterPlate = "createScatterPlate.txt"
 fileNameScatterPlateRandom = ["ScatterPlateRandomX", "ScatterPlateRandomY"]
 
@@ -34,7 +35,10 @@ def run_script(path):
 
     processName = "F2"
 
-    output, exitCode, t = runProcess(processName, [path])
+    output, exitCode, t = toolbox.runProcess(processName, [path])
+    
+    for i in output:
+        print(i)
     
     return output, exitCode, t
 
@@ -46,19 +50,20 @@ def generate_folder_structure(path="data"):
     os.makedirs(path+pathOutputSpeckle, 0o777, True)
     os.makedirs(path+pathOutputDocumentation, 0o777, True)
     
-def create_scatter_plate(parameter=""):
+def create_scatter_plate(numberOfLayers, parameter=""):
     "Creats the scatterplate and saves it in the folder _path_."
     
     if parameter == "":
-        parameter = get_F2_script_parameter()
+        parameter = get_F2_script_parameter(numberOfLayers)
     
     textFile = open("config/F2/ScriptPartCreateScatterPlate.txt", "r")
     lines = textFile.readlines()
     
     for i in range(len(lines)):
-        lines[i] = lines[i].format(py_pathScatterPlateX=pathScatterPlate + "/" +fileNameScatterPlateRandom[0], py_pathScatterPlateY=pathScatterPlate + "/" +fileNameScatterPlateRandom[1])
-    
-    
+        pathX = pathScatterPlate + "/" + fileNameScatterPlateRandom[0]
+        pathY = pathScatterPlate + "/" + fileNameScatterPlateRandom[1]
+        lines[i] = lines[i].format(py_pathScatterPlateX=pathX, py_pathScatterPlateY=pathY)
+        
     script = parameter + lines
     
     with open(pathScript + "/" + fileNameScriptCreateScatterPlate, "w") as text_file:
@@ -67,14 +72,15 @@ def create_scatter_plate(parameter=""):
     
     run_script(pathScript + "/" + fileNameScriptCreateScatterPlate)
     
-    scatterPlateRandom = [pathScatterPlate + "/" +fileNameScatterPlateRandom[0],
+    scatterPlateRandom = []
+    scatterPlateRandom += [pathScatterPlate + "/" +fileNameScatterPlateRandom[0],
                           pathScatterPlate + "/" +fileNameScatterPlateRandom[1]]
     
     return scatterPlateRandom
             
-def calculate_propagation(imagePath, scatterPlateRandom):
+def calculate_propagation(imagePath, scatterPlateRandom, numberOfLayers):
     
-    parameterScript = get_F2_script_parameter()
+    parameterScript = get_F2_script_parameter(numberOfLayers)
     
     imageScript = []
     propagateScript = []
@@ -89,20 +95,49 @@ def calculate_propagation(imagePath, scatterPlateRandom):
     for i in range(len(imagePath)):
         script = parameterScript + imageScript[i] + propagateScript[i]
         
-        with open(pathScript + "/calculatePropagation.txt", "w") as text_file:
+        with open(pathScript + "/" + fileNameScriptCalculatePropagation, "w") as text_file:
             for ii in range(len(script)):
+                if script[ii][-1] == '\n':
+                    script[ii] = script[ii][:-1]
                 print(script[ii], file=text_file)
         
-        print("F2 propagation calculation: Image {}/{}".format(i, len(imagePath)))
-        run_script(pathScript + "/calculatePropagation.txt")
-
-def get_F2_script_parameter():
+        print("F2 propagation calculation: Image {}/{}".format(i+1, len(imagePath)))
+        run_script(pathScript + "/" + fileNameScriptCalculatePropagation)
     
-    textFile = open("config/F2/ScriptPartSetParameters.txt", "r")
-    lines = textFile.readlines()
-    
-    return lines
+    return 
 
+def sortToFolderByLayer(folderPath = pathData + pathOutputSpeckle, keyword="layer"):
+    "moves the files with the extension 'layerxxxx' to a corresponding folder 'layerxxxx'"
+    rvPath = []
+    rvFolder = []
+    rvLayerNumber = []
+    
+    filePath = toolbox.get_file_path_with_extension(folderPath, ["bmp"])
+    
+    for fp in filePath:
+        # create folder (path + keyword + layerNumber)
+        base = os.path.basename(fp)
+        name = os.path.splitext(base)
+        
+        startStrLayerNumber = name[0].find(keyword) + len(keyword)
+        if startStrLayerNumber == -1:
+            continue
+        
+        layerNumber = name[0][startStrLayerNumber:]
+        
+        folder = fp[:-len(base)] + keyword + layerNumber
+        os.makedirs(folder, 0o777, True)
+        
+        # move file into the new folder
+        path = folder + "/" + base
+        os.rename(fp, path)
+        
+        rvFolder += [folder]
+        rvPath += [path]
+        rvLayerNumber += [layerNumber]
+        
+    return rvFolder, rvPath, rvLayerNumber
+    
 #def load_MNIST_train_images(pathMNIST, imageNumbers):
 #    os.makedirs(pathData+"/F2/input/MNIST", 0o777, True)
 #    
@@ -143,6 +178,16 @@ def load_image(imagePath, invertColor=False, resize=False, xPixel=0, yPixel=0):
     return rv
     
 
+def get_F2_script_parameter(numberOfLayers):
+    
+    textFile = open("config/F2/ScriptPartSetParameters.txt", "r")
+    lines = textFile.readlines()
+    
+    for i in range(len(lines)):
+        lines[i] = lines[i].format(py_numberOfLayers=numberOfLayers)
+    
+    return lines
+
 def get_F2_script_load_image(file):
     ""
     textFile = open("config/F2/ScriptPartLoadImage.txt", "r")
@@ -157,13 +202,13 @@ def get_F2_script_propagete(fileName, scatterPlateRandom):
     "returns only the part of the script to calculate the electrical field"
     outputPath = pathData + "/F2/output/speckle"
     
-    fileName = os.path.basename(fileName)
-    fileName = os.path.splitext(fileName)[0]
+    base = os.path.basename(fileName)
+    name = os.path.splitext(base)
     
     textFile = open("config/F2/ScriptPartCalculatePropagation.txt", "r")
     lines = textFile.readlines()
     
     for i in range(len(lines)):
-        lines[i] = lines[i].format(py_scatterPlateRandomX=scatterPlateRandom[0], py_scatterPlateRandomY=scatterPlateRandom[1], py_outputPath=outputPath, py_fileName=fileName)
+        lines[i] = lines[i].format(py_scatterPlateRandomX=scatterPlateRandom[0], py_scatterPlateRandomY=scatterPlateRandom[1], py_outputPath=outputPath, py_fileName=name[0])
             
     return lines

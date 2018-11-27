@@ -75,7 +75,7 @@ def F2(folder):
     return folder, path, layer
 
 
-def NN(layer):
+def NN(layer, neuronalNetworkPathExtensionPretrainedWeights=""):
     
     nn = neuronalNetwork.neuronalNetworkCalss(layer)
     
@@ -85,7 +85,8 @@ def NN(layer):
     toolbox.print_program_section_name("NEURONAL NETWORK: load data")
     
     print("the model is loading...")
-    model = nn.loadModel()
+    modelFilePath = "config/neuronalNetwork/model.py"
+    model = nn.loadModel(modelFilePath, neuronalNetworkPathExtensionPretrainedWeights)
     print("done")
     
     print("the training and test datasets are loading...")
@@ -107,7 +108,7 @@ def NN(layer):
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: train network")
     
-    model = nn.trainNetwork(imageSpecklePath, imageGroundTruthPath, model, fitEpochs=100, fitBatchSize=10)
+    model = nn.trainNetwork(imageSpecklePath, imageGroundTruthPath, model, fitEpochs=200, fitBatchSize=10)
     
     
     # ---------------------------------------------
@@ -128,8 +129,11 @@ dirs = os.listdir("data/F2/output/speckle/")
 dirs.sort()
 
 for i in range(len(dirs)):
-#    print("dir: {}".format(dirs[i]))
-    NN(dirs[i])
+    toolbox.print_program_section_name("DIRECTORY: {}".format(dirs[i]))
+    if i==0:
+        NN(dirs[i])
+    else:
+        NN(dirs[i], dirs[i-1])
     
     if i>4:
         break

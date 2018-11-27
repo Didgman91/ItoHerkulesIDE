@@ -9,6 +9,8 @@ Created on Thu Nov 15 16:58:44 2018
 import os
 from shutil import copyfile
 
+import pickle
+
 import numpy as np
 
 from PIL import Image
@@ -38,26 +40,29 @@ class neuronalNetworkCalss:
         if neuronalNetworkPathExtension != "":
             if neuronalNetworkPathExtension[-1] == '/':
                 neuronalNetworkPathExtension = neuronalNetworkPathExtension[:-1]
-            if neuronalNetworkPathExtension[0] == '/':
-                neuronalNetworkPathExtension = neuronalNetworkPathExtension[1:]
-            self.pathNeuronalNetworkData += neuronalNetworkPathExtension
+            if neuronalNetworkPathExtension[0] != '/':
+                neuronalNetworkPathExtension = "/"+ neuronalNetworkPathExtension
         
         print("pathNeuronalNetworkData: {}".format(self.pathData + self.pathNeuronalNetworkData))
         
         
-        self.pathInput = self.pathNeuronalNetworkData + "/input"
-        self.pathInputModel = self.pathNeuronalNetworkData + "/input/model"
-        self.pathInputTrainingData = self.pathNeuronalNetworkData + "/input/trainingData"
-        self.pathInputTrainingDataGroundTruth = self.pathNeuronalNetworkData + "/input/trainingData/groundTruth"
-        self.pathInputTestData = self.pathNeuronalNetworkData + "/input/testData"
-        self.pathInputTestDataGroundTruth = self.pathNeuronalNetworkData + "/input/testData/groundTruth"
-        self.pathInputPretrainedWeights = self.pathNeuronalNetworkData + "/input/pretrainedWeights"
-        self.pathIntermediateDataTrainedWeights = self.pathNeuronalNetworkData + "/intermediateData/trainedWeights"
-        self.pathOutputPredictions = self.pathNeuronalNetworkData + "/output/predictions"
-        self.pathOutputDocumentation = self.pathNeuronalNetworkData + "/output/documentation"
+        self.pathInput = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/input"
+        self.pathInputModel = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/input/model"
+        self.pathInputTrainingData = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/input/trainingData"
+        self.pathInputTrainingDataGroundTruth = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/input/trainingData/groundTruth"
+        self.pathInputTestData = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/input/testData"
+        self.pathInputTestDataGroundTruth = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/input/testData/groundTruth"
+        self.pathInputPretrainedWeights = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/input/pretrainedWeights"
+        
+        self.pathIntermediateDataTrainedWeights = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/intermediateData/trainedWeights"
+        self.pathINtermediateDataHistory = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/intermediateData/history"
+        
+        self.pathOutputPredictions = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/output/predictions"
+        self.pathOutputDocumentation = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/output/documentation"
         
         self.fileNameTrainedWeights = "weights.hdf5"
         self.fileNamePredictions = "prediction.npy"
+        self.fileNmaeHistory = "history.pkl"
         
         os.makedirs(self.pathData + self.pathInput, 0o777, True)
         os.makedirs(self.pathData + self.pathInputModel, 0o777, True)
@@ -65,16 +70,37 @@ class neuronalNetworkCalss:
         os.makedirs(self.pathData + self.pathInputTrainingDataGroundTruth, 0o777, True)
         os.makedirs(self.pathData + self.pathInputTestData, 0o777, True)
         os.makedirs(self.pathData + self.pathInputPretrainedWeights, 0o777, True)
+        
         os.makedirs(self.pathData + self.pathIntermediateDataTrainedWeights, 0o777, True)
+        os.makedirs(self.pathData + self.pathINtermediateDataHistory, 0o777, True)
+        
         os.makedirs(self.pathData + self.pathOutputPredictions, 0o777, True)
         os.makedirs(self.pathData + self.pathOutputDocumentation, 0o777, True)
     
-    def loadModel(self):
-        modelFile = "lib/neuronalNetwork/model.py"
-        copyfile(modelFile, self.pathData + self.pathInputModel + "/model.py")
+    def loadModel(self,modelFilePath, neuronalNetworkPathExtensionPretrainedWeights = ""):
+        """
+        loads the model and copys the _modelFilePath_ into the input folder
+        
+        # Argumets
+            modelFilePath: relative path to the model in parent _pathData_ folder
+            
+            neuronalNetworkPathExtensionPretrainedWeights: name of the subfolder at _pathNeuronalNetworkData_ path, which will be used instead of _pathNeuronalNetworkData_
+            
+        # Returns
+            The model object.
+        """
+        
+        copyfile(modelFilePath, self.pathData + self.pathInputModel + "/model.py")
         
         # model is defined in model.py
         model = get_model_deep_speckle()
+        
+        # load weights of the previous fog layer
+        if (neuronalNetworkPathExtensionPretrainedWeights!=""):
+            pos  = self.pathIntermediateDataTrainedWeights.find("/intermediateData")
+            path = self.pathData + self.pathNeuronalNetworkData + "/"+ neuronalNetworkPathExtensionPretrainedWeights + self.pathIntermediateDataTrainedWeights[pos:] + "//" + self.fileNameTrainedWeights
+            copyfile(path, self.pathData + self.pathInputPretrainedWeights + "/" + neuronalNetworkPathExtensionPretrainedWeights + "_" + self.fileNameTrainedWeights)
+            model.load_weights(path)
         
         return model
     
@@ -161,6 +187,7 @@ class neuronalNetworkCalss:
             image.save(self.pathData + self.pathOutputPredictions + "/{}.bmp".format(filename[i]))
     
     def trainNetwork(self, trainingDataPath, groundTruthPath, model, fitEpochs, fitBatchSize):
+        
         trainingData = self.getImageAsNpy(trainingDataPath)
         groundTruth = self.getImageAsNpy(groundTruthPath)
         
@@ -170,7 +197,12 @@ class neuronalNetworkCalss:
         
         
         # Fit the model
-        model.fit(trainingData, groundTruth, epochs=fitEpochs, batch_size=fitBatchSize)
+        history = model.fit(trainingData, groundTruth, epochs=fitEpochs, batch_size=fitBatchSize)
+        
+        # saving the history
+        with open (self.pathData + self.pathINtermediateDataHistory + "/" + self.fileNmaeHistory, "wb") as f:
+            pickle.dump(history.history, f)
+        
         
         model.save_weights(self.pathData + self.pathIntermediateDataTrainedWeights + "/" + self.fileNameTrainedWeights)
         
@@ -196,3 +228,6 @@ class neuronalNetworkCalss:
         
         return path
 
+    def loadHistory():
+        with open('history.pkl', 'rb') as handle:
+            hist = pickle.load(handle)

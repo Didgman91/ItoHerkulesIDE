@@ -23,22 +23,29 @@ pathInput = "/F2/input"
 pathInputNIST = "/F2/input/NIST"
 pathIntermediateDataScatterPlate = "/F2/intermediateData/scatterPlate"
 pathIntermediateDataScript = "/F2/intermediateData/script"
+pathIntermediateDataStdout = "/F2/intermediateData"
 pathOutputSpeckle = "/F2/output/speckle"
 pathOutputDocumentation = "/F2/output/documentation"
 
 fileNameScriptCalculatePropagation = "calculatePropagation.txt"
 fileNameScriptCreateScatterPlate = "createScatterPlate.txt"
 fileNameScatterPlateRandom = ["ScatterPlateRandomX", "ScatterPlateRandomY"]
+fileNameStdout = "stdout.txt"
 
-def run_script(path):
+def run_script(path, printStdout = True):
     "starts the F2 programm with the path of the script file as argument"
 
     processName = "F2"
 
     output, exitCode, t = toolbox.runProcess(processName, [path])
     
-    for i in output:
-        print(i)
+    if printStdout:
+        for i in output:
+            print(i)
+    
+    with open(path+pathIntermediateDataStdout+"/"+fileNameStdout, "a") as stdoutFile:
+        for o in output:
+            stdoutFile.write(o)
     
     return output, exitCode, t
 
@@ -47,6 +54,7 @@ def generate_folder_structure(path="data"):
     os.makedirs(path+pathInput, 0o777, True)
     os.makedirs(path+pathIntermediateDataScatterPlate, 0o777, True)
     os.makedirs(path+pathIntermediateDataScript, 0o777, True)
+    os.makedirs(path+pathIntermediateDataStdout, 0o777, True)
     os.makedirs(path+pathOutputSpeckle, 0o777, True)
     os.makedirs(path+pathOutputDocumentation, 0o777, True)
     

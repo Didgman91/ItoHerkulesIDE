@@ -58,7 +58,7 @@ def get_file_path_with_extension_include_subfolders(pathFolder, extension):
             
     return filePath
 
-def loadImage(sourcePath, destinationPath, invertColor=False, resize=False, xPixel=0, yPixel=0):
+def loadImage(sourcePath, destinationPath, invertColor=False, resize=False, xPixel=0, yPixel=0, prefix=""):
     ""
     os.makedirs(destinationPath, 0o777, True)
     
@@ -82,7 +82,11 @@ def loadImage(sourcePath, destinationPath, invertColor=False, resize=False, xPix
         if destinationPath[-1] != "/":
             destinationPath += "/"
             
-        path = destinationPath + name[0] + fileExtension
+        if prefix == "":
+            path = destinationPath + name[0] + fileExtension
+        else:
+            path = destinationPath + prefix + name[0] + fileExtension
+        
         im.save(path)
         rv = rv + [ path ]
     

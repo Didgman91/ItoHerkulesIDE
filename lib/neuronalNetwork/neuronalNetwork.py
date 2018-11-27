@@ -104,20 +104,30 @@ class neuronalNetworkCalss:
         
         return model
     
-    def loadTrainingData(self, imagePath):
-        path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTrainingData)
+    def loadTrainingData(self, imagePath, prefix):
+        path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTrainingData, prefix=prefix)
         return path
     
-    def loadGroundTruthData(self, imagePath):
-        path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTrainingDataGroundTruth)
+    def loadGroundTruthData(self, imagePath, loadMultipleTimesWithPrefix = []):
+        path = []
+        if loadMultipleTimesWithPrefix == []:
+            path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTrainingDataGroundTruth)
+        else:
+            for prefix in loadMultipleTimesWithPrefix:
+                path += toolbox.loadImage(imagePath, self.pathData + self.pathInputTrainingDataGroundTruth, prefix="{}_".format(prefix))
         return path
     
-    def loadTestData(self, imagePath):
-        path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTestData)
+    def loadTestData(self, imagePath, prefix):
+        path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTestData, prefix=prefix)
         return path
     
-    def loadTestGroundTruthData(self, imagePath):
-        path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTestDataGroundTruth)
+    def loadTestGroundTruthData(self, imagePath, loadMultipleWithPrefix = []):
+        path = []
+        if loadMultipleWithPrefix == []:
+            path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTestDataGroundTruth)
+        else:
+            for prefix in loadMultipleWithPrefix:
+                path += toolbox.loadImage(imagePath, self.pathData + self.pathInputTestDataGroundTruth, prefix="{}_".format(prefix))
         return path
     
     def getImageAsNpy(self, imagePath):

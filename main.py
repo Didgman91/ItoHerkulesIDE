@@ -123,20 +123,73 @@ def NN(layer, neuronalNetworkPathExtensionPretrainedWeights=""):
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: Evaluation")
 
+def NnAllLayers(layers):
+    
+    nn = neuronalNetwork.neuronalNetworkCalss()
+    
+    # ---------------------------------------------
+    # NEURONAL NETWORK: load data
+    # ---------------------------------------------
+    toolbox.print_program_section_name("NEURONAL NETWORK: load data")
+    
+    print("the model is loading...")
+    modelFilePath = "lib/neuronalNetwork/model.py"
+    model = nn.loadModel(modelFilePath)
+    print("done")
+    
+    print("the training and test datasets are loading...")
+    imagePath = toolbox.get_file_path_with_extension("data/F2/input/NIST", ["bmp"])
+    imageGroundTruthPath = nn.loadGroundTruthData(imagePath[:-10], layers)        
+    imageTestGroundTruthPath = nn.loadTestGroundTruthData(imagePath[-10:], layers)
+    
+    imageSpecklePath = []
+    imageTestSpecklePath = []
+    for layer in layers:
+        imagePath = toolbox.get_file_path_with_extension("data/F2/output/speckle/"+layer, ["bmp"])
+        
+        imageSpecklePath += nn.loadTrainingData(imagePath[:-10], layer)
+        imageTestSpecklePath += nn.loadTestData(imagePath[-10:], layer)
+    print("done")
+    
+    
+    
+    
+    # ---------------------------------------------
+    # NEURONAL NETWORK: train network
+    # ---------------------------------------------
+    toolbox.print_program_section_name("NEURONAL NETWORK: train network")
+    
+    model = nn.trainNetwork(imageSpecklePath, imageGroundTruthPath, model, fitEpochs=200, fitBatchSize=10)
+    
+    
+    # ---------------------------------------------
+    # NEURONAL NETWORK: test network
+    # ---------------------------------------------
+    toolbox.print_program_section_name("NEURONAL NETWORK: test network")
+    
+    nn.testNetwork(imageTestSpecklePath, model)
+    
+    # ---------------------------------------------
+    # NEURONAL NETWORK: Evaluation
+    # ---------------------------------------------
+    toolbox.print_program_section_name("NEURONAL NETWORK: Evaluation")
+
 #folder, path, layer = F2("../../imagePool/NIST/by_write/hsf_0/f0000_14")
 
 dirs = os.listdir("data/F2/output/speckle/")
 dirs.sort()
 
-for i in range(len(dirs)):
-    toolbox.print_program_section_name("DIRECTORY: {}".format(dirs[i]))
-    if i==0:
-        NN(dirs[i])
-    else:
-        NN(dirs[i], dirs[i-1])
-    
-    if i>4:
-        break
+NnAllLayers(dirs)
+
+#for i in range(len(dirs)):
+#    toolbox.print_program_section_name("DIRECTORY: {}".format(dirs[i]))
+#    if i==0:
+#        NN(dirs[i])
+#    else:
+#        NN(dirs[i], dirs[i-1])
+#    
+##    if i>3:
+##        break
 
 ## -------------------------------------
 ## COPY FILES TO SERVER

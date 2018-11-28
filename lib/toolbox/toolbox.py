@@ -16,7 +16,16 @@ import numpy as np
 from PIL import Image, ImageOps
 
 def get_file_path_with_extension(pathFolder, extension):
-    "returns a list with all files in the _pathFolder_ with a specific _extension_"
+    """
+    Scans a folder for all files with a specific extension.
+    # Arguments
+        pathFolder: search folder
+        extension: accepts a list of file extensions
+        
+    # Returns
+        list with all files in the _pathFolder_ with a specific _extension_
+    
+    """
     if pathFolder[len(pathFolder)-1] != "/":
         pathFolder = pathFolder + "/"
     
@@ -35,7 +44,13 @@ def get_file_path_with_extension(pathFolder, extension):
     return filePath
 
 def get_file_path_with_extension_include_subfolders(pathFolder, extension):
-    "returns a list with all files in the _pathFolder_ with a specific _extension_"
+    """
+    returns a list with all files in the _pathFolder_ with a specific _extension_
+    # Arguments
+        pathFolder: 
+        extension: 
+    """
+    
     if pathFolder[len(pathFolder)-1] != "/":
         pathFolder = pathFolder + "/"
     

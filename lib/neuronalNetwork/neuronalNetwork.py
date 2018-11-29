@@ -19,7 +19,7 @@ from ..toolbox import toolbox
 
 from .model import get_model_deep_speckle
 from .model import getLossFunction
-from .model import getMetric
+from .model import pcc
 
 #from __future__ import print_function
 #
@@ -104,7 +104,7 @@ class neuronalNetworkCalss:
         
         return model
     
-    def loadTrainingData(self, imagePath, prefix):
+    def loadTrainingData(self, imagePath, prefix=""):
         path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTrainingData, prefix=prefix)
         return path
     
@@ -117,7 +117,7 @@ class neuronalNetworkCalss:
                 path += toolbox.loadImage(imagePath, self.pathData + self.pathInputTrainingDataGroundTruth, prefix="{}_".format(prefix))
         return path
     
-    def loadTestData(self, imagePath, prefix):
+    def loadTestData(self, imagePath, prefix=""):
         path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTestData, prefix=prefix)
         return path
     
@@ -203,7 +203,7 @@ class neuronalNetworkCalss:
         
         # Compile model
     #    model.compile(loss={'predictions':getLossFunction}, optimizer='adam', metrics=['accuracy', getMetric])
-        model.compile(loss='sparse_categorical_crossentropy', optimizer='adam')
+        model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=[pcc])
         
         
         # Fit the model

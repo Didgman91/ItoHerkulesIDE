@@ -85,7 +85,7 @@ def NN(layer, neuronalNetworkPathExtensionPretrainedWeights=""):
     toolbox.print_program_section_name("NEURONAL NETWORK: load data")
     
     print("the model is loading...")
-    modelFilePath = "config/neuronalNetwork/model.py"
+    modelFilePath = "lib/neuronalNetwork/model.py"
     model = nn.loadModel(modelFilePath, neuronalNetworkPathExtensionPretrainedWeights)
     print("done")
     
@@ -108,7 +108,7 @@ def NN(layer, neuronalNetworkPathExtensionPretrainedWeights=""):
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: train network")
     
-    model = nn.trainNetwork(imageSpecklePath, imageGroundTruthPath, model, fitEpochs=200, fitBatchSize=10)
+    model = nn.trainNetwork(imageSpecklePath, imageGroundTruthPath, model, fitEpochs=150, fitBatchSize=10)
     
     
     # ---------------------------------------------
@@ -159,7 +159,7 @@ def NnAllLayers(layers):
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: train network")
     
-    model = nn.trainNetwork(imageSpecklePath, imageGroundTruthPath, model, fitEpochs=200, fitBatchSize=10)
+    model = nn.trainNetwork(imageSpecklePath, imageGroundTruthPath, model, fitEpochs=300, fitBatchSize=10)
     
     
     # ---------------------------------------------
@@ -179,17 +179,17 @@ def NnAllLayers(layers):
 dirs = os.listdir("data/F2/output/speckle/")
 dirs.sort()
 
-NnAllLayers(dirs)
+#NnAllLayers(dirs)
 
-#for i in range(len(dirs)):
-#    toolbox.print_program_section_name("DIRECTORY: {}".format(dirs[i]))
-#    if i==0:
-#        NN(dirs[i])
-#    else:
-#        NN(dirs[i], dirs[i-1])
-#    
-##    if i>3:
-##        break
+for i in range(len(dirs)):
+    toolbox.print_program_section_name("DIRECTORY: {}".format(dirs[i]))
+    if i==0:
+        NN(dirs[i])
+    else:
+        NN(dirs[i], dirs[i-1])
+    
+    if i>1:
+        break
 
 ## -------------------------------------
 ## COPY FILES TO SERVER

@@ -18,8 +18,8 @@ from PIL import Image
 from ..toolbox import toolbox
 
 from .model import get_model_deep_speckle
-from .model import getLossFunction
-from .model import pcc
+from .losses import pcc
+from .losses import jd
 
 #from __future__ import print_function
 #
@@ -198,12 +198,15 @@ class neuronalNetworkCalss:
     
     def trainNetwork(self, trainingDataPath, groundTruthPath, model, fitEpochs, fitBatchSize):
         
+        trainingDataPath.sort()
+        groundTruthPath.sort()
+        
         trainingData = self.getImageAsNpy(trainingDataPath)
         groundTruth = self.getImageAsNpy(groundTruthPath)
         
         # Compile model
     #    model.compile(loss={'predictions':getLossFunction}, optimizer='adam', metrics=['accuracy', getMetric])
-        model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=[pcc])
+        model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=[pcc, jd])
         
         
         # Fit the model
@@ -219,6 +222,7 @@ class neuronalNetworkCalss:
         return model
     
     def testNetwork(self, testDataPath, model, trainedWeightsPath=""):
+        testDataPath.sort()
         testData = self.getImageAsNpy(testDataPath)
         
         fileName = []

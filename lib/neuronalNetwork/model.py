@@ -13,9 +13,7 @@ Date: 2018.08.21
 
 from __future__ import print_function
 
-from keras import backend as K
 import tensorflow as tf
-#from tensorflow.contrib.metrics import streaming_pearson_correlation as PCC
 
 from keras.models import Model
 from keras.layers import Input, MaxPooling2D, UpSampling2D, Dropout, Conv2D, Concatenate, Activation
@@ -145,7 +143,7 @@ def get_model_deep_speckle():
     print("conv10 shape:", conv10.shape)
     conv11 = Conv2D(2, 1, activation='softmax')(conv10)
     print("conv11 shape:", conv11.shape)
-
+    
     model = Model(inputs=inputs, outputs=conv11)
 
     return model
@@ -172,45 +170,3 @@ def calcLossFunction(N, channels, pixelNumberX, pixelNumberY, g, p):
 #    buffer /= 2*N
     
     return buffer
-
-#def getMetric(yTrue, yPred):
-#    print("yTrue: {}".format(yTrue))
-#    print("yPred: {}".format(yPred))
-#    
-##    yTrue = tf.reshape(yTrue, [-1, 64,64,2])
-#    
-#    # calculate the Pearson product-moment correlation coefficient
-#    return PCC(yTrue, yPred)
-#    score, up_opt  = PCC(yTrue, yPred)
-#    
-#    K.get_session().run(tf.local_variables_initializer())
-#    
-#    with tf.control_dependencies([up_opt]):
-#
-#        score = tf.identity(score)
-#    return score
-
-def as_keras_metric(method):
-    """ wrapper function for tensorflow functions to call these in keras
-    
-    # Arguments
-        method: wrapped function
-    """
-    import functools
-    from keras import backend as K
-    import tensorflow as tf
-    @functools.wraps(method)
-    def wrapper(self, args, **kwargs):
-        """ Wrapper for turning tensorflow metrics into keras metrics """
-        value, update_op = method(self, args, **kwargs)
-        K.get_session().run(tf.local_variables_initializer())
-        with tf.control_dependencies([update_op]):
-            value = tf.identity(value)
-        return value
-    return wrapper
-
-@as_keras_metric
-def pcc(y_true, y_pred):
-    return tf.contrib.metrics.streaming_pearson_correlation(y_true[:,:,:,0], y_pred[:,:,:,0])
-
-

@@ -74,7 +74,21 @@ def get_file_path_with_extension_include_subfolders(pathFolder, extension):
     return filePath
 
 def loadImage(sourcePath, destinationPath, invertColor=False, resize=False, xPixel=0, yPixel=0, prefix=""):
-    ""
+    """
+    Loads images and saves them in the path _destinationPath_.
+    
+    # Arguments
+        sourcePath:        list of images paths
+        destinationPath:   folder in which  the image is to be saved
+        invertColors:      inverts the color of the image
+        resize:            if this is true, the image will be resized with _xPixel_ and _yPixel_ parameters.
+        xPixel:            number of pixels in x direction, if the image is to be resized
+        yPixel:            number of pixels in y direction, if the image is to be resized
+        prefix:            adds an optional prefix to the filename
+        
+    # Retruns
+        list of image paths in the _destinationPath_
+    """
     os.makedirs(destinationPath, 0o777, True)
     
     rv = []
@@ -108,7 +122,16 @@ def loadImage(sourcePath, destinationPath, invertColor=False, resize=False, xPix
     return rv
 
 def load_np_images(pathImage, extension=["npy", "bin"]):
-    "loads the numpy images"
+    """
+    Loads a list of numpy images and returns it.
+    
+    # Arguments
+        pathImage: path list of numpy images
+        exteinsion: specifies the file extension
+        
+    # Returns
+        Lsit of numpy arrays that contain the images.
+    """
     image = []
     
     for i in pathImage:
@@ -122,6 +145,12 @@ def load_np_images(pathImage, extension=["npy", "bin"]):
     return image
 
 def print_program_section_name(name):
+    """
+    Formats and prints the _name_ on stdout.
+    
+    # Arguments
+        name: string to be printed
+    """
     
     line = ""
     length = 45

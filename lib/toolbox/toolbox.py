@@ -19,8 +19,10 @@ def get_file_path_with_extension(pathFolder, extension):
     """
     Scans a folder for all files with a specific extension.
     # Arguments
-        pathFolder: search folder
-        extension: accepts a list of file extensions
+        pathFolder
+            search folder
+        extension
+            accepts a list of file extensions
         
     # Returns
         list with all files in the _pathFolder_ with a specific _extension_
@@ -40,15 +42,19 @@ def get_file_path_with_extension(pathFolder, extension):
                 ex = "." + ex
             if (fileExtension == ex):
                 filePath = filePath + [ pathFolder + name]
-            
+    
+    filePath.sort()
+    
     return filePath
 
 def get_file_path_with_extension_include_subfolders(pathFolder, extension):
     """
     returns a list with all files in the _pathFolder_ with a specific _extension_
     # Arguments
-        pathFolder: 
-        extension: 
+        pathFolder
+            
+        extension
+            
     """
     
     if pathFolder[len(pathFolder)-1] != "/":
@@ -70,21 +76,30 @@ def get_file_path_with_extension_include_subfolders(pathFolder, extension):
                     if root[len(root)-1] != "/":
                         rootBuffer = root + "/"
                     filePath = filePath + [ rootBuffer + name]
-            
+
+    filePath.sort()
+    
     return filePath
 
 def loadImage(sourcePath, destinationPath, invertColor=False, resize=False, xPixel=0, yPixel=0, prefix=""):
-    """
-    Loads images and saves them in the path _destinationPath_.
+    """Loads images and saves them in the path _destinationPath_.
     
     # Arguments
-        sourcePath:        list of images paths
-        destinationPath:   folder in which  the image is to be saved
-        invertColors:      inverts the color of the image
-        resize:            if this is true, the image will be resized with _xPixel_ and _yPixel_ parameters.
-        xPixel:            number of pixels in x direction, if the image is to be resized
-        yPixel:            number of pixels in y direction, if the image is to be resized
-        prefix:            adds an optional prefix to the filename
+        sourcePath
+            list of images paths.
+        destinationPath
+            folder in which  the image is to be saved
+        invertColors
+            inverts the color of the image
+        
+        resize
+            if this is true, the image will be resized with _xPixel_ and _yPixel_ parameters.
+        xPixel
+            number of pixels in x direction, if the image is to be resized
+        yPixel
+            number of pixels in y direction, if the image is to be resized
+        prefix
+            adds an optional prefix to the filename
         
     # Retruns
         list of image paths in the _destinationPath_
@@ -126,8 +141,10 @@ def load_np_images(pathImage, extension=["npy", "bin"]):
     Loads a list of numpy images and returns it.
     
     # Arguments
-        pathImage: path list of numpy images
-        exteinsion: specifies the file extension
+        pathImage
+            path list of numpy images
+        exteinsion
+            specifies the file extension
         
     # Returns
         Lsit of numpy arrays that contain the images.
@@ -149,7 +166,8 @@ def print_program_section_name(name):
     Formats and prints the _name_ on stdout.
     
     # Arguments
-        name: string to be printed
+        name
+            string to be printed
     """
     
     line = ""
@@ -165,7 +183,22 @@ def print_program_section_name(name):
     print("# {}".format(line))
           
 def runProcess(process, arg=[""]):
-    "stars a process with an argument; return: output, t: time [s]"
+    """stars a process with arguments
+    # Arguments
+        process
+            string contains the path or directly die programm name
+            which to be excecuted
+        arg
+            list of arguments
+    
+    # Returns
+        output
+            list of strings of the stream stdout
+        exitCode
+            exitCode of the process
+        t
+            wall time of the process [s]
+    """
     
     start = time.time()
 

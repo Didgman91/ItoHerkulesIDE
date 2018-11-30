@@ -137,5 +137,7 @@ pip-selfcheck.json
 
 python/output
 data
+config
 !lib
 tmp
+*.zip

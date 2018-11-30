@@ -10,6 +10,8 @@ import functools
 from keras import backend as K
 import tensorflow as tf
 
+
+
 #from keras_contrib.losses import jaccard_distance
 
 
@@ -41,7 +43,7 @@ def pearson_correlation_coefficient(y_true, y_pred):
     # Returns
         the Pearson correlation coefficient
     """
-    return tf.contrib.metrics.streaming_pearson_correlation(y_true[:,:,:,0], y_pred[:,:,:,0])
+    return tf.contrib.metrics.streaming_pearson_correlation(y_true, y_pred)
 
 
 
@@ -64,8 +66,6 @@ def jaccard_distance(y_true, y_pred, smooth=100):
     IEEE Trans. Pattern Anal. Mach. Intell.. 26. . 10.5244/C.27.32.
     https://en.wikipedia.org/wiki/Jaccard_index
     """
-    y_true = y_true[:,:,:,0]
-    y_pred = -1*(y_pred[:,:,:,0]-1)
     intersection = K.sum(K.abs(y_true * y_pred), axis=-1)
     sum_ = K.sum(K.abs(y_true) + K.abs(y_pred), axis=-1)
     jac = (intersection + smooth) / (sum_ - intersection + smooth)

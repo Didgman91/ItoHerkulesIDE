@@ -14,12 +14,17 @@ import pickle
 import numpy as np
 
 from PIL import Image
+from PIL import ImageOps
+
+import keras.backend as K
+import tensorflow as tf
 
 from ..toolbox import toolbox
 
 from .model import get_model_deep_speckle
 from .losses import pcc
 from .losses import jd
+
 
 #from __future__ import print_function
 #
@@ -29,7 +34,7 @@ from .losses import jd
 #from keras.regularizers import l2
 
 
-class neuronalNetworkCalss:
+class neuronalNetworkClass:
     
     def __init__(self, neuronalNetworkPathExtension=""):
         "Creats folders and subfolders related to the F2 process in the folder _path_."
@@ -159,7 +164,7 @@ class neuronalNetworkCalss:
     
     def convertImageListToNpArray4d(self, images):
         "4d array: 1dim: image number, 2d: x dimension of the image, 3d: y dimension of the image, 4d: channel"
-        if type(images) is list:
+        if (type(images) is list) & (len(images)>1):
             # stack a list to a numpy array
             images = np.stack((images))
         elif type(images) is np.array:
@@ -186,7 +191,7 @@ class neuronalNetworkCalss:
         
         return images
     
-    def save4dNpyAsBmp(self, npyPath, filename, bmpFolderPath=""):
+    def save4dNpyAsBmp(self, npyPath, filename, bmpFolderPath="", invert_Color=False):
         if bmpFolderPath == "":
             bmpFolderPath = self.pathData + self.pathOutputPredictions
             
@@ -194,6 +199,8 @@ class neuronalNetworkCalss:
         
         for i in range(len(npy)):
             image = Image.fromarray(np.uint8(npy[i]*255)).convert('RGB')
+            if (invert_Color == True):
+                image = ImageOps.invert(image)
             image.save(self.pathData + self.pathOutputPredictions + "/{}.bmp".format(filename[i]))
     
     def trainNetwork(self, trainingDataPath, groundTruthPath, model, fitEpochs, fitBatchSize):
@@ -206,7 +213,7 @@ class neuronalNetworkCalss:
         
         # Compile model
     #    model.compile(loss={'predictions':getLossFunction}, optimizer='adam', metrics=['accuracy', getMetric])
-        model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=[pcc, jd])
+        model.compile(loss='sparse_categorical_crossentropy', optimizer='adam')
         
         
         # Fit the model
@@ -238,9 +245,41 @@ class neuronalNetworkCalss:
         path = self.pathData + self.pathOutputPredictions + "/" + self.fileNamePredictions
         np.save(path, pred)
         
-        self.save4dNpyAsBmp(path, fileName)
+        self.save4dNpyAsBmp(path, fileName, invert_color=True)
         
         return path
+
+    def evaluate_Network(self, method, path_Ground_Truth=[], path_Prediction=[]):
+        if path_Ground_Truth==[]:
+            path_Ground_Truth = self.pathData + self.pathInputTestDataGroundTruth
+            path_Ground_Truth = toolbox.get_file_path_with_extension(path_Ground_Truth, ["bmp"])
+                        
+        if path_Prediction==[]:
+            path_Prediction = self.pathData + self.pathOutputPredictions
+            path_Prediction = toolbox.get_file_path_with_extension(path_Prediction, ["bmp"])
+            
+        path_Prediction.sort()
+        path_Ground_Truth.sort()
+        
+        
+        pred = self.getImageAsNpy(path_Prediction)
+        groundTruth = self.getImageAsNpy(path_Ground_Truth)
+        
+#        pred_tf = tf.convert_to_tensor(pred)
+#        groundTruth_tf = tf.convert_to_tensor(groundTruth)
+        
+        rv = []
+        
+        rv += [pcc(groundTruth_tf, pred_tf)]
+        
+#        for m in method:
+#            sess = tf.InteractiveSession()
+#            
+#            score = m(groundTruth, pred)
+#            mean = K.mean(score)
+#            rv += [mean.eval()]
+            
+        return rv
 
     def loadHistory():
         with open('history.pkl', 'rb') as handle:

@@ -91,23 +91,23 @@ Do j,1,max
 EndDo ! j
 
  
-BMPInit 850,700
-BMPSetPen 255,255,255
-BMPSetPen2 128,128,128
+!BMPInit 850,700
+!BMPSetPen 255,255,255
+!BMPSetPen2 128,128,128
 
-BMPColorMap BW
-BMPSetWin 10,10,310,300, 1,1,sam,sam
-BMPListPlot1d erg1,"GesamtEnergie Feld","z","Efeld"
+!BMPColorMap BW
+!BMPSetWin 10,10,310,300, 1,1,sam,sam
+!BMPListPlot1d erg1,"GesamtEnergie Feld","z","Efeld"
 
-BMPSetWin 450,10,750,310, 1,1,3,3
-BMPListPlot1d erg2,"Energie Pupille","z","Epup"
+!BMPSetWin 450,10,750,310, 1,1,3,3
+!BMPListPlot1d erg2,"Energie Pupille","z","Epup"
 
-BMPSetWin 10,360,310,660, 1,1,sam,sam
-BMPListPlot1d2 erg3,erg4,"Koll./Diff. Transmission","z","T"
+!BMPSetWin 10,360,310,660, 1,1,sam,sam
+!BMPListPlot1d2 erg3,erg4,"Koll./Diff. Transmission","z","T"
 
-BMPSetWin 450,360,750,660, 1,1,3,3
-BMPListPlot1d erg5,"Transmission","z","T"
+!BMPSetWin 450,360,750,660, 1,1,3,3
+!BMPListPlot1d erg5,"Transmission","z","T"
 
-BMPSave "{py_outputPath}/nebel_{py_fileName}_.bmp"
+!BMPSave "{py_outputPath}/nebel_{py_fileName}_.bmp"
 
 End 

@@ -10,6 +10,7 @@ import functools
 from keras import backend as K
 import tensorflow as tf
 
+import numpy as np
 
 
 #from keras_contrib.losses import jaccard_distance
@@ -26,8 +27,11 @@ def as_keras_metric(method):
         """ Wrapper for turning tensorflow metrics into keras metrics """
         value, update_op = method(self, args, **kwargs)
         K.get_session().run(tf.local_variables_initializer())
-        with tf.control_dependencies([update_op]):
-            value = tf.identity(value)
+        K.get_session().run([value, update_op])
+        K.get_session().run([value])
+#        K.get_session().run(tf.local_variables_initializer())
+#        with tf.control_dependencies([update_op]):
+#            value = tf.identity(value)
         return value
     return wrapper
 
@@ -43,6 +47,15 @@ def pearson_correlation_coefficient(y_true, y_pred):
     # Returns
         the Pearson correlation coefficient
     """
+    
+    if type(y_true) is type(np.array([])):
+        y_true = tf.convert_to_tensor(y_true)
+        y_true = tf.cast(y_true, tf.float32)
+    
+    if type(y_pred) is type(np.array([])):    
+        y_pred = tf.convert_to_tensor(y_pred)
+        y_pred = tf.cast(y_pred, tf.float32)
+    
     return tf.contrib.metrics.streaming_pearson_correlation(y_true, y_pred)
 
 

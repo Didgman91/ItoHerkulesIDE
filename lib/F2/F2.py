@@ -43,7 +43,7 @@ def run_script(path, printStdout = True):
         for i in output:
             print(i)
     
-    with open(path+pathIntermediateDataStdout+"/"+fileNameStdout, "a") as stdoutFile:
+    with open(pathData+pathIntermediateDataStdout+"/"+fileNameStdout, "a") as stdoutFile:
         for o in output:
             stdoutFile.write(o)
     

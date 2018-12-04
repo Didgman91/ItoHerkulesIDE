@@ -34,6 +34,75 @@ from .losses import jd
 #from keras.regularizers import l2
 
 
+def generate_arrays(data, ground_Truth, batch_size):
+    L = len(data)
+    
+    while True:
+        
+        batch_start = 0
+        batch_end = batch_size
+        
+        while batch_start < L:
+            limit = min(batch_end, L)
+            
+            data_Npy = getImageAsNpy(data[batch_start:limit])
+            ground_Truth_Npy = getImageAsNpy(ground_Truth[batch_start:limit])
+            
+            data_Npy = convertImageListToNpArray4d(data_Npy)
+            ground_Truth_Npy = convertImageListToNpArray4d(ground_Truth_Npy)
+            
+            yield(data_Npy, ground_Truth_Npy)
+            
+            batch_start += batch_size
+            batch_end += batch_size
+            
+#        for i in range(len(data)):
+#            img = Image.open(ground_Truth[i])#.convert('LA')
+#            img.load()
+#            dataNpy = np.asarray(img, dtype="int32")/255
+#            
+#            img = Image.open(data[i])#.convert('LA')
+#            img.load()
+#            groundTruthNpy = np.asarray(img, dtype="int32")/255
+#            
+#            yield(dataNpy, groundTruthNpy)
+
+def getImageAsNpy(imagePath):
+    rv = []
+    for i in range(len(imagePath)):
+            img = Image.open(imagePath[i])#.convert('LA')
+            img.load()
+            rv += [np.asarray(img, dtype="int32")/255]
+
+def convertImageListToNpArray4d(images):
+        "4d array: 1dim: image number, 2d: x dimension of the image, 3d: y dimension of the image, 4d: channel"
+        if (type(images) is list) & (len(images)>1):
+            # stack a list to a numpy array
+            images = np.stack((images))
+        elif type(images) is np.array:
+            buffer=0    # do nothing
+        else:
+            print("error: type of _images_ not supported")
+            return 0
+        
+        # convert RGB image to gray scale image
+        if len(images.shape) == 4:
+            if images.shape[3] == 3:
+                buffer = []
+                for i in images:
+                    b = Image.fromarray(np.uint8(i*255)).convert('L')
+                    buffer += [np.asarray(b, dtype="int32")]
+                    
+                images = np.stack((buffer))
+        if images.max() > 1:
+            images = images / 255
+        
+        # reshape the numpy array (imageNumber, xPixels, yPixels, 1)
+        if len(images.shape) == 3:
+            images = images.reshape((images.shape[0], images.shape[1], images.shape[2], 1))        
+        
+        return images
+
 class neuronalNetworkClass:
     
     def __init__(self, neuronalNetworkPathExtension=""):
@@ -158,38 +227,9 @@ class neuronalNetworkClass:
             
             rv = rv + [data]
         
-        rv = self.convertImageListToNpArray4d(rv)
+        rv = convertImageListToNpArray4d(rv)
         
         return rv
-    
-    def convertImageListToNpArray4d(self, images):
-        "4d array: 1dim: image number, 2d: x dimension of the image, 3d: y dimension of the image, 4d: channel"
-        if (type(images) is list) & (len(images)>1):
-            # stack a list to a numpy array
-            images = np.stack((images))
-        elif type(images) is np.array:
-            buffer=0    # do nothing
-        else:
-            print("error: type of _images_ not supported")
-            return 0
-        
-        # convert RGB image to gray scale image
-        if len(images.shape) == 4:
-            if images.shape[3] == 3:
-                buffer = []
-                for i in images:
-                    b = Image.fromarray(np.uint8(i*255)).convert('L')
-                    buffer += [np.asarray(b, dtype="int32")]
-                    
-                images = np.stack((buffer))
-        if images.max() > 1:
-            images = images / 255
-        
-        # reshape the numpy array (imageNumber, xPixels, yPixels, 1)
-        if len(images.shape) == 3:
-            images = images.reshape((images.shape[0], images.shape[1], images.shape[2], 1))        
-        
-        return images
     
     def save4dNpyAsBmp(self, npyPath, filename, bmpFolderPath="", invert_Color=False):
         if bmpFolderPath == "":
@@ -202,6 +242,9 @@ class neuronalNetworkClass:
             if (invert_Color == True):
                 image = ImageOps.invert(image)
             image.save(self.pathData + self.pathOutputPredictions + "/{}.bmp".format(filename[i]))
+    
+    
+                
     
     def trainNetwork(self, trainingDataPath, groundTruthPath, model, fitEpochs, fitBatchSize):
         
@@ -218,6 +261,8 @@ class neuronalNetworkClass:
         
         # Fit the model
         history = model.fit(trainingData, groundTruth, epochs=fitEpochs, batch_size=fitBatchSize)
+#        history = model.fit_generator(generate_arrays(trainingDataPath, groundTruthPath, fitBatchSize),
+#                                      steps_per_epoch=fitBatchSize, epochs=fitEpochs)
         
         # saving the history
         with open (self.pathData + self.pathINtermediateDataHistory + "/" + self.fileNmaeHistory, "wb") as f:

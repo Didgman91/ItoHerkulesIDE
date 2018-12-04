@@ -153,15 +153,18 @@ class neuronalNetworkClass:
     
     def loadModel(self,modelFilePath, neuronalNetworkPathExtensionPretrainedWeights = ""):
         """
-        loads the model and copys the _modelFilePath_ into the input folder
+        Loads the model and copies the _modelFilePath_ into the input folder.
         
         # Argumets
-            modelFilePath: relative path to the model in parent _pathData_ folder
+            modelFilePath
+                relative path to the model in parent _pathData_ folder
             
-            neuronalNetworkPathExtensionPretrainedWeights: name of the subfolder at _pathNeuronalNetworkData_ path, which will be used instead of _pathNeuronalNetworkData_
+            neuronalNetworkPathExtensionPretrainedWeights
+                name of the subfolder at _pathNeuronalNetworkData_ path, which 
+                will be used instead of _pathNeuronalNetworkData_
             
         # Returns
-            The model object.
+            the model object
         """
         
         copyfile(modelFilePath, self.pathData + self.pathInputModel + "/model.py")
@@ -179,10 +182,40 @@ class neuronalNetworkClass:
         return model
     
     def loadTrainingData(self, imagePath, prefix=""):
+        """
+        Loads the training data and copies the listed files under 
+        _imagePath_ into the input folder.
+        
+        # Arguments
+            imagePath
+                List of relative paths to the training data images in the parent folder _pathData_.
+                
+            prefix
+                A prefix can be added to the image file during the copy operation.
+                
+        # Returns
+            a list of the copied images
+        """
         path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTrainingData, prefix=prefix)
         return path
     
     def loadGroundTruthData(self, imagePath, loadMultipleTimesWithPrefix = []):
+        """
+        Loads the ground truth training data and copies the listed files under
+        _imagePath_ into the input folder.
+        
+        # Arguments
+            imagePath
+                List of relative paths to the ground truth training data images
+                in the parent folder _pathData_.
+                
+            loadMultipleTimesWithPrefix
+                If this is set, than all images listed under _imagePath_ are
+                saved multiple times with the listed prefix.
+
+        # Returns
+            a list of the copied images
+        """
         path = []
         if loadMultipleTimesWithPrefix == []:
             path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTrainingDataGroundTruth)
@@ -192,10 +225,42 @@ class neuronalNetworkClass:
         return path
     
     def loadTestData(self, imagePath, prefix=""):
+        """
+        Loads the test data and copies the listed files under _imagePath_
+        into the input folder.
+        
+        # Arguments
+            imagePath
+                List of relative paths to the test data images in the parent
+                folder _pathData_.
+                
+            prefix
+                A prefix can be added to the image file during the copy
+                operation.
+                
+        # Returns
+            a list of the copied images
+        """
         path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTestData, prefix=prefix)
         return path
     
     def loadTestGroundTruthData(self, imagePath, loadMultipleWithPrefix = []):
+        """
+        Loads the ground truth test data and copies the listed files under
+        _imagePath_ into the input folder.
+        
+        # Arguments
+            imagePath
+                List of relative paths to the ground truth test data images in
+                the parent folder _pathData_.
+                
+            loadMultipleTimesWithPrefix
+                If this is set, than all images listed under _imagePath_ are
+                saved multiple times with the listed prefix.
+
+        # Returns
+            a list of the copied images
+        """
         path = []
         if loadMultipleWithPrefix == []:
             path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTestDataGroundTruth)
@@ -205,7 +270,15 @@ class neuronalNetworkClass:
         return path
     
     def getImageAsNpy(self, imagePath):
-        ""
+        """
+        Opens the images listed under _imagePath_ and returns them as a list
+        of numpy arrays.
+        
+        #Arguments
+            imagePath
+                List of relative paths to the ground truth test data images in
+                the parent folder _pathData_.
+        """
         rv = []
         for ip in imagePath:
             fileExtension = os.path.splitext(ip)[-1]
@@ -232,6 +305,10 @@ class neuronalNetworkClass:
         return rv
     
     def save4dNpyAsBmp(self, npyPath, filename, bmpFolderPath="", invert_Color=False):
+        """
+        # Arguments
+            npyPath
+        """
         if bmpFolderPath == "":
             bmpFolderPath = self.pathData + self.pathOutputPredictions
             
@@ -287,6 +364,7 @@ class neuronalNetworkClass:
         
         pred = model.predict(testData, batch_size=2)
         
+        # todo: don't save save the prediction as a numpy array
         path = self.pathData + self.pathOutputPredictions + "/" + self.fileNamePredictions
         np.save(path, pred)
         

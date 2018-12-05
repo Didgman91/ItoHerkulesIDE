@@ -333,20 +333,24 @@ class neuronal_Network_Class:
         
         return rv
     
-    def save_4D_Npy_As_Bmp(self, npyPath, filename, bmp_Folder_Path="", invert_Color=False):
+    def save_4D_Npy_As_Bmp(self, npy_Array, filename, bmp_Folder_Path="", invert_Color=False):
         """
         # Arguments
             npyPath
         """
         if bmp_Folder_Path == "":
             bmp_Folder_Path = self.path_Data + self.path_Output_Test_Data_Prediction
-            
-        npy = np.load(npyPath)
         
-        for i in range(len(npy)):
-            image = toolbox.convert_3d_Npy_To_Image(npy[i], invert_Color)
-            image.save(self.path_Data + self.path_Output_Test_Data_Prediction + "/{}.bmp".format(filename[i]))
-    
+        path = []
+        for i in range(len(npy_Array)):
+            image = toolbox.convert_3d_Npy_To_Image(npy_Array[i], invert_Color)
+            
+            buffer = self.path_Data + self.path_Output_Test_Data_Prediction + "/{}.bmp".format(filename[i])
+            image.save(buffer)
+            
+            path += [buffer]
+            
+        return path
     
                 
     
@@ -394,11 +398,7 @@ class neuronal_Network_Class:
         
         pred = model.predict(test_Data)
         
-        # todo: don't save save the prediction as a numpy array
-        path = self.path_Data + self.path_Output_Test_Data_Prediction + "/" + self.file_Name_Predictions
-        np.save(path, pred)
-        
-        self.save_4D_Npy_As_Bmp(path, fileName, invert_Color=True)
+        path = self.save_4D_Npy_As_Bmp(pred, fileName, invert_Color=True)
         
         return path
 
@@ -430,7 +430,7 @@ class neuronal_Network_Class:
         mean = K.mean(score)
         meanNP = mean.eval(session=sess)
         
-        
+        self.save_4D_Npy_As_Bmp()
         
 #        for i in range(len(scoreNP[:,0,0])):
         

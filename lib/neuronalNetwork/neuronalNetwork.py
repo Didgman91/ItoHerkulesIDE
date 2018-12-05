@@ -46,11 +46,11 @@ from .losses import jd
 #        while batch_start < L:
 #            limit = min(batch_end, L)
 #            
-#            data_Npy = getImageAsNpy(data[batch_start:limit])
-#            ground_Truth_Npy = getImageAsNpy(ground_Truth[batch_start:limit])
+#            data_Npy = get_Image_As_Npy(data[batch_start:limit])
+#            ground_Truth_Npy = get_Image_As_Npy(ground_Truth[batch_start:limit])
 #            
-#            data_Npy = convertImageListToNpArray4d(data_Npy)
-#            ground_Truth_Npy = convertImageListToNpArray4d(ground_Truth_Npy)
+#            data_Npy = convert_Image_List_To_4D_Np_Array(data_Npy)
+#            ground_Truth_Npy = convert_Image_List_To_4D_Np_Array(ground_Truth_Npy)
 #            
 #            yield(data_Npy, ground_Truth_Npy)
 #            
@@ -64,18 +64,18 @@ from .losses import jd
 ##            
 ##            img = Image.open(data[i])#.convert('LA')
 ##            img.load()
-##            groundTruthNpy = np.asarray(img, dtype="int32")/255
+##            ground_TruthNpy = np.asarray(img, dtype="int32")/255
 ##            
-##            yield(dataNpy, groundTruthNpy)
+##            yield(dataNpy, ground_TruthNpy)
 #
-#def getImageAsNpy(imagePath):
+#def get_Image_As_Npy(image_Path):
 #    rv = []
-#    for i in range(len(imagePath)):
-#            img = Image.open(imagePath[i])#.convert('LA')
+#    for i in range(len(image_Path)):
+#            img = Image.open(image_Path[i])#.convert('LA')
 #            img.load()
 #            rv += [np.asarray(img, dtype="int32")/255]
 
-def convertImageListToNpArray4d(images):
+def convert_Image_List_To_4D_Np_Array(images):
         "4d array: 1dim: image number, 2d: x dimension of the image, 3d: y dimension of the image, 4d: channel"
         if (type(images) is list) & (len(images)>1):
             # stack a list to a numpy array
@@ -105,87 +105,87 @@ def convertImageListToNpArray4d(images):
         
         return images
 
-class neuronalNetworkClass:
+class neuronal_Network_Class:
     
-    def __init__(self, neuronalNetworkPathExtension=""):
+    def __init__(self, neuronal_Network_Path_Extension=""):
         "Creats folders and subfolders related to the F2 process in the folder _path_."
         
-        self.pathData = "data"
-        self.pathNeuronalNetworkData = "/neuronalNetwork"
+        self.path_Data = "data"
+        self.path_Neuronal_Network_Data = "/neuronalNetwork"
         
-        if neuronalNetworkPathExtension != "":
-            if neuronalNetworkPathExtension[-1] == '/':
-                neuronalNetworkPathExtension = neuronalNetworkPathExtension[:-1]
-            if neuronalNetworkPathExtension[0] != '/':
-                neuronalNetworkPathExtension = "/"+ neuronalNetworkPathExtension
+        if neuronal_Network_Path_Extension != "":
+            if neuronal_Network_Path_Extension[-1] == '/':
+                neuronal_Network_Path_Extension = neuronal_Network_Path_Extension[:-1]
+            if neuronal_Network_Path_Extension[0] != '/':
+                neuronal_Network_Path_Extension = "/"+ neuronal_Network_Path_Extension
         
-        print("pathNeuronalNetworkData: {}".format(self.pathData + self.pathNeuronalNetworkData))
+        print("path_Neuronal_Network_Data: {}".format(self.path_Data + self.path_Neuronal_Network_Data))
         
         
-        self.pathInput = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/input"
-        self.pathInputModel = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/input/model"
-        self.pathInputTrainingData = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/input/trainingData"
-        self.pathInputTrainingDataGroundTruth = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/input/trainingData/groundTruth"
-        self.pathInputTestData = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/input/testData"
-        self.pathInputTestDataGroundTruth = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/input/testData/groundTruth"
-        self.pathInputPretrainedWeights = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/input/pretrainedWeights"
+        self.path_Input = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input"
+        self.path_Input_Model = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/model"
+        self.path_Input_Training_Data = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/training_Data"
+        self.path_Input_Training_Dataground_Truth = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/trainingData/groundTruth"
+        self.path_Input_Test_Data = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/test_Data"
+        self.path_Input_Test_Data_Ground_Truth = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/testData/groundTruth"
+        self.path_Input_Pretrained_Weights = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/pretrainedWeights"
         
-        self.pathIntermediateDataTrainedWeights = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/intermediateData/trainedWeights"
-        self.pathIntermediateDataHistory = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/intermediateData/history"
+        self.path_Intermediate_Data_Trained_Weights = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/intermediateData/trainedWeights"
+        self.path_Intermediate_Data_History = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/intermediateData/history"
         
-        self.pathOutputTestDataPrediction = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/output/predictions"
-        self.pathOutputEvaluation = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/output/evaluation"
-        self.pathOutputDocumentation = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/output/documentation"
+        self.path_Output_Test_Data_Prediction = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/output/predictions"
+        self.path_Output_Evaluation = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/output/evaluation"
+        self.path_Output_Documentation = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/output/documentation"
         
-        self.fileNameTrainedWeights = "weights.hdf5"
-        self.fileNamePredictions = "prediction.npy"
-        self.fileNmaeHistory = "history.pkl"
+        self.file_Name_Trained_Weights = "weights.hdf5"
+        self.file_Name_Predictions = "prediction.npy"
+        self.file_Name_History = "history.pkl"
         
         # create input folders
-        os.makedirs(self.pathData + self.pathInput, 0o777, True)
-        os.makedirs(self.pathData + self.pathInputModel, 0o777, True)
-        os.makedirs(self.pathData + self.pathInputTrainingData, 0o777, True)
-        os.makedirs(self.pathData + self.pathInputTrainingDataGroundTruth, 0o777, True)
-        os.makedirs(self.pathData + self.pathInputTestData, 0o777, True)
-        os.makedirs(self.pathData + self.pathInputPretrainedWeights, 0o777, True)
+        os.makedirs(self.path_Data + self.path_Input, 0o777, True)
+        os.makedirs(self.path_Data + self.path_Input_Model, 0o777, True)
+        os.makedirs(self.path_Data + self.path_Input_Training_Data, 0o777, True)
+        os.makedirs(self.path_Data + self.path_Input_Training_Dataground_Truth, 0o777, True)
+        os.makedirs(self.path_Data + self.path_Input_Test_Data, 0o777, True)
+        os.makedirs(self.path_Data + self.path_Input_Pretrained_Weights, 0o777, True)
         
         # create intermediate data folders
-        os.makedirs(self.pathData + self.pathIntermediateDataTrainedWeights, 0o777, True)
-        os.makedirs(self.pathData + self.pathIntermediateDataHistory, 0o777, True)
+        os.makedirs(self.path_Data + self.path_Intermediate_Data_Trained_Weights, 0o777, True)
+        os.makedirs(self.path_Data + self.path_Intermediate_Data_History, 0o777, True)
         
         # create output folders
-        os.makedirs(self.pathData + self.pathOutputTestDataPrediction, 0o777, True)
-        os.makedirs(self.pathData + self.pathOutputDocumentation, 0o777, True)
-        os.makedirs(self.pathData + self.pathOutputEvaluation, 0o777, True)
+        os.makedirs(self.path_Data + self.path_Output_Test_Data_Prediction, 0o777, True)
+        os.makedirs(self.path_Data + self.path_Output_Documentation, 0o777, True)
+        os.makedirs(self.path_Data + self.path_Output_Evaluation, 0o777, True)
     
-    def loadModel(self, modelFilePath = "", neuronalNetworkPathExtensionPretrainedWeights = ""):
+    def load_Model(self, modelFilePath = "", neuronal_Network_Path_ExtensionPretrainedWeights = ""):
         """
         Loads the model and copies the _modelFilePath_ into the input folder.
         
         # Argumets
             modelFilePath
-                relative path to the model in parent _pathData_ folder
+                relative path to the model in parent _path_Data_ folder
             
-            neuronalNetworkPathExtensionPretrainedWeights
-                name of the subfolder at _pathNeuronalNetworkData_ path, which 
-                will be used instead of _pathNeuronalNetworkData_
+            neuronal_Network_Path_ExtensionPretrainedWeights
+                name of the subfolder at _path_Neuronal_Network_Data_ path, which 
+                will be used instead of _path_Neuronal_Network_Data_
             
         # Returns
             the model object
         """
         
         if modelFilePath != "":
-            copyfile(modelFilePath, self.pathData + self.pathInputModel + "/model.py")
+            copyfile(modelFilePath, self.path_Data + self.path_Input_Model + "/model.py")
         
         # model is defined in model.py
         self.model = get_model_deep_speckle()
         
         # load weights of the previous fog layer
-        if (neuronalNetworkPathExtensionPretrainedWeights!=""):
-            pos  = self.pathIntermediateDataTrainedWeights.find("/intermediateData")
-            path = self.pathData + self.pathNeuronalNetworkData + "/"+ neuronalNetworkPathExtensionPretrainedWeights + self.pathIntermediateDataTrainedWeights[pos:] + "//" + self.fileNameTrainedWeights
+        if (neuronal_Network_Path_ExtensionPretrainedWeights!=""):
+            pos  = self.path_Intermediate_Data_Trained_Weights.find("/intermediateData")
+            path = self.path_Data + self.path_Neuronal_Network_Data + "/"+ neuronal_Network_Path_ExtensionPretrainedWeights + self.path_Intermediate_Data_Trained_Weights[pos:] + "//" + self.file_Name_Trained_Weights
             self.load_Weights(path)
-#            copyfile(path, self.pathData + self.pathInputPretrainedWeights + "/" + neuronalNetworkPathExtensionPretrainedWeights + "_" + self.fileNameTrainedWeights)
+#            copyfile(path, self.path_Data + self.path_Input_Pretrained_Weights + "/" + neuronal_Network_Path_ExtensionPretrainedWeights + "_" + self.file_Name_Trained_Weights)
 #            self.model.load_weights(path)
         
         return self.model
@@ -202,22 +202,22 @@ class neuronalNetworkClass:
             the model with the pretrained weights.
         """
         if path=="":
-            path = self.pathData + self.pathIntermediateDataTrainedWeights + "/" + self.fileNameTrainedWeights
+            path = self.path_Data + self.path_Intermediate_Data_Trained_Weights + "/" + self.file_Name_Trained_Weights
         else:
-            copyfile(path, self.pathData + self.pathInputPretrainedWeights + "/" + self.fileNameTrainedWeights)
+            copyfile(path, self.path_Data + self.path_Input_Pretrained_Weights + "/" + self.file_Name_Trained_Weights)
         
         self.model.load_weights(path)
         
         return self.model
     
-    def loadTrainingData(self, imagePath, prefix=""):
+    def load_Training_Data(self, image_Path, prefix=""):
         """
         Loads the training data and copies the listed files under 
-        _imagePath_ into the input folder.
+        _image_Path_ into the input folder.
         
         # Arguments
-            imagePath
-                List of relative paths to the training data images in the parent folder _pathData_.
+            image_Path
+                List of relative paths to the training data images in the parent folder _path_Data_.
                 
             prefix
                 A prefix can be added to the image file during the copy operation.
@@ -225,43 +225,43 @@ class neuronalNetworkClass:
         # Returns
             a list of the copied images
         """
-        path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTrainingData, prefix=prefix)
+        path = toolbox.load_Image(image_Path, self.path_Data + self.path_Input_Training_Data, prefix=prefix)
         return path
     
-    def loadGroundTruthData(self, imagePath, loadMultipleTimesWithPrefix = []):
+    def load_Ground_Truth_Data(self, image_Path, load_Multiple_Times_With_Prefix = []):
         """
         Loads the ground truth training data and copies the listed files under
-        _imagePath_ into the input folder.
+        _image_Path_ into the input folder.
         
         # Arguments
-            imagePath
+            image_Path
                 List of relative paths to the ground truth training data images
-                in the parent folder _pathData_.
+                in the parent folder _path_Data_.
                 
-            loadMultipleTimesWithPrefix
-                If this is set, than all images listed under _imagePath_ are
+            load_Multiple_Times_With_Prefix
+                If this is set, than all images listed under _image_Path_ are
                 saved multiple times with the listed prefix.
 
         # Returns
             a list of the copied images
         """
         path = []
-        if loadMultipleTimesWithPrefix == []:
-            path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTrainingDataGroundTruth)
+        if load_Multiple_Times_With_Prefix == []:
+            path = toolbox.load_Image(image_Path, self.path_Data + self.path_Input_Training_Dataground_Truth)
         else:
-            for prefix in loadMultipleTimesWithPrefix:
-                path += toolbox.loadImage(imagePath, self.pathData + self.pathInputTrainingDataGroundTruth, prefix="{}_".format(prefix))
+            for prefix in load_Multiple_Times_With_Prefix:
+                path += toolbox.load_Image(image_Path, self.path_Data + self.path_Input_Training_Dataground_Truth, prefix="{}_".format(prefix))
         return path
     
-    def loadTestData(self, imagePath, prefix=""):
+    def load_Test_Data(self, image_Path, prefix=""):
         """
-        Loads the test data and copies the listed files under _imagePath_
+        Loads the test data and copies the listed files under _image_Path_
         into the input folder.
         
         # Arguments
-            imagePath
+            image_Path
                 List of relative paths to the test data images in the parent
-                folder _pathData_.
+                folder _path_Data_.
                 
             prefix
                 A prefix can be added to the image file during the copy
@@ -270,57 +270,57 @@ class neuronalNetworkClass:
         # Returns
             a list of the copied images
         """
-        path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTestData, prefix=prefix)
+        path = toolbox.load_Image(image_Path, self.path_Data + self.path_Input_Test_Data, prefix=prefix)
         return path
     
-    def loadTestGroundTruthData(self, imagePath, loadMultipleWithPrefix = []):
+    def load_Test_Ground_Truth_Data(self, image_Path, load_Multiple_With_Prefix = []):
         """
         Loads the ground truth test data and copies the listed files under
-        _imagePath_ into the input folder.
+        _image_Path_ into the input folder.
         
         # Arguments
-            imagePath
+            image_Path
                 List of relative paths to the ground truth test data images in
-                the parent folder _pathData_.
+                the parent folder _path_Data_.
                 
-            loadMultipleTimesWithPrefix
-                If this is set, than all images listed under _imagePath_ are
+            load_Multiple_Times_With_Prefix
+                If this is set, than all images listed under _image_Path_ are
                 saved multiple times with the listed prefix.
 
         # Returns
             a list of the copied images
         """
         path = []
-        if loadMultipleWithPrefix == []:
-            path = toolbox.loadImage(imagePath, self.pathData + self.pathInputTestDataGroundTruth)
+        if load_Multiple_With_Prefix == []:
+            path = toolbox.load_Image(image_Path, self.path_Data + self.path_Input_Test_Data_Ground_Truth)
         else:
-            for prefix in loadMultipleWithPrefix:
-                path += toolbox.loadImage(imagePath, self.pathData + self.pathInputTestDataGroundTruth, prefix="{}_".format(prefix))
+            for prefix in load_Multiple_With_Prefix:
+                path += toolbox.load_Image(image_Path, self.path_Data + self.path_Input_Test_Data_Ground_Truth, prefix="{}_".format(prefix))
         return path
     
-    def getImageAsNpy(self, imagePath):
+    def get_Image_As_Npy(self, image_Path):
         """
-        Opens the images listed under _imagePath_ and returns them as a list
+        Opens the images listed under _image_Path_ and returns them as a list
         of numpy arrays.
         
         #Arguments
-            imagePath
+            image_Path
                 List of relative paths to the ground truth test data images in
-                the parent folder _pathData_.
+                the parent folder _path_Data_.
         """
         rv = []
-        for ip in imagePath:
-            fileExtension = os.path.splitext(ip)[-1]
+        for ip in image_Path:
+            file_Extension = os.path.splitext(ip)[-1]
     
     #        base = os.path.basename(ip)
     #        name = os.path.splitext(base)
             data = []
             
-            if fileExtension == ".bmp":
+            if file_Extension == ".bmp":
                 img = Image.open(ip)#.convert('LA')
                 img.load()
                 data = np.asarray(img, dtype="int32")/255
-            elif (fileExtension == ".npy") | (fileExtension == ".bin"):
+            elif (file_Extension == ".npy") | (file_Extension == ".bin"):
                 data = np.load(ip)
                 data = Image.fromarray(np.uint8(data*255))#.convert('LA')
                 data = np.asarray(data, dtype="int32")/255
@@ -329,41 +329,34 @@ class neuronalNetworkClass:
             
             rv = rv + [data]
         
-        rv = convertImageListToNpArray4d(rv)
+        rv = convert_Image_List_To_4D_Np_Array(rv)
         
         return rv
     
-    def convert3dNpyToImage(npy, invert_Color=False):
-        image = Image.fromarray(np.uint8(npy*255)).convert('RGB')
-        if (invert_Color == True):
-            image = ImageOps.invert(image)
-                
-        return image
-    
-    def save4dNpyAsBmp(self, npyPath, filename, bmpFolderPath="", invert_Color=False):
+    def save_4D_Npy_As_Bmp(self, npyPath, filename, bmp_Folder_Path="", invert_Color=False):
         """
         # Arguments
             npyPath
         """
-        if bmpFolderPath == "":
-            bmpFolderPath = self.pathData + self.pathOutputTestDataPrediction
+        if bmp_Folder_Path == "":
+            bmp_Folder_Path = self.path_Data + self.path_Output_Test_Data_Prediction
             
         npy = np.load(npyPath)
         
         for i in range(len(npy)):
-            image = convert3dNpyToImage(npy[i], invert_Color)
-            image.save(self.pathData + self.pathOutputTestDataPrediction + "/{}.bmp".format(filename[i]))
+            image = toolbox.convert_3d_Npy_To_Image(npy[i], invert_Color)
+            image.save(self.path_Data + self.path_Output_Test_Data_Prediction + "/{}.bmp".format(filename[i]))
     
     
                 
     
-    def trainNetwork(self, trainingDataPath, groundTruthPath, model, fitEpochs, fitBatchSize):
+    def train_Network(self, training_Data_Path, ground_Truth_Path, model, fit_Epochs, fit_Batch_Size):
         
-        trainingDataPath.sort()
-        groundTruthPath.sort()
+        training_Data_Path.sort()
+        ground_Truth_Path.sort()
         
-        trainingData = self.getImageAsNpy(trainingDataPath)
-        groundTruth = self.getImageAsNpy(groundTruthPath)
+        training_Data = self.get_Image_As_Npy(training_Data_Path)
+        ground_Truth = self.get_Image_As_Npy(ground_Truth_Path)
         
         # Compile model
     #    model.compile(loss={'predictions':getLossFunction}, optimizer='adam', metrics=['accuracy', getMetric])
@@ -371,63 +364,63 @@ class neuronalNetworkClass:
         
         
         # Fit the model
-        history = model.fit(trainingData, groundTruth, epochs=fitEpochs, batch_size=fitBatchSize)
-#        history = model.fit_generator(generate_arrays(trainingDataPath, groundTruthPath, fitBatchSize),
-#                                      steps_per_epoch=fitBatchSize, epochs=fitEpochs)
+        history = model.fit(training_Data, ground_Truth, epochs=fit_Epochs, batch_size=fit_Batch_Size, verbose=2)
+#        history = model.fit_generator(generate_arrays(training_Data_Path, ground_Truth_Path, fit_Batch_Size),
+#                                      steps_per_epoch=fit_Batch_Size, epochs=fit_Epochs)
         
         # saving the history
-        with open (self.pathData + self.pathINtermediateDataHistory + "/" + self.fileNmaeHistory, "wb") as f:
+        with open (self.path_Data + self.path_Intermediate_Data_History + "/" + self.file_Name_History, "wb") as f:
             pickle.dump(history.history, f)
         
         
-        model.save_weights(self.pathData + self.pathIntermediateDataTrainedWeights + "/" + self.fileNameTrainedWeights)
+        model.save_weights(self.path_Data + self.path_Intermediate_Data_Trained_Weights + "/" + self.file_Name_Trained_Weights)
         
         return model
     
-    def validate_Network(self, validationDataPath, model, trainedWeightsPath=""):
-        validationDataPath.sort()
+    def validate_Network(self, validation_Data_Path, model, trained_Weights_Path=""): 
+        validation_Data_Path.sort()
     
-    def testNetwork(self, testDataPath, model, trainedWeightsPath=""):
-        testDataPath.sort()
-        testData = self.getImageAsNpy(testDataPath)
+    def test_Network(self, test_Data_Path, model, trained_Weights_Path=""):
+        test_Data_Path.sort()
+        test_Data = self.get_Image_As_Npy(test_Data_Path)
         
         fileName = []
-        for ip in testDataPath:
+        for ip in test_Data_Path:
             base = os.path.basename(ip)
             fileName += [os.path.splitext(base)[0]]
         
-        if trainedWeightsPath == "":
-            model.save_weights(self.pathData + self.pathIntermediateDataTrainedWeights + "/" + self.fileNameTrainedWeights)
+        if trained_Weights_Path == "":
+            model.save_weights(self.path_Data + self.path_Intermediate_Data_Trained_Weights + "/" + self.file_Name_Trained_Weights)
         
-        pred = model.predict(testData)
+        pred = model.predict(test_Data)
         
         # todo: don't save save the prediction as a numpy array
-        path = self.pathData + self.pathOutputTestDataPrediction + "/" + self.fileNamePredictions
+        path = self.path_Data + self.path_Output_Test_Data_Prediction + "/" + self.file_Name_Predictions
         np.save(path, pred)
         
-        self.save4dNpyAsBmp(path, fileName, invert_Color=True)
+        self.save_4D_Npy_As_Bmp(path, fileName, invert_Color=True)
         
         return path
 
     def evaluate_Network(self, method, path_Ground_Truth=[], path_Prediction=[]):
         if path_Ground_Truth==[]:
-            path_Ground_Truth = self.pathData + self.pathInputTestDataGroundTruth
+            path_Ground_Truth = self.path_Data + self.path_Input_Test_Data_Ground_Truth
             path_Ground_Truth = toolbox.get_file_path_with_extension(path_Ground_Truth, ["bmp"])
                         
         if path_Prediction==[]:
-            path_Prediction = self.pathData + self.pathOutputTestDataPrediction
+            path_Prediction = self.path_Data + self.path_Output_Test_Data_Prediction
             path_Prediction = toolbox.get_file_path_with_extension(path_Prediction, ["bmp"])
             
         path_Prediction.sort()
         path_Ground_Truth.sort()
         
-        pred = self.getImageAsNpy(path_Prediction)
-        groundTruth = self.getImageAsNpy(path_Ground_Truth)
+        pred = self.get_Image_As_Npy(path_Prediction)
+        ground_Truth = self.get_Image_As_Npy(path_Ground_Truth)
         
         # calculate jaccard_distance
         sess = tf.InteractiveSession()
             
-        score = KC.losses.jaccard_distance(groundTruth, pred)
+        score = KC.losses.jaccard_distance(ground_Truth, pred)
         scoreNP = score.eval(session=sess)
         
         meanNP_per_image = []
@@ -437,21 +430,21 @@ class neuronalNetworkClass:
         mean = K.mean(score)
         meanNP = mean.eval(session=sess)
         
-        self.save4dNpyAsBmp
+        
         
 #        for i in range(len(scoreNP[:,0,0])):
         
 #        pred_tf = tf.convert_to_tensor(pred)
-#        groundTruth_tf = tf.convert_to_tensor(groundTruth)
+#        ground_Truth_tf = tf.convert_to_tensor(ground_Truth)
         
 #        rv = []
 #        
-#        rv += [pcc(groundTruth_tf, pred_tf)]
+#        rv += [pcc(ground_Truth_tf, pred_tf)]
         
 #        for m in method:
 #            sess = tf.InteractiveSession()
 #            
-#            score = m(groundTruth, pred)
+#            score = m(ground_Truth, pred)
 #            mean = K.mean(score)
 #            rv += [mean.eval()]
             

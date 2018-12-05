@@ -20,64 +20,64 @@ def send_Message(message):
     subprocess.Popen(['notify-send', message])
     return
 
-def get_file_path_with_extension(pathFolder, extension):
+def get_file_path_with_extension(path_Folder, extension):
     """
     Scans a folder for all files with a specific extension.
     # Arguments
-        pathFolder
+        path_Folder
             search folder
         extension
             accepts a list of file extensions
         
     # Returns
-        list with all files in the _pathFolder_ with a specific _extension_
+        list with all files in the _path_Folder_ with a specific _extension_
     
     """
-    if pathFolder[len(pathFolder)-1] != "/":
-        pathFolder = pathFolder + "/"
+    if path_Folder[len(path_Folder)-1] != "/":
+        path_Folder = path_Folder + "/"
     
-    fileName = os.listdir(pathFolder)
+    file_Name = os.listdir(path_Folder)
     
     filePath = []
     
-    for name in fileName:
-        fileExtension = os.path.splitext(name)[1]
+    for name in file_Name:
+        file_Extension = os.path.splitext(name)[1]
         for ex in extension:
             if ex[0] != ".":
                 ex = "." + ex
-            if (fileExtension == ex):
-                filePath = filePath + [ pathFolder + name]
+            if (file_Extension == ex):
+                filePath = filePath + [ path_Folder + name]
     
     filePath.sort()
     
     return filePath
 
-def get_file_path_with_extension_include_subfolders(pathFolder, extension):
+def get_file_path_with_extension_include_subfolders(path_Folder, extension):
     """
-    returns a list with all files in the _pathFolder_ with a specific _extension_
+    returns a list with all files in the _path_Folder_ with a specific _extension_
     # Arguments
-        pathFolder
+        path_Folder
             
         extension
             
     """
     
-    if pathFolder[len(pathFolder)-1] != "/":
-        pathFolder = pathFolder + "/"
+    if path_Folder[len(path_Folder)-1] != "/":
+        path_Folder = path_Folder + "/"
     
     filePath = []
     
-    for root, dirs, files in os.walk(pathFolder):
+    for root, dirs, files in os.walk(path_Folder):
         print(root)
         print("dirs: {}".format((len(dirs))))
         print("files: {}\n".format(len(files)))
     
         for name in files:
-            fileExtension = os.path.splitext(name)[1]
+            file_Extension = os.path.splitext(name)[1]
             for ex in extension:
                 if ex[0] != ".":
                     ex = "." + ex
-                if (fileExtension == ex):
+                if (file_Extension == ex):
                     if root[len(root)-1] != "/":
                         rootBuffer = root + "/"
                     filePath = filePath + [ rootBuffer + name]
@@ -88,71 +88,71 @@ def get_file_path_with_extension_include_subfolders(pathFolder, extension):
 
 def get_File_Name(path):
     base = os.path.basename(path)
-    fileName = os.path.splitext(base)[0]
+    file_Name = os.path.splitext(base)[0]
     
-    return fileName
+    return file_Name
 
-def loadImage(sourcePath, destinationPath, invertColor=False, resize=False, xPixel=0, yPixel=0, prefix=""):
-    """Loads images and saves them in the path _destinationPath_.
+def load_Image(source_Path, destination_Path, invert_Color=False, resize=False, x_Pixel=0, y_Pixel=0, prefix=""):
+    """Loads images and saves them in the path _destination_Path_.
     
     # Arguments
-        sourcePath
+        source_Path
             list of images paths.
-        destinationPath
+        destination_Path
             folder in which  the image is to be saved
-        invertColors
+        invert_Colors
             inverts the color of the image
         
         resize
-            if this is true, the image will be resized with _xPixel_ and _yPixel_ parameters.
-        xPixel
+            if this is true, the image will be resized with _x_Pixel_ and _y_Pixel_ parameters.
+        x_Pixel
             number of pixels in x direction, if the image is to be resized
-        yPixel
+        y_Pixel
             number of pixels in y direction, if the image is to be resized
         prefix
-            adds an optional prefix to the filename
+            adds an optional prefix to the file_Name
         
     # Retruns
-        list of image paths in the _destinationPath_
+        list of image paths in the _destination_Path_
     """
-    os.makedirs(destinationPath, 0o777, True)
+    os.makedirs(destination_Path, 0o777, True)
     
     rv = []
-    for ip in sourcePath:
-        fileExtension = os.path.splitext(ip)[-1]
+    for ip in source_Path:
+        file_Extension = os.path.splitext(ip)[-1]
         
         im = Image.open(ip)
         
         im = im.convert("RGB")  # 24 bit: required by F2
         
         if (resize == True):
-            im = im.resize((xPixel, yPixel))
+            im = im.resize((x_Pixel, y_Pixel))
         
-        if (invertColor == True):
+        if (invert_Color == True):
             im = ImageOps.invert(im)
         
         base = os.path.basename(ip)
         name = os.path.splitext(base)
         
-        if destinationPath[-1] != "/":
-            destinationPath += "/"
+        if destination_Path[-1] != "/":
+            destination_Path += "/"
             
         if prefix == "":
-            path = destinationPath + name[0] + fileExtension
+            path = destination_Path + name[0] + file_Extension
         else:
-            path = destinationPath + prefix + name[0] + fileExtension
+            path = destination_Path + prefix + name[0] + file_Extension
         
         im.save(path)
         rv = rv + [ path ]
     
     return rv
 
-def load_np_images(pathImage, extension=["npy", "bin"]):
+def load_np_images(path_Image, extension=["npy", "bin"]):
     """
     Loads a list of numpy images and returns it.
     
     # Arguments
-        pathImage
+        path_Image
             path list of numpy images
         exteinsion
             specifies the file extension
@@ -162,15 +162,35 @@ def load_np_images(pathImage, extension=["npy", "bin"]):
     """
     image = []
     
-    for i in pathImage:
-        fileExtension = os.path.splitext(i)[-1]
+    for i in path_Image:
+        file_Extension = os.path.splitext(i)[-1]
         for ex in extension:
             if ex[0] != ".":
                 ex = "." + ex
-            if (fileExtension == ex):
+            if (file_Extension == ex):
                 image = image + [np.load(i)]
         
     return image
+
+def convert_3d_Npy_To_Image(npy, invert_Color=False):
+        """
+        Converts a numpy array to an image.
+        
+        # Arguments
+            npy
+                3 dimensional numyp array
+                
+            invert_Color
+                If this is true, the colors in the image will be inverted.
+                
+        # Returns
+            the image
+        """
+        image = Image.fromarray(np.uint8(npy*255)).convert('RGB')
+        if (invert_Color == True):
+            image = ImageOps.invert(image)
+                
+        return image
 
 def print_program_section_name(name):
     """
@@ -193,7 +213,7 @@ def print_program_section_name(name):
     print("# {}".format(name))
     print("# {}".format(line))
           
-def runProcess(process, arg=[""]):
+def run_Process(process, arg=[""]):
     """stars a process with arguments
     # Arguments
         process
@@ -205,8 +225,8 @@ def runProcess(process, arg=[""]):
     # Returns
         output
             list of strings of the stream stdout
-        exitCode
-            exitCode of the process
+        exit_Code
+            exit_Code of the process
         t
             wall time of the process [s]
     """
@@ -219,15 +239,15 @@ def runProcess(process, arg=[""]):
     sys.stdout.flush()
     p = subprocess.Popen([process] + arg, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=os.getcwd())
     output = p.communicate()
-    exitCode = p.returncode
+    exit_Code = p.returncode
 
-    exitCode = p.wait()
-    print("ExitCode: {}".format(exitCode))
+    exit_Code = p.wait()
+    print("exit_Code: {}".format(exit_Code))
     sys.stdout.flush()
     t = time.time() - start
     
-    outputDecoded = []
+    output_Decoded = []
     for i in range(len(output)-1):
-        outputDecoded = outputDecoded + [output[i].decode("utf-8")]
+        output_Decoded = output_Decoded + [output[i].decode("utf-8")]
     
-    return outputDecoded, exitCode, t
+    return output_Decoded, exit_Code, t

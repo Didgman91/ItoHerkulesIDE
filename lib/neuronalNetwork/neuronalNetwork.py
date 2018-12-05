@@ -17,6 +17,7 @@ from PIL import Image
 from PIL import ImageOps
 
 import keras.backend as K
+import keras_contrib as KC
 import tensorflow as tf
 
 from ..toolbox import toolbox
@@ -34,45 +35,45 @@ from .losses import jd
 #from keras.regularizers import l2
 
 
-def generate_arrays(data, ground_Truth, batch_size):
-    L = len(data)
-    
-    while True:
-        
-        batch_start = 0
-        batch_end = batch_size
-        
-        while batch_start < L:
-            limit = min(batch_end, L)
-            
-            data_Npy = getImageAsNpy(data[batch_start:limit])
-            ground_Truth_Npy = getImageAsNpy(ground_Truth[batch_start:limit])
-            
-            data_Npy = convertImageListToNpArray4d(data_Npy)
-            ground_Truth_Npy = convertImageListToNpArray4d(ground_Truth_Npy)
-            
-            yield(data_Npy, ground_Truth_Npy)
-            
-            batch_start += batch_size
-            batch_end += batch_size
-            
-#        for i in range(len(data)):
-#            img = Image.open(ground_Truth[i])#.convert('LA')
-#            img.load()
-#            dataNpy = np.asarray(img, dtype="int32")/255
+#def generate_arrays(data, ground_Truth, batch_size):
+#    L = len(data)
+#    
+#    while True:
+#        
+#        batch_start = 0
+#        batch_end = batch_size
+#        
+#        while batch_start < L:
+#            limit = min(batch_end, L)
 #            
-#            img = Image.open(data[i])#.convert('LA')
-#            img.load()
-#            groundTruthNpy = np.asarray(img, dtype="int32")/255
+#            data_Npy = getImageAsNpy(data[batch_start:limit])
+#            ground_Truth_Npy = getImageAsNpy(ground_Truth[batch_start:limit])
 #            
-#            yield(dataNpy, groundTruthNpy)
-
-def getImageAsNpy(imagePath):
-    rv = []
-    for i in range(len(imagePath)):
-            img = Image.open(imagePath[i])#.convert('LA')
-            img.load()
-            rv += [np.asarray(img, dtype="int32")/255]
+#            data_Npy = convertImageListToNpArray4d(data_Npy)
+#            ground_Truth_Npy = convertImageListToNpArray4d(ground_Truth_Npy)
+#            
+#            yield(data_Npy, ground_Truth_Npy)
+#            
+#            batch_start += batch_size
+#            batch_end += batch_size
+#            
+##        for i in range(len(data)):
+##            img = Image.open(ground_Truth[i])#.convert('LA')
+##            img.load()
+##            dataNpy = np.asarray(img, dtype="int32")/255
+##            
+##            img = Image.open(data[i])#.convert('LA')
+##            img.load()
+##            groundTruthNpy = np.asarray(img, dtype="int32")/255
+##            
+##            yield(dataNpy, groundTruthNpy)
+#
+#def getImageAsNpy(imagePath):
+#    rv = []
+#    for i in range(len(imagePath)):
+#            img = Image.open(imagePath[i])#.convert('LA')
+#            img.load()
+#            rv += [np.asarray(img, dtype="int32")/255]
 
 def convertImageListToNpArray4d(images):
         "4d array: 1dim: image number, 2d: x dimension of the image, 3d: y dimension of the image, 4d: channel"
@@ -83,6 +84,7 @@ def convertImageListToNpArray4d(images):
             buffer=0    # do nothing
         else:
             print("error: type of _images_ not supported")
+            print("Type: {}".format(type(images)))
             return 0
         
         # convert RGB image to gray scale image
@@ -129,15 +131,17 @@ class neuronalNetworkClass:
         self.pathInputPretrainedWeights = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/input/pretrainedWeights"
         
         self.pathIntermediateDataTrainedWeights = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/intermediateData/trainedWeights"
-        self.pathINtermediateDataHistory = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/intermediateData/history"
+        self.pathIntermediateDataHistory = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/intermediateData/history"
         
-        self.pathOutputPredictions = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/output/predictions"
+        self.pathOutputTestDataPrediction = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/output/predictions"
+        self.pathOutputEvaluation = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/output/evaluation"
         self.pathOutputDocumentation = self.pathNeuronalNetworkData + neuronalNetworkPathExtension + "/output/documentation"
         
         self.fileNameTrainedWeights = "weights.hdf5"
         self.fileNamePredictions = "prediction.npy"
         self.fileNmaeHistory = "history.pkl"
         
+        # create input folders
         os.makedirs(self.pathData + self.pathInput, 0o777, True)
         os.makedirs(self.pathData + self.pathInputModel, 0o777, True)
         os.makedirs(self.pathData + self.pathInputTrainingData, 0o777, True)
@@ -145,13 +149,16 @@ class neuronalNetworkClass:
         os.makedirs(self.pathData + self.pathInputTestData, 0o777, True)
         os.makedirs(self.pathData + self.pathInputPretrainedWeights, 0o777, True)
         
+        # create intermediate data folders
         os.makedirs(self.pathData + self.pathIntermediateDataTrainedWeights, 0o777, True)
-        os.makedirs(self.pathData + self.pathINtermediateDataHistory, 0o777, True)
+        os.makedirs(self.pathData + self.pathIntermediateDataHistory, 0o777, True)
         
-        os.makedirs(self.pathData + self.pathOutputPredictions, 0o777, True)
+        # create output folders
+        os.makedirs(self.pathData + self.pathOutputTestDataPrediction, 0o777, True)
         os.makedirs(self.pathData + self.pathOutputDocumentation, 0o777, True)
+        os.makedirs(self.pathData + self.pathOutputEvaluation, 0o777, True)
     
-    def loadModel(self,modelFilePath, neuronalNetworkPathExtensionPretrainedWeights = ""):
+    def loadModel(self, modelFilePath = "", neuronalNetworkPathExtensionPretrainedWeights = ""):
         """
         Loads the model and copies the _modelFilePath_ into the input folder.
         
@@ -167,19 +174,41 @@ class neuronalNetworkClass:
             the model object
         """
         
-        copyfile(modelFilePath, self.pathData + self.pathInputModel + "/model.py")
+        if modelFilePath != "":
+            copyfile(modelFilePath, self.pathData + self.pathInputModel + "/model.py")
         
         # model is defined in model.py
-        model = get_model_deep_speckle()
+        self.model = get_model_deep_speckle()
         
         # load weights of the previous fog layer
         if (neuronalNetworkPathExtensionPretrainedWeights!=""):
             pos  = self.pathIntermediateDataTrainedWeights.find("/intermediateData")
             path = self.pathData + self.pathNeuronalNetworkData + "/"+ neuronalNetworkPathExtensionPretrainedWeights + self.pathIntermediateDataTrainedWeights[pos:] + "//" + self.fileNameTrainedWeights
-            copyfile(path, self.pathData + self.pathInputPretrainedWeights + "/" + neuronalNetworkPathExtensionPretrainedWeights + "_" + self.fileNameTrainedWeights)
-            model.load_weights(path)
+            self.load_Weights(path)
+#            copyfile(path, self.pathData + self.pathInputPretrainedWeights + "/" + neuronalNetworkPathExtensionPretrainedWeights + "_" + self.fileNameTrainedWeights)
+#            self.model.load_weights(path)
         
-        return model
+        return self.model
+    
+    def load_Weights(self, path=""):
+        """
+        Loads the weights out of an hdf5 file. The model must be loaded first.
+        
+        # Arguments
+            path
+                path to the hdf5 file
+                
+        # Returns
+            the model with the pretrained weights.
+        """
+        if path=="":
+            path = self.pathData + self.pathIntermediateDataTrainedWeights + "/" + self.fileNameTrainedWeights
+        else:
+            copyfile(path, self.pathData + self.pathInputPretrainedWeights + "/" + self.fileNameTrainedWeights)
+        
+        self.model.load_weights(path)
+        
+        return self.model
     
     def loadTrainingData(self, imagePath, prefix=""):
         """
@@ -304,21 +333,26 @@ class neuronalNetworkClass:
         
         return rv
     
+    def convert3dNpyToImage(npy, invert_Color=False):
+        image = Image.fromarray(np.uint8(npy*255)).convert('RGB')
+        if (invert_Color == True):
+            image = ImageOps.invert(image)
+                
+        return image
+    
     def save4dNpyAsBmp(self, npyPath, filename, bmpFolderPath="", invert_Color=False):
         """
         # Arguments
             npyPath
         """
         if bmpFolderPath == "":
-            bmpFolderPath = self.pathData + self.pathOutputPredictions
+            bmpFolderPath = self.pathData + self.pathOutputTestDataPrediction
             
         npy = np.load(npyPath)
         
         for i in range(len(npy)):
-            image = Image.fromarray(np.uint8(npy[i]*255)).convert('RGB')
-            if (invert_Color == True):
-                image = ImageOps.invert(image)
-            image.save(self.pathData + self.pathOutputPredictions + "/{}.bmp".format(filename[i]))
+            image = convert3dNpyToImage(npy[i], invert_Color)
+            image.save(self.pathData + self.pathOutputTestDataPrediction + "/{}.bmp".format(filename[i]))
     
     
                 
@@ -350,6 +384,9 @@ class neuronalNetworkClass:
         
         return model
     
+    def validate_Network(self, validationDataPath, model, trainedWeightsPath=""):
+        validationDataPath.sort()
+    
     def testNetwork(self, testDataPath, model, trainedWeightsPath=""):
         testDataPath.sort()
         testData = self.getImageAsNpy(testDataPath)
@@ -362,13 +399,13 @@ class neuronalNetworkClass:
         if trainedWeightsPath == "":
             model.save_weights(self.pathData + self.pathIntermediateDataTrainedWeights + "/" + self.fileNameTrainedWeights)
         
-        pred = model.predict(testData, batch_size=2)
+        pred = model.predict(testData)
         
         # todo: don't save save the prediction as a numpy array
-        path = self.pathData + self.pathOutputPredictions + "/" + self.fileNamePredictions
+        path = self.pathData + self.pathOutputTestDataPrediction + "/" + self.fileNamePredictions
         np.save(path, pred)
         
-        self.save4dNpyAsBmp(path, fileName, invert_color=True)
+        self.save4dNpyAsBmp(path, fileName, invert_Color=True)
         
         return path
 
@@ -378,22 +415,38 @@ class neuronalNetworkClass:
             path_Ground_Truth = toolbox.get_file_path_with_extension(path_Ground_Truth, ["bmp"])
                         
         if path_Prediction==[]:
-            path_Prediction = self.pathData + self.pathOutputPredictions
+            path_Prediction = self.pathData + self.pathOutputTestDataPrediction
             path_Prediction = toolbox.get_file_path_with_extension(path_Prediction, ["bmp"])
             
         path_Prediction.sort()
         path_Ground_Truth.sort()
         
-        
         pred = self.getImageAsNpy(path_Prediction)
         groundTruth = self.getImageAsNpy(path_Ground_Truth)
+        
+        # calculate jaccard_distance
+        sess = tf.InteractiveSession()
+            
+        score = KC.losses.jaccard_distance(groundTruth, pred)
+        scoreNP = score.eval(session=sess)
+        
+        meanNP_per_image = []
+        for i in range(len(scoreNP[:,0,0])):
+            meanNP_per_image += [np.mean(scoreNP[i,:,:])]
+        
+        mean = K.mean(score)
+        meanNP = mean.eval(session=sess)
+        
+        self.save4dNpyAsBmp
+        
+#        for i in range(len(scoreNP[:,0,0])):
         
 #        pred_tf = tf.convert_to_tensor(pred)
 #        groundTruth_tf = tf.convert_to_tensor(groundTruth)
         
-        rv = []
-        
-        rv += [pcc(groundTruth_tf, pred_tf)]
+#        rv = []
+#        
+#        rv += [pcc(groundTruth_tf, pred_tf)]
         
 #        for m in method:
 #            sess = tf.InteractiveSession()
@@ -402,7 +455,7 @@ class neuronalNetworkClass:
 #            mean = K.mean(score)
 #            rv += [mean.eval()]
             
-        return rv
+#        return rv
 
     def loadHistory():
         with open('history.pkl', 'rb') as handle:

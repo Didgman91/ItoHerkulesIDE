@@ -15,6 +15,11 @@ import numpy as np
 
 from PIL import Image, ImageOps
 
+
+def send_Message(message):
+    subprocess.Popen(['notify-send', message])
+    return
+
 def get_file_path_with_extension(pathFolder, extension):
     """
     Scans a folder for all files with a specific extension.
@@ -80,6 +85,12 @@ def get_file_path_with_extension_include_subfolders(pathFolder, extension):
     filePath.sort()
     
     return filePath
+
+def get_File_Name(path):
+    base = os.path.basename(path)
+    fileName = os.path.splitext(base)[0]
+    
+    return fileName
 
 def loadImage(sourcePath, destinationPath, invertColor=False, resize=False, xPixel=0, yPixel=0, prefix=""):
     """Loads images and saves them in the path _destinationPath_.

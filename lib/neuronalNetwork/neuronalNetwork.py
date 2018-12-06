@@ -125,11 +125,11 @@ class neuronal_Network_Class:
         
         self.path_Input = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input"
         self.path_Input_Model = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/model"
-        self.path_Input_Training_Data = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/training_Data"
+        self.path_Input_Training_Data = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/trainingData"
         self.path_Input_Training_Data_Ground_Truth = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/trainingData/groundTruth"
-        self.path_Input_Validation_Data = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/validation_Data"
+        self.path_Input_Validation_Data = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/validationData"
         self.path_Input_Validation_Data_Ground_Truth = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/validationData/groundTruth"
-        self.path_Input_Test_Data = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/test_Data"
+        self.path_Input_Test_Data = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/testData"
         self.path_Input_Test_Data_Ground_Truth = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/testData/groundTruth"
         self.path_Input_Pretrained_Weights = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/pretrainedWeights"
         

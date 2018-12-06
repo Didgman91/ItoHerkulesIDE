@@ -123,9 +123,9 @@ def NN(layer, neuronal_Network_Path_Extension_Pretrained_Weights=""):
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: Evaluation")
 
-def NnAllLayers(layers):
+def NnAllLayers(layers, path_Extension = ""):
     
-    nn = neuronalNetwork.neuronal_Network_Class()
+    nn = neuronalNetwork.neuronal_Network_Class(path_Extension)
     
     # ---------------------------------------------
     # NEURONAL NETWORK: load data
@@ -160,21 +160,28 @@ def NnAllLayers(layers):
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: train network")
     
-    model = nn.train_Network(image_Speckle_Path, image_Ground_Truth_Path, model, fit_Epochs=10, fit_Batch_Size=16)
+    model = nn.train_Network(image_Speckle_Path, image_Ground_Truth_Path, model, fit_Epochs=100, fit_Batch_Size=16)
+    
+    # ---------------------------------------------
+    # NEURONAL NETWORK: validata network
+    # ---------------------------------------------
+    toolbox.print_program_section_name("NEURONAL NETWORK: test network")
+    
+    nn.validate_Network(image_Test_Speckle_Path, model)
     
     # ---------------------------------------------
     # NEURONAL NETWORK: test network
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: test network")
     
-    nn.test_Network(image_Test_Speckle_Path, model)
+#    nn.test_Network(image_Test_Speckle_Path, model)
     
     # ---------------------------------------------
     # NEURONAL NETWORK: Evaluation
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: Evaluation")
     
-    nn.evaluate_Network(jd)
+#    nn.evaluate_Network()
 
 #folder, path, layer = F2_main("../../imagePool/NIST/by_write/hsf_0")
 
@@ -182,7 +189,23 @@ dirs = os.listdir("data/F2/output/speckle/")
 dirs.sort()
 #NN(dirs[-1])
 
-NnAllLayers(dirs[:1])
+#toolbox.print_program_section_name("NN All: first 10 m")
+#NnAllLayers(dirs[:10], "10meter")
+#
+#toolbox.print_program_section_name("NN All: first 20 m")
+#NnAllLayers(dirs[:20], "20meter")
+#
+#toolbox.print_program_section_name("NN All: first 40 m")
+#NnAllLayers(dirs[:40], "40meter")
+
+toolbox.print_program_section_name("NN All: first 60 m")
+NnAllLayers(dirs[:60], "60meter")
+
+toolbox.print_program_section_name("NN All: first 80 m")
+NnAllLayers(dirs[:80], "80meter")
+
+toolbox.print_program_section_name("NN All: first 100 m")
+NnAllLayers(dirs, "100meter")
 
 #for i in range(len(dirs)):
 #    if i % 5 == 0:

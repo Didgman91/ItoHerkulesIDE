@@ -337,13 +337,11 @@ class neuronal_Network_Class:
         
         return rv
     
-    def save_4D_Npy_As_Bmp(self, npy_Array, filename, bmp_Folder_Path="", invert_Color=False):
+    def save_4D_Npy_As_Bmp(self, npy_Array, filename, bmp_Folder_Path, invert_Color=False):
         """
         # Arguments
             npyPath
         """
-        if bmp_Folder_Path == "":
-            bmp_Folder_Path = self.path_Data + self.path_Output_Test_Data_Prediction
         
         path = []
         for i in range(len(npy_Array)):
@@ -389,14 +387,24 @@ class neuronal_Network_Class:
         return model
     
     def validate_Network(self, validation_Data_Path, model, trained_Weights_Path=""): 
-        validation_Data_Path.sort()
+        path = self.perdict(validation_Data_Path, self.path_Data + self.path_Output_Validation_Data_Prediction, model, trained_Weights_Path)
+        
+        return path
     
     def test_Network(self, test_Data_Path, model, trained_Weights_Path=""):
-        test_Data_Path.sort()
-        test_Data = self.get_Image_As_Npy(test_Data_Path)
+        
+        path = self.perdict(test_Data_Path, self.path_Data + self.path_Output_Test_Data_Prediction, model, trained_Weights_Path)
+        
+        return path
+    
+    def predict(self, data_Path, prediction_Folder_Path, model, trained_Weights_Path=""):
+        """
+        """
+        data_Path.sort()
+        test_Data = self.get_Image_As_Npy(data_Path)
         
         fileName = []
-        for ip in test_Data_Path:
+        for ip in data_Path:
             base = os.path.basename(ip)
             fileName += [os.path.splitext(base)[0]]
         
@@ -405,7 +413,7 @@ class neuronal_Network_Class:
         
         pred = model.predict(test_Data)
         
-        path = self.save_4D_Npy_As_Bmp(pred, fileName, invert_Color=True)
+        path = self.save_4D_Npy_As_Bmp(pred, fileName, prediction_Folder_Path, invert_Color=True)
         
         return path
 

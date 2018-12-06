@@ -16,8 +16,9 @@ import numpy as np
 from PIL import Image
 from PIL import ImageOps
 
+import keras
 import keras.backend as K
-import keras_contrib as KC
+#import keras_contrib as KC
 import tensorflow as tf
 
 from ..toolbox import toolbox
@@ -125,7 +126,9 @@ class neuronal_Network_Class:
         self.path_Input = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input"
         self.path_Input_Model = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/model"
         self.path_Input_Training_Data = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/training_Data"
-        self.path_Input_Training_Dataground_Truth = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/trainingData/groundTruth"
+        self.path_Input_Training_Data_Ground_Truth = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/trainingData/groundTruth"
+        self.path_Input_Validation_Data = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/validation_Data"
+        self.path_Input_Validation_Data_Ground_Truth = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/validationData/groundTruth"
         self.path_Input_Test_Data = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/test_Data"
         self.path_Input_Test_Data_Ground_Truth = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/testData/groundTruth"
         self.path_Input_Pretrained_Weights = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/input/pretrainedWeights"
@@ -133,7 +136,8 @@ class neuronal_Network_Class:
         self.path_Intermediate_Data_Trained_Weights = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/intermediateData/trainedWeights"
         self.path_Intermediate_Data_History = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/intermediateData/history"
         
-        self.path_Output_Test_Data_Prediction = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/output/predictions"
+        self.path_Output_Validation_Data_Prediction = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/output/validationDataPredictions"
+        self.path_Output_Test_Data_Prediction = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/output/testDataPredictions"
         self.path_Output_Evaluation = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/output/evaluation"
         self.path_Output_Documentation = self.path_Neuronal_Network_Data + neuronal_Network_Path_Extension + "/output/documentation"
         
@@ -145,7 +149,7 @@ class neuronal_Network_Class:
         os.makedirs(self.path_Data + self.path_Input, 0o777, True)
         os.makedirs(self.path_Data + self.path_Input_Model, 0o777, True)
         os.makedirs(self.path_Data + self.path_Input_Training_Data, 0o777, True)
-        os.makedirs(self.path_Data + self.path_Input_Training_Dataground_Truth, 0o777, True)
+        os.makedirs(self.path_Data + self.path_Input_Training_Data_Ground_Truth, 0o777, True)
         os.makedirs(self.path_Data + self.path_Input_Test_Data, 0o777, True)
         os.makedirs(self.path_Data + self.path_Input_Pretrained_Weights, 0o777, True)
         
@@ -247,10 +251,10 @@ class neuronal_Network_Class:
         """
         path = []
         if load_Multiple_Times_With_Prefix == []:
-            path = toolbox.load_Image(image_Path, self.path_Data + self.path_Input_Training_Dataground_Truth)
+            path = toolbox.load_Image(image_Path, self.path_Data + self.path_Input_Training_Data_Ground_Truth)
         else:
             for prefix in load_Multiple_Times_With_Prefix:
-                path += toolbox.load_Image(image_Path, self.path_Data + self.path_Input_Training_Dataground_Truth, prefix="{}_".format(prefix))
+                path += toolbox.load_Image(image_Path, self.path_Data + self.path_Input_Training_Data_Ground_Truth, prefix="{}_".format(prefix))
         return path
     
     def load_Test_Data(self, image_Path, prefix=""):
@@ -364,7 +368,10 @@ class neuronal_Network_Class:
         
         # Compile model
     #    model.compile(loss={'predictions':getLossFunction}, optimizer='adam', metrics=['accuracy', getMetric])
-        model.compile(loss='sparse_categorical_crossentropy', optimizer='adam')
+        #model.compile(loss='sparse_categorical_crossentropy', optimizer='adam')
+        adam = keras.optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.001/fit_Epochs, amsgrad=False)
+        model.compile(loss='sparse_categorical_crossentropy', optimizer=adam)
+
         
         
         # Fit the model

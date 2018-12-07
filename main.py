@@ -30,8 +30,8 @@ def F2_main(folder):
     # -------------------------------------
     toolbox.print_program_section_name("F2")
 
-    number_Of_Layers = 1
-    distance = 1  # [m]
+    number_Of_Layers = 100
+    distance = 100  # [m]
 
     F2.generate_folder_structure()
 
@@ -47,7 +47,8 @@ def F2_main(folder):
     #image_Path = toolbox.get_file_path_with_extension("../../imagePool/NIST/by_write/hsf_0/f0000_14/c0000_14/", ["png"])
     image_Path = toolbox.get_file_path_with_extension_include_subfolders(folder,
                                                                          ["png"])
-    image_Path = F2.load_image(image_Path, True, True, 64, 64)
+#    image_Path = ["rect815.png"]
+    image_Path = F2.load_image(image_Path[:100], invertColor=True, resize=True, xPixel=64, yPixel=64)
 
     if image_Path == []:
         print("no files")
@@ -111,13 +112,13 @@ def NN(layer, neuronal_Network_Path_Extension_Pretrained_Weights=""):
     image_Path = toolbox.get_file_path_with_extension(
         "data/20181130_F2/input/NIST", ["bmp"])
     image_Ground_Truth_Path = nn.load_Ground_Truth_Data(image_Path[:-10])
-    image_Test_Ground_Truth_Path = nn.load_Test_Ground_Truth_Data(
+    image_Validation_Ground_Truth_Path = nn.load_Validation_Ground_Truth_Data(
         image_Path[-10:])
 
     image_Path = toolbox.get_file_path_with_extension(
         "data/20181130_F2/output/speckle/"+layer, ["bmp"])
     image_Speckle_Path = nn.load_Training_Data(image_Path[:-10])
-    image_Test_Speckle_Path = nn.load_Test_Data(image_Path[-10:])
+    image_Validation_Speckle_Path = nn.load_Validation_Data(image_Path[-10:])
     print("done")
 
     # ---------------------------------------------
@@ -134,24 +135,24 @@ def NN(layer, neuronal_Network_Path_Extension_Pretrained_Weights=""):
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: validate network")
 
-    nn.validate_Network(image_Test_Speckle_Path)
+    nn.validate_Network(image_Validation_Speckle_Path)
 
     # ---------------------------------------------
     # NEURONAL NETWORK: test network
     # ---------------------------------------------
-    toolbox.print_program_section_name("NEURONAL NETWORK: test network")
+#    toolbox.print_program_section_name("NEURONAL NETWORK: test network")
 
 #    nn.test_Network(image_Test_Speckle_Path, model)
 
     # ---------------------------------------------
     # NEURONAL NETWORK: Evaluation
     # ---------------------------------------------
-    toolbox.print_program_section_name("NEURONAL NETWORK: Evaluation")
+#    toolbox.print_program_section_name("NEURONAL NETWORK: Evaluation")
 
 
 def NnAllLayers(layers, path_Extension=""):
-    global executed_Modules
-    executed_Modules += ["neuronalNetwork"]
+#    global executed_Modules
+#    executed_Modules += ["neuronalNetwork"]
     # ---------------------------------------------
     # NEURONAL NETWORK: load data
     # ---------------------------------------------
@@ -171,17 +172,17 @@ def NnAllLayers(layers, path_Extension=""):
         "data/20181130_F2/input/NIST", ["bmp"])
     image_Ground_Truth_Path = nn.load_Ground_Truth_Data(
         image_Path[:-10], layers)
-    image_Test_Ground_Truth_Path = nn.load_Test_Ground_Truth_Data(
+    image_Validation_Ground_Truth_Path = nn.load_Validation_Ground_Truth_Data(
         image_Path[-10:], layers)
 
     image_Speckle_Path = []
-    image_Test_Speckle_Path = []
+    image_Validation_Speckle_Path = []
     for layer in layers:
         image_Path = toolbox.get_file_path_with_extension(
             "data/20181130_F2/output/speckle/"+layer, ["bmp"])
 
         image_Speckle_Path += nn.load_Training_Data(image_Path[:-10], layer)
-        image_Test_Speckle_Path += nn.load_Test_Data(image_Path[-10:], layer)
+        image_Validation_Speckle_Path += nn.load_Validation_Data(image_Path[-10:], layer)
     print("done")
 
     # ---------------------------------------------
@@ -198,45 +199,45 @@ def NnAllLayers(layers, path_Extension=""):
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: validate network")
 
-    nn.validate_Network(image_Test_Speckle_Path)
+    nn.validate_Network(image_Validation_Speckle_Path)
 
     # ---------------------------------------------
     # NEURONAL NETWORK: test network
     # ---------------------------------------------
-    toolbox.print_program_section_name("NEURONAL NETWORK: test network")
+#    toolbox.print_program_section_name("NEURONAL NETWORK: test network")
 
 #    nn.test_Network(image_Test_Speckle_Path, model)
 
     # ---------------------------------------------
     # NEURONAL NETWORK: Evaluation
     # ---------------------------------------------
-    toolbox.print_program_section_name("NEURONAL NETWORK: Evaluation")
+#    toolbox.print_program_section_name("NEURONAL NETWORK: Evaluation")
 
 #    nn.evaluate_Network()
 
-folder, path, layer = F2_main("../../imagePool/NIST/by_write/hsf_0")
+folder, path, layer = F2_main("../imagePool/NIST/by_write/hsf_0/f0000_14/c0000_14/")
 
 dirs = os.listdir("data/F2/output/speckle/")
 dirs.sort()
-#NN(dirs[-1])
+NN(dirs)
 
-#toolbox.print_program_section_name("NN All: first 10 m")
-#NnAllLayers(dirs[:10], "10meter")
-#
-#toolbox.print_program_section_name("NN All: first 20 m")
-#NnAllLayers(dirs[:20], "20meter")
-#
-#toolbox.print_program_section_name("NN All: first 40 m")
-#NnAllLayers(dirs[:40], "40meter")
+toolbox.print_program_section_name("NN All: first 10 m")
+NnAllLayers(dirs[:10], "10meter")
 
-#toolbox.print_program_section_name("NN All: first 60 m")
-#NnAllLayers(dirs[:60], "60meter")
-#
-#toolbox.print_program_section_name("NN All: first 80 m")
-#NnAllLayers(dirs[:80], "80meter")
-#
-#toolbox.print_program_section_name("NN All: first 100 m")
-#NnAllLayers(dirs, "100meter")
+toolbox.print_program_section_name("NN All: first 20 m")
+NnAllLayers(dirs[:20], "20meter")
+
+toolbox.print_program_section_name("NN All: first 40 m")
+NnAllLayers(dirs[:40], "40meter")
+
+toolbox.print_program_section_name("NN All: first 60 m")
+NnAllLayers(dirs[:60], "60meter")
+
+toolbox.print_program_section_name("NN All: first 80 m")
+NnAllLayers(dirs[:80], "80meter")
+
+toolbox.print_program_section_name("NN All: first 100 m")
+NnAllLayers(dirs, "100meter")
 
 # for i in range(len(dirs)):
 #    if i % 5 == 0:
@@ -271,12 +272,13 @@ dirs.sort()
 
 
 # ---------------------------------------------
-# BACKUP AND DEDUPLICATION BY ZIPPING
+# BACKUP AND DEDUPLICATION BY COMPRESSION
 # ---------------------------------------------
-toolbox.print_program_section_name("BACKUP AND DEDUPLICATION BY ZIPPING")
+toolbox.print_program_section_name("BACKUP AND DEDUPLICATION BY COMPRESSION")
 
 path_Backup = "backup"
 os.makedirs(path_Backup, 0o777, True)
+
 modules = ""
 folders = []
 for m in executed_Modules:

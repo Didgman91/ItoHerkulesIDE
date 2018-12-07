@@ -43,7 +43,7 @@ sftp_Settings = {'host': "herkules.ito.uni-stuttgart.de",
                  'path_Remote': "./tmp/",
                  'file': zip_Settings['zip_File_Name']}
 
-# additional execute after zipping and copying
+# additional execute after compression and copying
 # For example:
 # execute = "bsub 'python3.4 main.py'"
 execute = ""
@@ -59,7 +59,7 @@ def zip_Project(zip_Settings):
     Arguments
     ----
         zip_Settings
-            Contains all settings related the zipping process. For example
+            Contains all settings related the compression process. For example
             _zip_File_Name_, a list of files and folders to be zipped and a
             list of files or folders that shouldn't be zipped.
     """
@@ -141,7 +141,7 @@ def copy_To_Server(sftp_Settings, execute=""):
             For example host, port and user name.
 
         execute
-            Command to be called after copying and unzipping the file.
+            Command to be called after copying and decompression the file.
     """
     host = sftp_Settings['host']
     port = sftp_Settings['port']

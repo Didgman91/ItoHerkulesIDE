@@ -18,7 +18,7 @@ d=40*mu
 rhon=0.2 !g/m**3
 dist={py_distance}*m  
 dp=0.1*m    ! Simulationsgebiet
-sam=4096 !*3      ! Sampling
+sam=4096*3      ! Sampling
 max={py_numberOfLayers}       ! Anzahl Schichten
 !****************************
 

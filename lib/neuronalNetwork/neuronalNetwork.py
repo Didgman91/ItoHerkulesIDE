@@ -428,6 +428,66 @@ class neuronal_Network_Class:
                         prefix="{}_".format(prefix))
         return path
 
+    def load_Validation_Data(self, image_Path, prefix=""):
+        """Loads the validation data and copies the listed files under
+        _image_Path_ into the input folder.
+
+        Arguments
+        ----
+            image_Path
+                List of relative paths to the validataion data images in the
+                parent folder _path_Data_.
+
+            prefix
+                A prefix can be added to the image file during the copy
+                operation.
+
+        Returns
+        ----
+            a list of the copied images
+        """
+        path = toolbox.load_Image(
+            image_Path,
+            self.path_Data +
+            self.path_Input_Validation_Data,
+            prefix=prefix)
+        return path
+
+    def load_Validation_Ground_Truth_Data(
+            self, image_Path, load_Multiple_With_Prefix=[]):
+        """Loads the ground truth test data and copies the listed files under
+        _image_Path_ into the input folder.
+
+        Arguments
+        ----
+            image_Path
+                List of relative paths to the ground truth test data images in
+                the parent folder _path_Data_.
+
+            load_Multiple_Times_With_Prefix
+                If this is set, than all images listed under _image_Path_ are
+                saved multiple times with the listed prefix.
+
+        Returns
+        ----
+            a list of the copied images
+        """
+        path = []
+        if load_Multiple_With_Prefix == []:
+            path = toolbox.load_Image(
+                image_Path,
+                self.path_Data +
+                self.path_Input_Validation_Data_Ground_Truth)
+        else:
+            for prefix in load_Multiple_With_Prefix:
+                destination = self.path_Data \
+                                + self.path_Input_Validation_Data_Ground_Truth
+                path += toolbox.load_Image(
+                        image_Path,
+                        destination,
+                        prefix="{}_".format(prefix))
+        return path
+
     def get_Image_As_Npy(self, image_Path):
         """ Opens the images listed under _image_Path_ and returns them as a
         list of numpy arrays.

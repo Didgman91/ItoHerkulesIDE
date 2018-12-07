@@ -20,7 +20,7 @@ Do j,1,max
  ax(1:sam,1:sam)=Cmplx[1,0]
  Grid ax,p1,p2,p3,p4
  
- x=xALL(:,j)
+ x=xAll(:,j)
  y=yAll(:,j)
  Sphere ax,x,y,d/2,d/2,nwasser,0,lam
 

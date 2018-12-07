@@ -18,7 +18,6 @@ from PIL import ImageOps
 
 import keras
 import keras.backend as K
-#import keras_contrib as KC
 import tensorflow as tf
 
 from ..toolbox import toolbox
@@ -435,7 +434,7 @@ class neuronal_Network_Class:
         # calculate jaccard_distance
         sess = tf.InteractiveSession()
             
-        score = KC.losses.jaccard_distance(ground_Truth, pred)
+        score = jd(ground_Truth, pred)
         scoreNP = score.eval(session=sess)
         
         meanNP_per_image = []

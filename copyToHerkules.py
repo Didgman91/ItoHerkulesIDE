@@ -20,22 +20,35 @@ import paramiko
 # zip settings
 zip_Settings = {'zip_File_Name': "herkules.zip",
                 'zip_Include_Folder_List': ["config", "lib"],
-                'zip_Include_File_List': ["main.py"],
+                'zip_Include_File_List': ["main.py", "copyToHerkules.py"],
                 'skipped_Folders': [".git", "__pycache__"]}
 
 # sftp settings
+
+# login without password:
+# - generate an OpenSSH key
+# - save as ~/.ssh/herkules
+# - add the public key to the .ssh/authorized_keys file on the server
+# 
+#
+# __Hint__
+# 
+# PuTTY
+#   Conversions -> Export OpenSSH key
+# 
+
 user_Dir = os.path.expanduser("~")
+key_file_path = os.path.normpath("{}/.ssh/herkules".format(user_Dir))
 sftp_Settings = {'host': "herkules.ito.uni-stuttgart.de",
                  'port': 22,
                  'user_Name': "itodaiber",
-                 'key_File': "{}/.ssh/herkules".format(user_Dir),
+                 'key_File': key_file_path,
                  'path_Remote': "./tmp/",
                  'file': zip_Settings['zip_File_Name']}
 
 # additional execute after zipping and copying
 # For example:
 #execute = "bsub 'python3.4 main.py'"
-
 execute = ""
 
 # ---------------------------------------------
@@ -126,7 +139,6 @@ def copy_To_Server(sftp_Settings, execute=""):
     port = sftp_Settings['port']
     
     user_Name = sftp_Settings['user_Name']
-#    key_File="/home/daiberma/.ssh/herkules"
     key_File = sftp_Settings['key_File']
     
     path_Remote = sftp_Settings['path_Remote']
@@ -160,8 +172,10 @@ def copy_To_Server(sftp_Settings, execute=""):
     # unzip project
     command = "cd {pathRemote}\
                && unzip -q -o '{zipFileName}'\
-               && rm '{zipFileName}'\
-               && {additionalExecute}"
+               && rm '{zipFileName}'"
+               
+    if execute != "":
+        command += "&& {additionalExecute}"
                     
     command = command.format(pathRemote=path_Remote,
                              zipFileName=file_Name,

@@ -56,7 +56,8 @@ execute = ""
 def zip_Project(zip_Settings):
     """ Zips certain files and folders into a zip file.
 
-    # Arguments
+    Arguments
+    ----
         zip_Settings
             Contains all settings related the zipping process. For example
             _zip_File_Name_, a list of files and folders to be zipped and a
@@ -71,7 +72,8 @@ def zip_Project(zip_Settings):
     def zip_dir(path, zip_h):
         """zip all folder in path, exept those mentioned in _skippedFolders_
 
-        # Arguments
+        Arguments
+    ----
             path
                 folder path to zip
             zip_h
@@ -91,7 +93,8 @@ def zip_Project(zip_Settings):
     def zip_File(file, zip_h):
         """zip file
 
-        # Arguments
+        Arguments
+    ----
             file
                 file to zip
             zip_h
@@ -102,7 +105,8 @@ def zip_Project(zip_Settings):
     def zip_it(dir_list, file_list, zip_name):
         """zip specific folders and files
 
-        # Arguments
+        Arguments
+    ----
             dir_list
                 list of folders to zip
             file_lsit
@@ -123,7 +127,8 @@ def zip_Project(zip_Settings):
 def copy_To_Server(sftp_Settings, execute=""):
     """Copies a zip file via sftp to a folder on a server.
 
-    # Arguments
+    Arguments
+    ----
         sftp_Settings
             Contains all settings related the copy process to a server.
             For example host, port and user name.

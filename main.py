@@ -24,13 +24,14 @@ executed_Modules = []
 
 def F2_main(folder):
     global executed_Modules
-    executed_Modules += ["neuronalNetwork"]
+    executed_Modules += ["F2"]
     # -------------------------------------
     # F2
     # -------------------------------------
     toolbox.print_program_section_name("F2")
 
-    number_Of_Layers = 100
+    number_Of_Layers = 1
+    distance = 1  # [m]
 
     F2.generate_folder_structure()
 
@@ -57,7 +58,7 @@ def F2_main(folder):
     # ---------------------------------------------
     toolbox.print_program_section_name("F2: Generate and save scatter plate")
 
-    scatter_Plate_Random = F2.create_scatter_plate(number_Of_Layers)
+    scatter_Plate_Random = F2.create_scatter_plate(number_Of_Layers, distance)
     #scatter_Plate_Random = ['data/F2/intermediateData/scatterPlate/scatter_Plate_RandomX', 'data/F2/intermediateData/scatterPlate/scatter_Plate_RandomY']
 
     # -------------------------------------------------
@@ -70,7 +71,7 @@ def F2_main(folder):
         "data/F2/input/NIST/", ["bmp"])
 
     F2.calculate_propagation(
-        image_Path, scatter_Plate_Random, number_Of_Layers)
+        image_Path, scatter_Plate_Random, number_Of_Layers, distance)
 
     folder, path, layer = F2.sortToFolderByLayer()
 
@@ -274,6 +275,8 @@ dirs.sort()
 # ---------------------------------------------
 toolbox.print_program_section_name("BACKUP AND DEDUPLICATION BY ZIPPING")
 
+path_Backup = "backup"
+os.makedirs(path_Backup, 0o777, True)
 modules = ""
 folders = []
 for m in executed_Modules:
@@ -282,7 +285,7 @@ for m in executed_Modules:
 
 time.strftime("%y%m%d_%H%M")
 t = time.strftime("%y%m%d_%H%M")
-zip_Settings = {'zip_File_Name': "{}{}.zip".format(t, modules),
+zip_Settings = {'zip_File_Name': "{}/{}{}.zip".format(path_Backup, t, modules),
                 'zip_Include_Folder_List': ["config", "lib"] + folders,
                 'zip_Include_File_List': ["main.py"],
                 'skipped_Folders': [".git", "__pycache__"]}

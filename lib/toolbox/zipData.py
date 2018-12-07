@@ -44,12 +44,19 @@ def zip_Data(zip_Settings):
         """zip all folder in path, exept those mentioned in _skippedFolders_
 
         Arguments
-    ----
+        ----
             path
                 folder path to zip
             zip_h
                 zip handle
         """
+        if path[-1] == "/":
+            path = path[:-1]
+        buffer = os.path.split(path)
+        rel = ""
+        for b in buffer:
+            if b != '':
+                rel += "../"
         for root, dirs, files in os.walk(path):
             skip = False
             for f in skipped_Folders:
@@ -59,13 +66,13 @@ def zip_Data(zip_Settings):
                 for file in files:
                     zip_h.write(os.path.join(root, file),
                                 os.path.relpath(os.path.join(root, file),
-                                os.path.join(path, '..')))
+                                                os.path.join(path, rel)))
 
     def zip_File(file, zip_h):
         """zip file
 
         Arguments
-    ----
+        ----
             file
                 file to zip
             zip_h
@@ -77,7 +84,7 @@ def zip_Data(zip_Settings):
         """zip specific folders and files
 
         Arguments
-    ----
+        ----
             dir_list
                 list of folders to zip
             file_lsit

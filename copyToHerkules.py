@@ -79,6 +79,13 @@ def zip_Project(zip_Settings):
             zip_h
                 zip handle
         """
+        if path[-1] == "/":
+            path = path[:-1]
+        buffer = os.path.split(path)
+        rel = ""
+        for b in buffer:
+            if b != '':
+                rel += "../"
         for root, dirs, files in os.walk(path):
             skip = False
             for f in skipped_Folders:

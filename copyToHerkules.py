@@ -13,6 +13,9 @@ import paramiko
 
 
 
+# ---------------------------------------------
+# settings
+# ---------------------------------------------
 
 # zip settings
 zip_Settings = {'zip_File_Name': "herkules.zip",
@@ -29,6 +32,15 @@ sftp_Settings = {'host': "herkules.ito.uni-stuttgart.de",
                  'path_Remote': "./tmp/",
                  'file': zip_Settings['zip_File_Name']}
 
+# additional execute after zipping and copying
+# For example:
+#execute = "bsub 'python3.4 main.py'"
+
+execute = ""
+
+# ---------------------------------------------
+# ~settings
+# ---------------------------------------------
 
 
 def zip_Project(zip_Settings):
@@ -164,15 +176,14 @@ def copy_To_Server(sftp_Settings, execute=""):
 
 
 # ---------------------------------------------
-# Zip the HerkulesIDE project
+# Zip the project
 # ---------------------------------------------
 zip_Project(zip_Settings)
 
 # ---------------------------------------------
-# Copy project to the server Herkules
+# Copy project to the server
 # ---------------------------------------------
-copy_To_Server(sftp_Settings)
-#copy_To_Server(sftp_Settings, "bsub 'python3.4 main.py'")
+copy_To_Server(sftp_Settings, execute)
 
 # ---------------------------------------------
 # clean up local folder

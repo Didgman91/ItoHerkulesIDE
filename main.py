@@ -8,13 +8,23 @@ Created on Tue Nov 13 15:22:54 2018
 
 import os
 
+import time
+
 from lib.F2 import F2
 from lib.toolbox import toolbox
+from lib.toolbox.zipData import zip_Data
 from lib.neuronalNetwork import neuronalNetwork
 
 from config.neuronalNetwork.model.model import model_Deep_Specle_Correlation_Class
 
+# By calling a module, e.g. F2_main(), the folder name is written to this list.
+# This folder is located in the "data" folder and contains all data of the
+# module. This will be zipped later.
+executed_Modules = []
+
 def F2_main(folder):
+    global executed_Modules
+    executed_Modules += ["neuronalNetwork"]
     # -------------------------------------
     # F2
     # -------------------------------------
@@ -34,8 +44,8 @@ def F2_main(folder):
     toolbox.print_program_section_name("IMPORT: NIST images")
 
     #image_Path = toolbox.get_file_path_with_extension("../../imagePool/NIST/by_write/hsf_0/f0000_14/c0000_14/", ["png"])
-    image_Path = toolbox.get_file_path_with_extension_include_subfolders(folder, [
-                                                                         "png"])
+    image_Path = toolbox.get_file_path_with_extension_include_subfolders(folder,
+                                                                         ["png"])
     image_Path = F2.load_image(image_Path, True, True, 64, 64)
 
     if image_Path == []:
@@ -79,7 +89,8 @@ def F2_main(folder):
 
 
 def NN(layer, neuronal_Network_Path_Extension_Pretrained_Weights=""):
-
+    global executed_Modules
+    executed_Modules += ["neuronalNetwork"]
     # ---------------------------------------------
     # NEURONAL NETWORK: load data
     # ---------------------------------------------
@@ -114,7 +125,8 @@ def NN(layer, neuronal_Network_Path_Extension_Pretrained_Weights=""):
     toolbox.print_program_section_name("NEURONAL NETWORK: train network")
 
     nn.train_Network(
-        image_Speckle_Path, image_Ground_Truth_Path, fit_Epochs=100, fit_Batch_Size=16)
+        image_Speckle_Path, image_Ground_Truth_Path,
+        fit_Epochs=100, fit_Batch_Size=16)
 
     # ---------------------------------------------
     # NEURONAL NETWORK: validata network
@@ -137,7 +149,8 @@ def NN(layer, neuronal_Network_Path_Extension_Pretrained_Weights=""):
 
 
 def NnAllLayers(layers, path_Extension=""):
-
+    global executed_Modules
+    executed_Modules += ["neuronalNetwork"]
     # ---------------------------------------------
     # NEURONAL NETWORK: load data
     # ---------------------------------------------
@@ -200,12 +213,11 @@ def NnAllLayers(layers, path_Extension=""):
 
 #    nn.evaluate_Network()
 
-#folder, path, layer = F2_main("../../imagePool/NIST/by_write/hsf_0")
-
+folder, path, layer = F2_main("../../imagePool/NIST/by_write/hsf_0")
 
 dirs = os.listdir("data/F2/output/speckle/")
 dirs.sort()
-NN(dirs[-1])
+#NN(dirs[-1])
 
 #toolbox.print_program_section_name("NN All: first 10 m")
 #NnAllLayers(dirs[:10], "10meter")
@@ -255,5 +267,26 @@ NN(dirs[-1])
 #print("time [s]: %.6f" % (t))
 #
 #
+
+
+# ---------------------------------------------
+# BACKUP AND DEDUPLICATION BY ZIPPING
+# ---------------------------------------------
+toolbox.print_program_section_name("BACKUP AND DEDUPLICATION BY ZIPPING")
+
+modules = ""
+folders = []
+for m in executed_Modules:
+    modules += "_" + m
+    folders += ["data/" + m]
+
+time.strftime("%y%m%d_%H%M")
+t = time.strftime("%y%m%d_%H%M")
+zip_Settings = {'zip_File_Name': "{}{}.zip".format(t, modules),
+                'zip_Include_Folder_List': ["config", "lib"] + folders,
+                'zip_Include_File_List': ["main.py"],
+                'skipped_Folders': [".git", "__pycache__"]}
+
+zip_Data(zip_Settings)
 
 #toolbox.send_Message("main.py finished")

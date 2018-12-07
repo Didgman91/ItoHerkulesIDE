@@ -84,8 +84,8 @@ def get_file_path_with_extension_include_subfolders(path_Folder, extension):
                     ex = "." + ex
                 if (file_Extension == ex):
                     if root[len(root)-1] != "/":
-                        rootBuffer = root + "/"
-                    filePath = filePath + [rootBuffer + name]
+                        root += "/"
+                    filePath = filePath + [root + name]
 
     filePath.sort()
 

@@ -37,8 +37,8 @@ def run_script(path, printStdout = True):
 
     processName = "F2"
 
-    output, exitCode, t = toolbox.runProcess(processName, [path])
-    
+    output, exitCode, t = toolbox.run_Process(processName, [path])
+
     if printStdout:
         for i in output:
             print(i)
@@ -58,11 +58,11 @@ def generate_folder_structure(path="data"):
     os.makedirs(path+pathOutputSpeckle, 0o777, True)
     os.makedirs(path+pathOutputDocumentation, 0o777, True)
     
-def create_scatter_plate(numberOfLayers, parameter=""):
+def create_scatter_plate(numberOfLayers, distance, parameter=""):
     "Creats the scatterplate and saves it in the folder _path_."
     
     if parameter == "":
-        parameter = get_F2_script_parameter(numberOfLayers)
+        parameter = get_F2_script_parameter(numberOfLayers, distance)
     
     textFile = open("config/F2/ScriptPartCreateScatterPlate.txt", "r")
     lines = textFile.readlines()
@@ -86,9 +86,9 @@ def create_scatter_plate(numberOfLayers, parameter=""):
     
     return scatterPlateRandom
             
-def calculate_propagation(imagePath, scatterPlateRandom, numberOfLayers):
+def calculate_propagation(imagePath, scatterPlateRandom, numberOfLayers, distance):
     
-    parameterScript = get_F2_script_parameter(numberOfLayers)
+    parameterScript = get_F2_script_parameter(numberOfLayers, distance)
     
     imageScript = []
     propagateScript = []
@@ -186,13 +186,14 @@ def load_image(imagePath, invertColor=False, resize=False, xPixel=0, yPixel=0):
     return rv
     
 
-def get_F2_script_parameter(numberOfLayers):
+def get_F2_script_parameter(numberOfLayers, distance):
     
     textFile = open("config/F2/ScriptPartSetParameters.txt", "r")
     lines = textFile.readlines()
     
     for i in range(len(lines)):
-        lines[i] = lines[i].format(py_numberOfLayers=numberOfLayers)
+        lines[i] = lines[i].format(py_numberOfLayers=numberOfLayers,
+             py_distance=distance)
     
     return lines
 

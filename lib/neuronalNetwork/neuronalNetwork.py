@@ -635,7 +635,7 @@ class neuronal_Network_Class:
         ----
             the path of the prediction.
         """
-        path = self.perdict(
+        path = self.predict(
             validation_Data_Path,
             self.path_Data +
             self.path_Output_Validation_Data_Prediction,
@@ -659,7 +659,7 @@ class neuronal_Network_Class:
         ----
             the path of the prediction.
         """
-        path = self.perdict(
+        path = self.predict(
             test_Data_Path,
             self.path_Data +
             self.path_Output_Test_Data_Prediction,

@@ -555,8 +555,7 @@ class neuronal_Network_Class:
         for i in range(len(npy_Array)):
             image = toolbox.convert_3d_Npy_To_Image(npy_Array[i], invert_Color)
 
-            buffer = self.path_Data + self.path_Output_Test_Data_Prediction + \
-                "/{}.bmp".format(filename[i])
+            buffer = bmp_Folder_Path + "/{}.bmp".format(filename[i])
             image.save(buffer)
 
             path += [buffer]

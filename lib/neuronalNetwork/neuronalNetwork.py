@@ -159,29 +159,29 @@ class neuronal_Network_Class:
         self.path_Input_Model = self.path_Neuronal_Network_Data + \
             neuronal_Network_Path_Extension + "/input/model"
         self.path_Input_Training_Data = self.path_Neuronal_Network_Data + \
-            neuronal_Network_Path_Extension + "/input/trainingData"
+            neuronal_Network_Path_Extension + "/input/training_data"
         self.path_Input_Training_Data_Ground_Truth = self.path_Neuronal_Network_Data + \
-            neuronal_Network_Path_Extension + "/input/trainingData/groundTruth"
+            neuronal_Network_Path_Extension + "/input/training_data/ground_truth"
         self.path_Input_Validation_Data = self.path_Neuronal_Network_Data + \
-            neuronal_Network_Path_Extension + "/input/validationData"
+            neuronal_Network_Path_Extension + "/input/validation_data"
         self.path_Input_Validation_Data_Ground_Truth = self.path_Neuronal_Network_Data + \
-            neuronal_Network_Path_Extension + "/input/validationData/groundTruth"
+            neuronal_Network_Path_Extension + "/input/validation_data/ground_truth"
         self.path_Input_Test_Data = self.path_Neuronal_Network_Data + \
-            neuronal_Network_Path_Extension + "/input/testData"
+            neuronal_Network_Path_Extension + "/input/test_data"
         self.path_Input_Test_Data_Ground_Truth = self.path_Neuronal_Network_Data + \
-            neuronal_Network_Path_Extension + "/input/testData/groundTruth"
+            neuronal_Network_Path_Extension + "/input/test_data/ground_truth"
         self.path_Input_Pretrained_Weights = self.path_Neuronal_Network_Data + \
-            neuronal_Network_Path_Extension + "/input/pretrainedWeights"
+            neuronal_Network_Path_Extension + "/input/pretrained_weights"
 
         self.path_Intermediate_Data_Trained_Weights = self.path_Neuronal_Network_Data + \
-            neuronal_Network_Path_Extension + "/intermediateData/trainedWeights"
+            neuronal_Network_Path_Extension + "/intermediate_data/trained_weights"
         self.path_Intermediate_Data_History = self.path_Neuronal_Network_Data + \
-            neuronal_Network_Path_Extension + "/intermediateData/history"
+            neuronal_Network_Path_Extension + "/intermediate_data/history"
 
         self.path_Output_Validation_Data_Prediction = self.path_Neuronal_Network_Data + \
-            neuronal_Network_Path_Extension + "/output/validationDataPredictions"
+            neuronal_Network_Path_Extension + "/output/validation_data_predictions"
         self.path_Output_Test_Data_Prediction = self.path_Neuronal_Network_Data + \
-            neuronal_Network_Path_Extension + "/output/testDataPredictions"
+            neuronal_Network_Path_Extension + "/output/test_data_predictions"
         self.path_Output_Evaluation = self.path_Neuronal_Network_Data + \
             neuronal_Network_Path_Extension + "/output/evaluation"
         self.path_Output_Documentation = self.path_Neuronal_Network_Data + \

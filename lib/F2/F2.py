@@ -16,20 +16,20 @@ from ..toolbox import toolbox
 
 pathData = "data"
 
-pathScript = pathData + "/F2/intermediateData/script"
-pathScatterPlate = pathData + "/F2/intermediateData/scatterPlate"
+pathScript = pathData + "/f2/intermediate_data/script"
+pathScatterPlate = pathData + "/f2/intermediate_data/scatter_plate"
 
-pathInput = "/F2/input"
-pathInputNIST = "/F2/input/NIST"
-pathIntermediateDataScatterPlate = "/F2/intermediateData/scatterPlate"
-pathIntermediateDataScript = "/F2/intermediateData/script"
-pathIntermediateDataStdout = "/F2/intermediateData"
-pathOutputSpeckle = "/F2/output/speckle"
-pathOutputDocumentation = "/F2/output/documentation"
+pathInput = "/f2/input"
+pathInputNIST = "/f2/input/nist"
+pathIntermediateDataScatterPlate = "/f2/intermediate_data/scatter_plate"
+pathIntermediateDataScript = "/f2/intermediate_data/script"
+pathIntermediateDataStdout = "/f2/intermediate_data"
+pathOutputSpeckle = "/f2/output/speckle"
+pathOutputDocumentation = "/f2/output/documentation"
 
-fileNameScriptCalculatePropagation = "calculatePropagation.txt"
-fileNameScriptCreateScatterPlate = "createScatterPlate.txt"
-fileNameScatterPlateRandom = ["ScatterPlateRandomX", "ScatterPlateRandomY"]
+fileNameScriptCalculatePropagation = "calculate_propagation.txt"
+fileNameScriptCreateScatterPlate = "create_scatter_plate.txt"
+fileNameScatterPlateRandom = ["scatter_plate_random_x", "scatter_plate_random_y"]
 fileNameStdout = "stdout.txt"
 
 def run_script(path, printStdout = True):

@@ -110,13 +110,13 @@ def NN(layer, neuronal_Network_Path_Extension_Pretrained_Weights=""):
 
     print("the training and test datasets are loading...")
     image_Path = toolbox.get_file_path_with_extension(
-        "data/20181130_F2/input/NIST", ["bmp"])
+        "data/F2/input/NIST", ["bmp"])
     image_Ground_Truth_Path = nn.load_Ground_Truth_Data(image_Path[:-10])
     image_Validation_Ground_Truth_Path = nn.load_Validation_Ground_Truth_Data(
         image_Path[-10:])
 
     image_Path = toolbox.get_file_path_with_extension(
-        "data/20181130_F2/output/speckle/"+layer, ["bmp"])
+        "data/F2/output/speckle/"+layer, ["bmp"])
     image_Speckle_Path = nn.load_Training_Data(image_Path[:-10])
     image_Validation_Speckle_Path = nn.load_Validation_Data(image_Path[-10:])
     print("done")
@@ -169,7 +169,7 @@ def NnAllLayers(layers, path_Extension=""):
 
     print("the training and test datasets are loading...")
     image_Path = toolbox.get_file_path_with_extension(
-        "data/20181130_F2/input/NIST", ["bmp"])
+        "data/F2/input/NIST", ["bmp"])
     image_Ground_Truth_Path = nn.load_Ground_Truth_Data(
         image_Path[:-10], layers)
     image_Validation_Ground_Truth_Path = nn.load_Validation_Ground_Truth_Data(
@@ -179,7 +179,7 @@ def NnAllLayers(layers, path_Extension=""):
     image_Validation_Speckle_Path = []
     for layer in layers:
         image_Path = toolbox.get_file_path_with_extension(
-            "data/20181130_F2/output/speckle/"+layer, ["bmp"])
+            "data/F2/output/speckle/"+layer, ["bmp"])
 
         image_Speckle_Path += nn.load_Training_Data(image_Path[:-10], layer)
         image_Validation_Speckle_Path += nn.load_Validation_Data(image_Path[-10:], layer)

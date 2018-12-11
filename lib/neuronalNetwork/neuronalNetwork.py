@@ -743,8 +743,23 @@ class neuronal_Network_Class:
         mean = K.mean(score)
         meanNP = mean.eval(session=sess)
 
-        self.save_4D_Npy_As_Bmp()
 
+        # save calculations
+        file_name = "jaccard_index.txt"
+        
+        image_file_name = []
+        for i in range(len(path_Prediction)):
+            image_file_name += [toolbox.get_File_Name(path_Prediction[i])]
+        image_file_name = np.stack(image_file_name)
+        
+        file = self.path_Data + self.path_Output_Evaluation + "/" + file_name
+        with open(file, 'w') as f:
+            for i in range(len(path_Prediction)):
+                f.write("{};{}\n".format(image_file_name[i], meanNP_per_image[i]))
+        
+        
+        sess.close() 
+        
 #        for i in range(len(scoreNP[:,0,0])):
 
 #        pred_tf = tf.convert_to_tensor(pred)

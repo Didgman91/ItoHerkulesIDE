@@ -1,0 +1,90 @@
+digraph hierarchy {
+	size="6,6"
+	//graph[splines=ortho]
+	node[shape=record]//,style=filled,fillcolor=gray95]
+	edge[dir=back, arrowtail=empty]
+	
+	// interfaces
+	iModule[label = "{\<\<interface\>\>\n \\textbf\{IModule\} | + path\\_Data\l + path\\_Input\l + path\\_Intermediate\\_Data\l + path\\_Output\l | + generate\\_Folder\\_Structure()\l + load\\_Data()\l + save\\_Data()\l}"]
+	//iModule [shape=plaintext, label=< 
+	//	<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0">
+	//		<TR><TD PORT="a1" ALIGN="CENTER" SIDES="tlr">
+	//			&lt;&lt;interface&gt;&gt;
+	//		</TD></TR>
+	//		<TR><TD PORT="a2" ALIGN="CENTER" SIDES="lrb">
+	//			<B>IModule</B>
+	//		</TD></TR>
+	//		<TR><TD PORT="m1" ALIGN="LEFT" SIDES="lr">
+	//			+ path\\_Data\\_Input
+	//		</TD></TR>
+	//		<TR><TD PORT="m2" ALIGN="LEFT" SIDES="lr">
+	//			+ path\\_Input
+	//		</TD></TR>
+	//		<TR><TD PORT="m3" ALIGN="LEFT" SIDES="lr">
+	//			+ path\\_Intermediate\\_Data
+	//		</TD></TR>
+	//		<TR><TD PORT="m4" ALIGN="LEFT" SIDES="lrb">
+	//			+ path\\_Output
+	//		</TD></TR>
+	//		<TR><TD PORT="f1" ALIGN="LEFT" SIDES="lr">
+	//			+ generate\\_Folder\\_Structure()
+	//		</TD></TR>
+	//		<TR><TD PORT="f1" ALIGN="LEFT" SIDES="lr">
+	//			+ load\\_Data()
+	//		</TD></TR>
+	//		<TR><TD PORT="f1" ALIGN="LEFT" SIDES="lrb">
+	//			+ save\\_Data()
+	//		</TD></TR>
+	//	</TABLE>>];
+
+	// classes
+	cF2[label = "{\\textbf\{F2\}|...| + create\\_Scatter\\_Plate()\l + calculate\\_Propagation()\l ...}"]
+	//cF2 [shape=plaintext, label=< 
+	//	<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0">
+	//		<TR><TD PORT="a2" ALIGN="CENTER" SIDES="tlrb">
+	//			<B>F2</B>
+	//		</TD></TR>
+	//		<TR><TD PORT="m1" ALIGN="CENTER" SIDES="lrb">
+	//			...
+	//		</TD></TR>
+	//		<TR><TD PORT="f1" ALIGN="LEFT" SIDES="lr">
+	//			+ create\\_Scatter\\_Plate()
+	//		</TD></TR>
+	//		<TR><TD PORT="f2" ALIGN="LEFT" SIDES="lrb">
+	//			+ calculate\\_Propagation()
+	//		</TD></TR>
+	//	</TABLE>>];
+	cNN[label = "{\\textbf\{NeuronalNetwork\} |- previous\\_Network: NeuronalNetwork\l - model: Model\l ... | + train\\_Network()\l + test\\_Network()\l ...}"]
+	//cNN [shape=plaintext, label=< 
+	//	<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0">
+	//		<TR><TD PORT="a2" ALIGN="CENTER" SIDES="tlrb">
+	//			<B>NeuronalNetwork</B>
+	//		</TD></TR>
+	//		<TR><TD PORT="m1" ALIGN="left" SIDES="lr">
+	//			- previous\\_Network?
+	//		</TD></TR>
+	//		<TR><TD PORT="m2" ALIGN="left" SIDES="lrb">
+	//			- model
+	//		</TD></TR>
+	//		<TR><TD PORT="f1" ALIGN="LEFT" SIDES="lr">
+	//			+ train\\_Network()
+	//		</TD></TR>
+	//		<TR><TD PORT="f2" ALIGN="LEFT" SIDES="lr">
+	//			+ test\\_Network()
+	//		</TD></TR>
+	//		<TR><TD PORT="f3" ALIGN="LEFT" SIDES="lrb">
+	//			+ evaluate\\_Network()
+	//		</TD></TR>
+	//	</TABLE>>];
+	
+
+	// realization
+	edge[style=dashed]
+	iModule->cF2
+	iModule->cNN
+
+	// aggregation
+	edge[style=solid, constraint=false, arrowtail=odiamond]
+	cNN->cNN[taillabel="0..1", tailport=es, headport=s]
+//	cNN:m2->cModel[taillabel="1", headlabel="1", tailport=e, headport=w]
+}

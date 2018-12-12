@@ -1,0 +1,277 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Article Notes
+% LaTeX Template
+% Version 1.0 (1/10/15)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Authors:
+% Vel (vel@latextemplates.com)
+% Christopher Eliot (christopher.eliot@hofstra.edu)
+% Anthony Dardis (anthony.dardis@hofstra.edu)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[
+10pt, % Default font size is 10pt, can alternatively be 11pt or 12pt
+a4paper, % Alternatively letterpaper for US letter
+%twocolumn, % Alternatively onecolumn
+onecolumn
+%landscape % Alternatively portrait
+portrait
+]{article}
+
+\input{structure.tex} % Input the file specifying the document layout and structure
+
+%----------------------------------------------------------------------------------------
+%	ARTICLE INFORMATION
+%----------------------------------------------------------------------------------------
+
+\articletitle{HerkulesIDE} % The title of the article
+\articlecitation{Notes} % The BibTeX citation key from your bibliography
+
+\datenotesstarted{November 28, 2018} % The date when these notes were first made
+\docdate{\datenotesstarted; rev. \today} % The date when the notes were lasted updated (automatically the current date)
+
+\docauthor{Max Daiber-Huppert} % Your name
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\pagestyle{myheadings} % Use custom headers
+\markright{\doctitle} % Place the article information into the header
+
+%----------------------------------------------------------------------------------------
+%	PRINT ARTICLE INFORMATION
+%----------------------------------------------------------------------------------------
+
+\thispagestyle{plain} % Plain formatting on the first page
+
+\printtitle % Print the title
+
+\section{Introduction}
+HerkulesIDE has a modular structure which is connected to the folder structure. In the style of the Unix philosophy ``everything is a file''.
+A module can contain the process to calculate the propagation of light like the F2 program. Also a neuronal network can be designed, trained and evaluated.
+Each module has its own folder structure, which consists of an input, output and an intermediate data folder.
+
+%----------------------------------------------------------------------------------------
+%	ToDo's
+%----------------------------------------------------------------------------------------
+
+\section{ToDo}
+\begin{itemize}
+	\item 
+\end{itemize}
+
+\FloatBarrier
+\newpage
+\section{Notes} % Numbered section
+
+
+\FloatBarrier
+\subsection{Program flow}
+First, the data is loaded from the module and stored in the input folder. Including the data to be calculated and also the configuration data. Then the main purpose of the module can be executed. Afterwards a test and a evaluation of the calculation should be performed automatically. This procedure is shown in figure~\ref{fig:flowChartHerkulesIdeModule}.
+This process can be executed multiple times in dependency of the number of data records.
+
+\begin{figure}[htb]
+	\centering
+	%	\def\svgwidth{0.6\textwidth}
+	\import{./image/}{flowChartHerkulesIdeModule.pdf_tex}
+	\caption{flowchart: module}
+	\label{fig:flowChartHerkulesIdeModule}
+\end{figure}
+
+\FloatBarrier
+\subsection{Folder structure}
+
+\subsubsection{HerkulesIDE}
+
+\begin{lstlisting}[caption={Herkules data example folder structure}]
+./data
+|-- f2
+|    |-- input
+|    |-- intermediate_data
+|    |    |-- scatter_plate
+|    |    |-- script
+|    |-- output
+|        |-- speckle
+|            |-- layer_0001
+|-- neuronal_network
+	|-- 100_meter  // optional subfolder
+	|    |-- input
+	|    |    |-- training_data
+	|    |    |    |-- ground_truth
+	|    |    |-- validation_data
+	|    |         |-- ground_truth
+	|    |-- intermediate_data
+	|    |    |-- history
+	|    |    |-- trained_weights
+	|    |-- output
+	|         |-- test_data_predictions
+	|-- 10_meter  // optional subfolder
+         |-- input
+         |    |-- training_data
+         |    |    |-- ground_truth
+         |    |-- validation_data
+         |         |-- ground_truth
+         |-- intermediate_data
+         |    |-- history
+         |    |-- trained_weights
+         |-- output
+         |-- test_data_predictions
+
+\end{lstlisting}
+
+\newpage
+\subsubsection{Dataset}
+\begin{itemize}
+	\item 1st layer: beam [gausian, plane]
+	\item 2nd layer: diameter [d\_\%2d] // unit: \SI{}{\micro \meter}
+	\item 3rd layer: fog density [rohn\_\%3d] // unit: \SI{}{\milli g\per \cubic m}
+	\item 4th layer: sampling rate [sam\_\%5d]
+	\item 5th layer: fog layer [layer\_\%4d] // distance is divided by number of layers
+\end{itemize}
+\begin{lstlisting}[language=bash, caption={Dataset example folder structure}]
+./dataset
+|-- gausian
+|    |-- d_30
+|    |    |-- rohn_200
+|    |        |-- sam_04096
+|    |            |-- layer_0001
+|    |            |-- layer_0100
+|    |-- d_40
+|        |-- rohn_200
+|            |-- sam_04096
+|                |-- layer_0100
+|-- plane
+     |-- d_30
+     |    |-- rohn_200
+     |        |-- sam_04096
+     |            |-- layer_0001
+     |            |-- layer_0100
+     |-- d_40
+     |-- rohn_200
+         |-- sam_04096
+             |-- layer_0100
+
+\end{lstlisting}
+
+The filename contains the information about the object name, an optional field that can specify the position of the Gaussian beam and end area to determine whether it represents the intensity, electrical field or argument of the light field.
+
+\begin{itemize}
+	\item filename: [object name]\_[,<position of the Gaussian beam>]\_[intensity, electrical field, argument].[bmp]
+	\item example: ampelmann1\_x\_0\_y\_0\_intensity.bmp
+\end{itemize}
+
+\newpage
+\subsection{UML Diagrams}
+The \textit{IModule} interface offers basic functions for data processing. The modules \textit{F2} and \textit{NeuronalNetwork} implements these, see figure~\ref{fig:classDiagramHerkulesLib}.
+
+\begin{figure}[htb]
+	\centering
+	%	\def\svgwidth{0.6\textwidth}
+	\import{./image/}{classDiagramHerkulesLib.pdf_tex}
+	\caption{class diagram: HerkulesLib Modules}
+	\label{fig:classDiagramHerkulesLib}
+\end{figure}
+
+\begin{figure}[htb]
+	\centering
+	%	\def\svgwidth{0.6\textwidth}
+	\import{./image/}{classDiagramHerkulesLibModel.pdf_tex}
+	\caption{class diagram: HerkulesLib Model}
+	\label{fig:classDiagramHerkulesLibModel}
+\end{figure}
+
+%
+\FloatBarrier
+\subsection{Constrains}
+Each module provides its own library. Except a global toolbox which offers functions for highly exchangeable data (e.g. bmp, jpeg, csv, xml, json, pdf, \dots) in the folder structure.
+
+\FloatBarrier
+\subsection{Style guide}
+\begin{itemize}
+	\item !!! DOCUMENTATION !!!
+	\item code style
+	\begin{itemize}
+		\item \href{https://www.python.org/doc/essays/styleguide/}{python}
+	\end{itemize}
+	\item git
+	\begin{itemize}
+		\item gitflow:  \href{https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow}{atlassian}, 
+		\href{https://danielkummer.github.io/git-flow-cheatsheet/}{danielKummer}
+		\item one commit contains only one module / project
+		\item git cheat sheet \attachfile[icon=Paperclip]{Attachment/git/PDF_github-git-cheat-sheet.pdf}
+		\item frontend
+			\begin{itemize}
+				\item Windows / Mac: \href{https://www.sourcetreeapp.com/}{Sourcetree}
+			\end{itemize}
+		
+	\end{itemize}
+\end{itemize}
+
+The style of the name of a file, folder, Python function or Python variable is the snake case.
+
+
+\FloatBarrier
+\section{Questions}
+\begin{itemize}
+	\item Shall we setup a own gitlab server?\\
+		  $ \rightarrow $ no
+	\item Shall we use github?\\
+		  $ \rightarrow $ yes
+	\item Organization with Kanban?\\
+		  $ \rightarrow $ \href{https://wekan.github.io/}{Wekan}\\
+		  $ \rightarrow $ Github porject
+	\item Advanced
+	\begin{itemize}
+		\item How to save disk space if one module copies files out of another?\\
+			  $ \rightarrow $ possible solutions:
+			  \begin{itemize}
+			  	\item create text files with relative path instead of copying all files (inconsistencies?)
+			  	\item file system that can handle copies
+			  	\item zip the project folder (implemented and under test)
+			  \end{itemize}
+	\end{itemize}
+	\item Shall we create a simple GUI, e.g. with Qt?\\
+		  $ \rightarrow $ load (test, validation) data; train, validate and test the neuronal network
+\end{itemize}
+
+\FloatBarrier
+\section{Good to know}
+Automatically apply PEP8 with \textit{autopep8}.
+\begin{lstlisting}[language=bash, caption={install autopep8}]
+	pip install autopep8
+\end{lstlisting}
+
+
+\FloatBarrier
+\subsection{Results}
+
+%----------------------------------------------------------------------------------------
+%	ATTACHMENT
+%----------------------------------------------------------------------------------------
+
+%\section{Attachment}
+%Deep Speckle Correlation: \attachfile[icon=Paperclip]{Attachment/Deep_Speckle_correlation.pdf}
+
+%----------------------------------------------------------------------------------------
+%	BIBLIOGRAPHY
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\refname}{Reference} % Change the default bibliography title
+
+\bibliography{sample} % Input your bibliography file
+
+%----------------------------------------------------------------------------------------
+
+\end{document}

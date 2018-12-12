@@ -1,0 +1,89 @@
+%% Creator: Inkscape inkscape 0.92.3, www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'classDiagramHerkulesLib.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{431.94097683bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.81490654)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{classDiagramHerkulesLib.pdf}}%
+    \put(0.43676249,0.77089519){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<interface>>\end{tabular}}}}%
+    \put(0.43676249,0.737384){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{IModule}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{classDiagramHerkulesLib.pdf}}%
+    \put(0.24351464,0.68600018){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}+ path\_Data\end{tabular}}}}%
+    \put(0.24351464,0.65248899){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}+ path\_Input\end{tabular}}}}%
+    \put(0.24351464,0.6189778){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}+ path\_Intermediate\_Data\end{tabular}}}}%
+    \put(0.24351464,0.58546661){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}+ path\_Output\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{classDiagramHerkulesLib.pdf}}%
+    \put(0.24351464,0.53408279){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}+ generate\_Folder\_Structure()\end{tabular}}}}%
+    \put(0.24351464,0.5005716){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}+ load\_Data()\end{tabular}}}}%
+    \put(0.24351464,0.46706042){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}+ save\_Data()\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{classDiagramHerkulesLib.pdf}}%
+    \put(0.19324785,0.29950447){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{F2}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=5]{classDiagramHerkulesLib.pdf}}%
+    \put(0.19324785,0.24812063){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=6]{classDiagramHerkulesLib.pdf}}%
+    \put(0.02680895,0.19673681){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}+ create\_Scatter\_Plate()\end{tabular}}}}%
+    \put(0.02680895,0.16322562){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}+ calculate\_Propagation()\end{tabular}}}}%
+    \put(0.19324785,0.12971444){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=7]{classDiagramHerkulesLib.pdf}}%
+    \put(0.68027712,0.33301566){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{NeuronalNetwork}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=8]{classDiagramHerkulesLib.pdf}}%
+    \put(0.43676249,0.28163182){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}- previous\_Network: NeuronalNetwork\end{tabular}}}}%
+    \put(0.43676249,0.24812063){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}- model: Model\end{tabular}}}}%
+    \put(0.68027712,0.21460945){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=9]{classDiagramHerkulesLib.pdf}}%
+    \put(0.43676249,0.16322562){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}+ train\_Network()\end{tabular}}}}%
+    \put(0.43676249,0.12971444){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}+ test\_Network()\end{tabular}}}}%
+    \put(0.68027712,0.09620325){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=10]{classDiagramHerkulesLib.pdf}}%
+    \put(0.9664888,0.26441154){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}0..1\end{tabular}}}}%
+  \end{picture}%
+\endgroup%

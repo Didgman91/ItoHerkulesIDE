@@ -1,0 +1,37 @@
+digraph hierarchy {
+	//size="6,6"
+	//graph[splines=ortho]
+	node[shape=record]//,style=filled,fillcolor=gray95]
+	edge[dir=back]
+	
+	// interfaces
+	iModel[label = "{\<\<interface\>\>\n \\textbf\{IModel\} | ... | + get\\_Model()\l}"]
+	//iModel [shape=plaintext, label=< 
+	//	<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0">
+	//		<TR><TD PORT="a2" ALIGN="CENTER" SIDES="tlr">
+	//			&lt;&lt;interface&gt;&gt;
+	//		</TD></TR>
+	//		<TR><TD PORT="a2" ALIGN="CENTER" SIDES="lrb">
+	//			<B>IModel</B>
+	//		</TD></TR>
+	//		<TR><TD PORT="line" ALIGN="CENTER" SIDES="lrb">
+	//			...
+	//		</TD></TR>
+	//		<TR><TD PORT="ax" ALIGN="LEFT" SIDES="lrb">
+	//			+ path\\_Input
+	//		</TD></TR>
+	//	</TABLE>>];
+
+	// classes
+	cModel[label = "{\\textbf\{Model\} | ... | ...}"]
+
+	// realization
+	edge[style=dashed, arrowtail=empty, constraint=false]
+	iModel->cModel[constraint=true]
+
+	// aggregation
+	edge[style=solid, arrowtail=odiamond, constraint=false]
+
+	// composition
+	edge[style=solid, arrowtail=diamond, constraint=false]
+}

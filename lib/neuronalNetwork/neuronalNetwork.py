@@ -12,6 +12,7 @@ from shutil import copyfile
 import pickle
 
 import numpy as np
+from scipy.stats import pearsonr
 
 from PIL import Image
 from PIL import ImageOps
@@ -141,7 +142,7 @@ class neuronal_Network_Class:
         self.model = model
 
         self.path_Data = "data"
-        self.path_Neuronal_Network_Data = "/neuronalNetwork"
+        self.path_Neuronal_Network_Data = "/neuronal_network"
 
         if neuronal_Network_Path_Extension != "":
             if neuronal_Network_Path_Extension[-1] == '/':
@@ -497,6 +498,10 @@ class neuronal_Network_Class:
             image_Path
                 List of relative paths to the ground truth test data images in
                 the parent folder _path_Data_.
+        
+        Returns
+        ----
+            
         """
         rv = []
         for ip in image_Path:
@@ -708,58 +713,211 @@ class neuronal_Network_Class:
 
         return path
 
-    def evaluate_Network(self, method, path_Ground_Truth=[],
-                         path_Prediction=[]):
+
+    def jaccard_index(self, path_ground_truth, path_prediction, parameter = []):
+        """Calculates the Jaccard index by comparing the images in both paths
+        and stores them in a csv file. Optionally these values can be saved as
+        an image (export_images).
+        
+        Arguments
+        ----
+            path_Ground_Truth
+                list of paths for the ground truth dataset
+            
+            path_Prediction
+                list of paths for the prediction dataset
+            
+            parameter
+                optional list of parameters
+
+        Parameter
+        ----
+        parameter[0]: export_images
+            export the Jaccard index as images [default: True]
         """
-        """
-        if path_Ground_Truth == []:
-            path_Ground_Truth = self.path_Data \
-                                + self.path_Input_Test_Data_Ground_Truth
-            path_Ground_Truth = toolbox.get_file_path_with_extension(
-                path_Ground_Truth, ["bmp"])
+        if parameter != []:
+            export_images = parameter[0]
+        else:
+            export_images = True
 
-        if path_Prediction == []:
-            path_Prediction = self.path_Data \
-                                + self.path_Output_Test_Data_Prediction
-            path_Prediction = toolbox.get_file_path_with_extension(
-                path_Prediction, ["bmp"])
+        path_prediction.sort()
+        path_ground_truth.sort()
 
-        path_Prediction.sort()
-        path_Ground_Truth.sort()
-
-        pred = self.get_Image_As_Npy(path_Prediction)
-        ground_Truth = self.get_Image_As_Npy(path_Ground_Truth)
+        pred = self.get_Image_As_Npy(path_prediction)
+        ground_truth = self.get_Image_As_Npy(path_ground_truth)
 
         # calculate jaccard_distance
         sess = tf.InteractiveSession()
 
-        score = jd(ground_Truth, pred)
-        scoreNP = score.eval(session=sess)
+        score = jd(ground_truth, pred)
+        scoreNP = -1*(score.eval(session=sess)-1)
 
         meanNP_per_image = []
         for i in range(len(scoreNP[:, 0, 0])):
             meanNP_per_image += [np.mean(scoreNP[i, :, :])]
 
         mean = K.mean(score)
-        meanNP = mean.eval(session=sess)
+        meanNP = -1*(mean.eval(session=sess)-1)
 
-
-        # save calculations
-        file_name = "jaccard_index.txt"
-        
-        image_file_name = []
-        for i in range(len(path_Prediction)):
-            image_file_name += [toolbox.get_File_Name(path_Prediction[i])]
-        image_file_name = np.stack(image_file_name)
-        
-        file = self.path_Data + self.path_Output_Evaluation + "/" + file_name
-        with open(file, 'w') as f:
-            for i in range(len(path_Prediction)):
-                f.write("{};{}\n".format(image_file_name[i], meanNP_per_image[i]))
-        
-        
         sess.close() 
         
+        # save calculations
+        file_name = "jaccard_index.txt"
+        path_ji= self.path_Output_Evaluation + "/jaccard_index"
+        path_ji_images = self.path_Output_Evaluation + "/jaccard_index/images"
+        os.makedirs(self.path_Data + path_ji, 0o777, True)
+        
+        image_file_name = []
+        for i in range(len(path_prediction)):
+            image_file_name += [toolbox.get_File_Name(path_prediction[i])]
+        image_file_name = np.stack(image_file_name)
+        
+        file = self.path_Data + path_ji + "/" + file_name
+        with open(file, 'w') as f:
+            f.write("object name;jaccard index\n")
+            f.write("mean;{}\n".format(meanNP))
+            for i in range(len(meanNP_per_image)):
+                f.write("{};{}\n".format(image_file_name[i], meanNP_per_image[i]))
+
+        # ji as images
+        if export_images is True:
+            os.makedirs(self.path_Data + path_ji_images, 0o777, True)
+            for i in range(len(scoreNP[:,0,0])):
+                image = toolbox.convert_3d_Npy_To_Image(scoreNP[i,:,:], invert_Color=False)
+    
+                buffer = self.path_Data + path_ji_images + "/{}.bmp".format(image_file_name[i])
+                image.save(buffer)
+    
+    def get_pcc_base(self, np_array_1, np_array_2):
+        """Calculates the Pearson correlation coefficient of two numpy arrays.
+        
+        Arguments
+        ----
+            np_array_1
+                first array compared to np_array_2
+                
+            np_array_2
+                must be the same size as the np_array_1
+                
+        Returns
+        ----
+            the Pearson correlation coefficient.
+        """
+        gt1d = np_array_1.flatten()
+        pred1d = np_array_2.flatten()
+        
+        value, p = pearsonr(gt1d, pred1d)
+        
+        return value
+        
+    
+    def pearson_correlation_coefficient(self, path_ground_truth, path_prediction, parameter = []):
+        """Calculates the Pearson correlation coefficient by comparing the
+        images in both paths and stores them in a csv file.
+        
+        Arguments
+        ----
+            path_Ground_Truth
+                list of paths for the ground truth dataset
+            
+            path_Prediction
+                list of paths for the prediction dataset
+            
+            parameter
+                optional list of parameters
+
+        Parameter
+        ----
+        parameter[0]: use_tensorflow
+            use the tensorflow library instead of scipy [default: False]
+        """
+        if parameter != []:
+            use_tensorflow = parameter[0]
+        else:
+            use_tensorflow = False
+        
+        path_prediction.sort()
+        path_ground_truth.sort()
+
+        pred = self.get_Image_As_Npy(path_prediction)
+        ground_truth = self.get_Image_As_Npy(path_ground_truth)
+        
+        # calculate Pearson correlation coefficient
+        value_pcc = []
+        mean_pcc = []
+        if use_tensorflow is True:
+            sess = tf.InteractiveSession()
+
+            for i in range(len(ground_truth)):
+                value = pcc(ground_truth[i], pred[i])
+                value_pcc += [value.eval(session=sess)]
+            
+            mean = pcc(ground_truth, pred)
+            mean_pcc = mean.eval(session=sess)
+            
+            sess.close()
+        else:
+            for i in range(len(ground_truth)):
+               value_pcc += [self.get_pcc_base(ground_truth[i], pred[i])]
+
+            mean_pcc = np.mean(value_pcc)
+        
+        # save calculations
+        file_name = "pearson_correlation_coefficient.txt"
+        path_pcc= self.path_Output_Evaluation + "/pearson_correlation_coefficient"
+        os.makedirs(self.path_Data + path_pcc, 0o777, True)
+
+        image_file_name = []
+        for i in range(len(path_prediction)):
+            image_file_name += [toolbox.get_File_Name(path_prediction[i])]
+        image_file_name = np.stack(image_file_name)
+        
+        file = self.path_Data + path_pcc + "/" + file_name
+        with open(file, 'w') as f:
+            f.write("object name;pearson correlation coefficient\n")
+            f.write("mean;{}\n".format(mean_pcc))
+            for i in range(len(value_pcc)):
+                f.write("{};{}\n".format(image_file_name[i], value_pcc[i]))
+
+            
+    
+    def evaluate_Network(self, method, path_Ground_Truth, path_Prediction,
+                         additional_method_parameter = []):
+        """Wrapper function to call multiple evaluation methods
+        
+        Arguments
+        ----
+            method
+                list of functions, but at least it can be a singel function
+
+            path_Ground_Truth
+                list of paths for the ground truth dataset
+            
+            path_Prediction
+                list of paths for the prediction dataset
+        
+        Returns 
+        ----
+            list of method returns, if any.
+        """
+        path_Ground_Truth.sort()
+        path_Prediction.sort()
+
+        rv = []
+
+        if type(method) is list:
+            for i in range(len(method)):
+                if additional_method_parameter != []:
+                    rv += [method[i](path_Ground_Truth, path_Prediction, additional_method_parameter[i])]
+                else:
+                    rv += [method[i](path_Ground_Truth, path_Prediction)]
+        else:
+            if additional_method_parameter != []:
+                rv = [method(path_Ground_Truth, path_Prediction, additional_method_parameter)]
+            else:
+                rv = [method(path_Ground_Truth, path_Prediction)]
+
+
 #        for i in range(len(scoreNP[:,0,0])):
 
 #        pred_tf = tf.convert_to_tensor(pred)

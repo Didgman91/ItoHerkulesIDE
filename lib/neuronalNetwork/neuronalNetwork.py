@@ -232,6 +232,11 @@ class neuronal_Network_Class:
             True)
         os.makedirs(
             self.path_Data +
+            self.path_Output_Validation_Data_Prediction,
+            0o777,
+            True)
+        os.makedirs(
+            self.path_Data +
             self.path_Output_Documentation,
             0o777,
             True)

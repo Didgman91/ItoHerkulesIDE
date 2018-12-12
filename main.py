@@ -199,7 +199,7 @@ def NnAllLayers(layers, path_Extension=""):
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: validate network")
 
-    nn.validate_Network(image_Validation_Speckle_Path)
+    path_pred = nn.validate_Network(image_Validation_Speckle_Path)
 
     # ---------------------------------------------
     # NEURONAL NETWORK: test network
@@ -208,6 +208,14 @@ def NnAllLayers(layers, path_Extension=""):
 
 #    nn.test_Network(image_Test_Speckle_Path, model)
 
+    # ---------------------------------------------
+    # NEURONAL NETWORK: Evaluation
+    # ---------------------------------------------
+    toolbox.print_program_section_name("NEURONAL NETWORK: Evaluation")
+    
+    nn.evaluate_Network([nn.jaccard_index, nn.pearson_correlation_coefficient],
+                        image_Validation_Speckle_Path,
+                        path_pred)
     # ---------------------------------------------
     # NEURONAL NETWORK: Evaluation
     # ---------------------------------------------

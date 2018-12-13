@@ -17,11 +17,11 @@ from scipy.stats import pearsonr
 from PIL import Image
 from PIL import ImageOps
 
-import keras
 import keras.backend as K
 import tensorflow as tf
 
 from ..toolbox import toolbox
+from ..toolbox import images as ti
 
 from .losses import pcc
 from .losses import jd
@@ -33,6 +33,21 @@ from .losses import jd
 #from keras.layers.normalization import BatchNormalization
 #from keras.regularizers import l2
 
+
+def process(training_path, ground_truth_path):
+    train = ti.get_image_as_npy(training_path)
+    ground_truth = ti.get_image_as_npy(ground_truth_path)
+
+    return train, ground_truth
+
+
+def generate_arrays_from_list(train, ground_truth, batch_size):
+    while True:
+        for i in range(len(train)):
+            # create numpy arrays of input data
+            # and labels, from each line in the file
+            x, y = process(train[i], ground_truth[i])
+            yield x, y
 
 # def generate_arrays(data, ground_truth, batch_size):
 #    L = len(data)
@@ -74,51 +89,7 @@ from .losses import jd
 #            img.load()
 #            rv += [np.asarray(img, dtype="int32")/255]
 
-def convert_image_list_to_4D_np_array(images):
-    """Converts an image to an 4d array.
 
-     With the dimensions:
-         - 1d: image number
-         - 2d: x dimension of the image
-         - 3d: y dimension of the image
-         - 4d: channel
-    
-    Arguments
-    ----
-        images
-    
-    Returns
-    ----
-    
-    """
-    if (isinstance(images, list)) & (len(images) > 1):
-        # stack a list to a numpy array
-        images = np.stack((images))
-    elif isinstance(images, np.array):
-        buffer = 0    # do nothing
-    else:
-        print("error: type of _images_ not supported")
-        print("Type: {}".format(type(images)))
-        return 0
-
-    # convert RGB image to gray scale image
-    if len(images.shape) == 4:
-        if images.shape[3] == 3:
-            buffer = []
-            for i in images:
-                b = Image.fromarray(np.uint8(i * 255)).convert('L')
-                buffer += [np.asarray(b, dtype="int32")]
-
-            images = np.stack((buffer))
-    if images.max() > 1:
-        images = images / 255
-
-    # reshape the numpy array (imageNumber, xPixels, yPixels, 1)
-    if len(images.shape) == 3:
-        images = images.reshape(
-            (images.shape[0], images.shape[1], images.shape[2], 1))
-
-    return images
 
 
 class neuronal_network_class:
@@ -494,126 +465,55 @@ class neuronal_network_class:
                         prefix="{}_".format(prefix))
         return path
 
-    def get_image_as_npy(self, image_path):
-        """ Opens the images listed under _image_path_ and returns them as a
-        list of numpy arrays.
-
-        Arguments
-        ----
-            image_path
-                List of relative paths to the ground truth test data images in
-                the parent folder _path_data_.
-        
-        Returns
-        ----
-            
-        """
-        rv = []
-        for ip in image_path:
-            file_extension = os.path.splitext(ip)[-1]
-
-    #        base = os.path.basename(ip)
-    #        name = os.path.splitext(base)
-            data = []
-
-            if file_extension == ".bmp":
-                img = Image.open(ip)  # .convert('LA')
-                img.load()
-                data = np.asarray(img, dtype="int32") / 255
-            elif (file_extension == ".npy") | (file_extension == ".bin"):
-                data = np.load(ip)
-                data = Image.fromarray(np.uint8(data * 255))  # .convert('LA')
-                data = np.asarray(data, dtype="int32") / 255
-            else:
-                continue
-
-            rv = rv + [data]
-
-        rv = convert_image_list_to_4D_np_array(rv)
-
-        return rv
-
-    def save_4D_npy_as_bmp(self, npy_array, filename,
-                           bmp_folder_path, invert_color=False):
-        """Saves the 4d numpy array as bmp files.
-
-        Dimensions:
-            - 1d: image number
-            - 2d: x dimension of the image
-            - 3d: y dimension of the image
-            - 4d: channel
-
-        Arguments
-        ----
-            npy_array
-                numpy array
-
-            filename
-                list of bmp filenames
-
-            bmp_folder_path
-                Destination where the bmp files will be stored.
-
-            invert_color
-                If it's True, than the colors of the images will be inverted.
-
-        Returns
-        ----
-            the bmp file paths.
-        """
-        path = []
-        for i in range(len(npy_array)):
-            image = toolbox.convert_3d_npy_to_image(npy_array[i], invert_color)
-
-            buffer = bmp_folder_path + "/{}.bmp".format(filename[i])
-            image.save(buffer)
-
-            path += [buffer]
-
-        return path
-
-    def train_network(self, training_data_path,
-                      ground_truth_path, fit_epochs, fit_batch_size):
+    def train_network(self, training_data, ground_truth,
+                      loss, optimizer,
+                      fit_epochs, fit_batch_size,
+                      use_fit_generator=False):
         """ Runs the routine to train the network.
 
         Arguments
         ----
-            training_data_path
-                list of paths to images
+            training_data
+                list of the training dataset
 
-            ground_truth_path
-                list of paths to images
+            ground_truth
+                list of the ground truth dataset
+
+            loss
+                Can be a string that corresponds to the name of the Keras loss
+                function. It can be also a function list of self defined loss
+                functions.
+
+            optimizer
+                represents a Keras.optimizers object
 
             fit_epochs
                 number of epochs
 
             fit_batch_size
                 batch size
-        """
-        training_data_path.sort()
-        ground_truth_path.sort()
 
-        training_data = self.get_image_as_npy(training_data_path)
-        ground_truth = self.get_image_as_npy(ground_truth_path)
+            use_fit_generator
+                DO NOT USE (under development)
+                if True, then fit_generator() is used instead of fit().
+        """
+        
 
         # Compile model
-        adam = keras.optimizers.Adam(
-            lr=0.001,
-            beta_1=0.9,
-            beta_2=0.999,
-            epsilon=None,
-            decay=0.001 /
-            fit_epochs,
-            amsgrad=False)
-        self.model.compile(loss='sparse_categorical_crossentropy',
-                           optimizer=adam)
+        self.model.compile(loss=loss, optimizer=optimizer)
 
         # Fit the model
-        history = self.model.fit(training_data,
-                                 ground_truth,
-                                 epochs=fit_epochs,
-                                 batch_size=fit_batch_size,
-                                 verbose=2)
+        history = []
+        if use_fit_generator is True:
+            history = self.model.fit_generator(generate_arrays_from_list(training_data, ground_truth),
+                                               steps_per_epoch=fit_batch_size,
+                                               epochs=fit_epochs)
+        else:
+            history = self.model.fit(training_data,
+                                     ground_truth,
+                                     epochs=fit_epochs,
+                                     batch_size=fit_batch_size,
+                                     verbose=2)
 # todo:
 #        history = model.fit_generator(generate_arrays(training_data_path, ground_truth_path, fit_batch_size),
 #                      steps_per_epoch=fit_batch_size, epochs=fit_epochs)
@@ -628,7 +528,7 @@ class neuronal_network_class:
                 + self.path_intermediate_data_trained_weights
                 + "/" + self.file_name_trained_weights)
 
-    def validate_network(self, validation_data_path, trained_weights_path=""):
+    def validate_network(self, validation_data, trained_weights_path=""):
         """Calculates predictions based on the validation dataset.
 
         Arguments
@@ -642,17 +542,17 @@ class neuronal_network_class:
 
         Returns
         ----
-            the path of the prediction.
+            the prediction.
         """
-        path = self.predict(
-            validation_data_path,
-            self.path_data +
-            self.path_output_validation_data_prediction,
+        pred = self.__predict(
+            validation_data,
             trained_weights_path)
+        
+        output_path = self.path_data + self.path_output_validation_data_prediction
+        
+        return pred, output_path
 
-        return path
-
-    def test_network(self, test_data_path, trained_weights_path=""):
+    def test_network(self, test_data, trained_weights_path=""):
         """Calculates predictions based on the test dataset.
 
         Arguments
@@ -666,18 +566,17 @@ class neuronal_network_class:
 
         Returns
         ----
-            the path of the prediction.
+            the prediction.
         """
-        path = self.predict(
-            test_data_path,
-            self.path_data +
-            self.path_output_test_data_prediction,
+        pred = self.__predict(
+            test_data,
             trained_weights_path)
 
-        return path
+        output_path = self.path_data + self.path_output_test_data_prediction
 
-    def predict(self, data_path, prediction_folder_path,
-                trained_weights_path=""):
+        return pred, output_path
+
+    def __predict(self, data, trained_weights_path=""):
         """Calculates pridictions based on the given data_path.
 
         Arguments
@@ -694,16 +593,8 @@ class neuronal_network_class:
 
         Returns
         ----
-            the path of the prediction.
+            the prediction.
         """
-        data_path.sort()
-        test_data = self.get_image_as_npy(data_path)
-
-        fileName = []
-        for ip in data_path:
-            base = os.path.basename(ip)
-            fileName += [os.path.splitext(base)[0]]
-
         if trained_weights_path == "":
             self.model.save_weights(
                 self.path_data +
@@ -711,27 +602,23 @@ class neuronal_network_class:
                 "/" +
                 self.file_name_trained_weights)
 
-        pred = self.model.predict(test_data)
+        pred = self.model.predict(data)
 
-        path = self.save_4D_npy_as_bmp(
-            pred, fileName, prediction_folder_path, invert_color=True)
+        return pred
 
-        return path
-
-
-    def jaccard_index(self, path_ground_truth, path_prediction, parameter = []):
+    def jaccard_index(self, path_ground_truth, path_prediction, parameter=[]):
         """Calculates the Jaccard index by comparing the images in both paths
         and stores them in a csv file. Optionally these values can be saved as
         an image (export_images).
-        
+
         Arguments
         ----
             path_ground_truth
                 list of paths for the ground truth dataset
-            
+
             path_prediction
                 list of paths for the prediction dataset
-            
+
             parameter
                 optional list of parameters
 
@@ -748,8 +635,8 @@ class neuronal_network_class:
         path_prediction.sort()
         path_ground_truth.sort()
 
-        pred = self.get_image_as_npy(path_prediction)
-        ground_truth = self.get_image_as_npy(path_ground_truth)
+        pred = ti.get_image_as_npy(path_prediction)
+        ground_truth = ti.get_image_as_npy(path_ground_truth)
 
         # calculate jaccard_distance
         sess = tf.InteractiveSession()
@@ -764,8 +651,8 @@ class neuronal_network_class:
         mean = K.mean(score)
         meanNP = -1*(mean.eval(session=sess)-1)
 
-        sess.close() 
-        
+        sess.close()
+
         # save calculations
         file_name = "jaccard_index.txt"
         path_ji= self.path_output_evaluation + "/jaccard_index"
@@ -787,8 +674,9 @@ class neuronal_network_class:
         # ji as images
         if export_images is True:
             os.makedirs(self.path_data + path_ji_images, 0o777, True)
-            for i in range(len(scoreNP[:,0,0])):
-                image = toolbox.convert_3d_npy_to_image(scoreNP[i,:,:], invert_color=False)
+            for i in range(len(scoreNP[:, 0, 0])):
+                image = ti.convert_3d_npy_to_image(scoreNP[i, :, :],
+                                                   invert_color=False)
     
                 buffer = self.path_data + path_ji_images + "/{}.bmp".format(image_file_name[i])
                 image.save(buffer)
@@ -844,8 +732,8 @@ class neuronal_network_class:
         path_prediction.sort()
         path_ground_truth.sort()
 
-        pred = self.get_image_as_npy(path_prediction)
-        ground_truth = self.get_image_as_npy(path_ground_truth)
+        pred = ti.get_image_as_npy(path_prediction)
+        ground_truth = ti.get_image_as_npy(path_ground_truth)
         
         # calculate Pearson correlation coefficient
         value_pcc = []

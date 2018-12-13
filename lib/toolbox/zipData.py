@@ -92,7 +92,7 @@ def zip_data(zip_settings):
             zip_name
                 name of the zip file
         """
-        zip_f = zipfile.ZipFile(zip_name, 'w', zipfile.ZIP_dEFLATED)
+        zip_f = zipfile.ZipFile(zip_name, 'w', zipfile.ZIP_DEFLATED)
         for dir in dir_list:
             zip_dir(dir, zip_f)
         for f in file_list:

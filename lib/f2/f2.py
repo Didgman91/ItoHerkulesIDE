@@ -188,7 +188,7 @@ def load_image(imagePath, invertColor=False, resize=False, xPixel=0, yPixel=0):
 
 def get_f2_script_parameter(numberOfLayers, distance):
     
-    textFile = open("config/F2/ScriptPartSetParameters.txt", "r")
+    textFile = open("config/f2/ScriptPartSetParameters.txt", "r")
     lines = textFile.readlines()
     
     for i in range(len(lines)):
@@ -199,7 +199,7 @@ def get_f2_script_parameter(numberOfLayers, distance):
 
 def get_f2_script_load_image(file):
     ""
-    textFile = open("config/F2/ScriptPartLoadImage.txt", "r")
+    textFile = open("config/f2/ScriptPartLoadImage.txt", "r")
     lines = textFile.readlines()
     
     for i in range(len(lines)):
@@ -209,12 +209,12 @@ def get_f2_script_load_image(file):
 
 def get_f2_script_propagete(fileName, scatterPlateRandom):
     "returns only the part of the script to calculate the electrical field"
-    outputPath = pathData + "/F2/output/speckle"
+    outputPath = pathData + pathOutputSpeckle
     
     base = os.path.basename(fileName)
     name = os.path.splitext(base)
     
-    textFile = open("config/F2/ScriptPartCalculatePropagation.txt", "r")
+    textFile = open("config/f2/ScriptPartCalculatePropagation.txt", "r")
     lines = textFile.readlines()
     
     for i in range(len(lines)):

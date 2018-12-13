@@ -106,13 +106,13 @@ def nn_main(layer, neuronal_network_path_extension_pretrained_weights=""):
 
     print("the training and test datasets are loading...")
     image_path = toolbox.get_file_path_with_extension(
-        "data/F2/input/NIST", ["bmp"])
+        "data/f2/input/nist", ["bmp"])
     image_ground_truth_path = nn.load_ground_truth_data(image_path[:-10])
     image_validation_ground_truth_path = nn.load_validation_ground_truth_data(
         image_path[-10:])
 
     image_path = toolbox.get_file_path_with_extension(
-        "data/F2/output/speckle/"+layer, ["bmp"])
+        "data/f2/output/speckle/"+layer, ["bmp"])
     image_speckle_path = nn.load_training_data(image_path[:-10])
     image_validation_speckle_path = nn.load_validation_data(image_path[-10:])
     print("done")
@@ -163,7 +163,7 @@ def nn_all_layers(layers, path_extension=""):
 
     print("the training and test datasets are loading...")
     image_path = toolbox.get_file_path_with_extension(
-        "data/F2/input/NIST", ["bmp"])
+        "data/20181209_F2/input/NIST", ["bmp"])
     image_ground_truth_path = nn.load_ground_truth_data(
         image_path[:-10], layers)
     image_validation_ground_truth_path = nn.load_validation_ground_truth_data(
@@ -173,7 +173,7 @@ def nn_all_layers(layers, path_extension=""):
     image_validation_speckle_path = []
     for layer in layers:
         image_path = toolbox.get_file_path_with_extension(
-            "data/F2/output/speckle/"+layer, ["bmp"])
+            "data/20181209_F2/output/speckle/"+layer, ["bmp"])
 
         image_speckle_path += nn.load_training_data(image_path[:-10], layer)
         image_validation_speckle_path += nn.load_validation_data(image_path[-10:], layer)
@@ -211,17 +211,17 @@ def nn_all_layers(layers, path_extension=""):
                         image_validation_speckle_path,
                         path_pred)
 
-folder, path, layer = f2_main("../imagePool/NIST/by_write/hsf_0/f0000_14/c0000_14/")
+#folder, path, layer = f2_main("../imagePool/NIST/by_write/hsf_0/f0000_14/c0000_14/")
 
-#dirs = os.listdir("data/20181209_F2/output/speckle/")
+dirs = os.listdir("data/20181209_F2/output/speckle/")
 #dirs.sort()
 #for i in range(len(dirs)):
 #    if i % 5 == 0:
 #        toolbox.print_program_section_name("DIRECTORY: {}".format(dirs[i]))
 #        nn_main(dirs[i])
 
-toolbox.print_program_section_name("NN All: first 3 m")
-nn_all_layers(dirs[:3], "3meter")
+toolbox.print_program_section_name("NN All: first 2 m")
+nn_all_layers(dirs[:2], "2meter")
 
 #toolbox.print_program_section_name("NN All: first 10 m")
 #nn_all_layers(dirs[:10], "10meter")

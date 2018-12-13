@@ -13,6 +13,7 @@ import time
 from lib.f2 import f2
 from lib.toolbox import toolbox
 from lib.toolbox.zipData import zip_data
+from lib.toolbox import images as ti
 from lib.neuronal_network import neuronal_network
 
 from config.neuronal_network.model.model import model_deep_specle_correlation_class
@@ -122,16 +123,37 @@ def nn_main(layer, neuronal_network_path_extension_pretrained_weights=""):
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: train network")
 
+    image_speckle_path.sort()
+    image_ground_truth_path.sort()
+    
+    training_data = ti.get_image_as_npy(image_speckle_path)
+    ground_truth = ti.get_image_as_npy(image_ground_truth_path)
+
+    batch_size = 16
+    optimizer = m.get_optimizer(batch_size)
     nn.train_network(
-        image_speckle_path, image_ground_truth_path,
-        fit_epochs=100, fit_batch_size=16)
+        training_data, ground_truth,
+        'sparse_categorical_crossentropy', optimizer,
+        fit_epochs=1, fit_batch_size=batch_size)
 
     # ---------------------------------------------
     # NEURONAL NETWORK: validata network
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: validate network")
 
-    nn.validate_network(image_validation_speckle_path)
+    image_validation_speckle_path.sort()
+    data = ti.get_image_as_npy(image_validation_speckle_path)
+
+    fileName = []
+    for ip in image_validation_speckle_path:
+        base = os.path.basename(ip)
+        fileName += [os.path.splitext(base)[0]]
+
+    pred = nn.validate_network(data)
+
+    path_pred = ti.save_4D_npy_as_bmp(pred, fileName, nn.path_data +
+                                      nn.path_output_validation_data_prediction,
+                                      invert_color=True)
 
     # ---------------------------------------------
     # NEURONAL NETWORK: test network
@@ -143,7 +165,9 @@ def nn_main(layer, neuronal_network_path_extension_pretrained_weights=""):
     # ---------------------------------------------
     # NEURONAL NETWORK: Evaluation
     # ---------------------------------------------
-#    toolbox.print_program_section_name("NEURONAL NETWORK: Evaluation")
+    nn.evaluate_network([nn.jaccard_index, nn.pearson_correlation_coefficient],
+                        image_validation_speckle_path,
+                        path_pred)
 
 
 def nn_all_layers(layers, path_extension=""):
@@ -183,17 +207,37 @@ def nn_all_layers(layers, path_extension=""):
     # NEURONAL NETWORK: train network
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: train network")
-
+    
+    image_speckle_path.sort()
+    image_ground_truth_path.sort()
+    
+    training_data = ti.get_image_as_npy(image_speckle_path)
+    ground_truth = ti.get_image_as_npy(image_ground_truth_path)
+    
+    batch_size = 16
+    optimizer = m.get_optimizer([batch_size])
     nn.train_network(
-        image_speckle_path, image_ground_truth_path,
-        fit_epochs=1, fit_batch_size=16)
+        training_data, ground_truth,
+        'sparse_categorical_crossentropy', optimizer,
+        fit_epochs=100, fit_batch_size=batch_size)
 
     # ---------------------------------------------
     # NEURONAL NETWORK: validata network
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: validate network")
 
-    path_pred = nn.validate_network(image_validation_speckle_path)
+    image_validation_speckle_path.sort()
+    data = ti.get_image_as_npy(image_validation_speckle_path)
+
+    fileName = []
+    for ip in image_validation_speckle_path:
+        base = os.path.basename(ip)
+        fileName += [os.path.splitext(base)[0]]
+
+    pred, path = nn.validate_network(data)
+
+    path_pred = ti.save_4D_npy_as_bmp(pred, fileName, path,
+                                      invert_color=True)
 
     # ---------------------------------------------
     # NEURONAL NETWORK: test network

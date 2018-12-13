@@ -197,28 +197,6 @@ def load_np_images(path_image, extension=["npy", "bin"]):
     return image
 
 
-def convert_3d_npy_to_image(npy, invert_color=False):
-    """Converts a numpy array to an image.
-
-    Arguments
-    ----
-        npy
-            3 dimensional numyp array
-
-        invert_color
-            If this is true, the colors in the image will be inverted.
-
-    Returns
-    ----
-        the image
-    """
-    image = Image.fromarray(np.uint8(npy*255)).convert('RGB')
-    if invert_color is True:
-        image = ImageOps.invert(image)
-
-    return image
-
-
 def print_program_section_name(name):
     """Formats and prints the _name_ on stdout.
 

@@ -37,7 +37,7 @@ def run_script(path, printStdout = True):
 
     processName = "F2"
 
-    output, exitCode, t = toolbox.run_Process(processName, [path])
+    output, exitCode, t = toolbox.run_process(processName, [path])
 
     if printStdout:
         for i in output:
@@ -62,7 +62,7 @@ def create_scatter_plate(numberOfLayers, distance, parameter=""):
     "Creats the scatterplate and saves it in the folder _path_."
     
     if parameter == "":
-        parameter = get_F2_script_parameter(numberOfLayers, distance)
+        parameter = get_f2_script_parameter(numberOfLayers, distance)
     
     textFile = open("config/F2/ScriptPartCreateScatterPlate.txt", "r")
     lines = textFile.readlines()
@@ -88,15 +88,15 @@ def create_scatter_plate(numberOfLayers, distance, parameter=""):
             
 def calculate_propagation(imagePath, scatterPlateRandom, numberOfLayers, distance):
     
-    parameterScript = get_F2_script_parameter(numberOfLayers, distance)
+    parameterScript = get_f2_script_parameter(numberOfLayers, distance)
     
     imageScript = []
     propagateScript = []
     for i in range(len(imagePath)):
-        rv = get_F2_script_load_image(imagePath[i])
+        rv = get_f2_script_load_image(imagePath[i])
         imageScript = imageScript + [rv]
         
-        rv = get_F2_script_propagete(imagePath[i], scatterPlateRandom)
+        rv = get_f2_script_propagete(imagePath[i], scatterPlateRandom)
         propagateScript = propagateScript + [rv]
     
     
@@ -146,7 +146,7 @@ def sortToFolderByLayer(folderPath = pathData + pathOutputSpeckle, keyword="laye
         
     return rvFolder, rvPath, rvLayerNumber
     
-#def load_MNIST_train_images(pathMNIST, imageNumbers):
+#def load_mNIST_train_images(pathMNIST, imageNumbers):
 #    os.makedirs(pathData+"/F2/input/MNIST", 0o777, True)
 #    
 #    images, lables = mnist.load_train_data(pathMNIST)
@@ -186,9 +186,9 @@ def load_image(imagePath, invertColor=False, resize=False, xPixel=0, yPixel=0):
     return rv
     
 
-def get_F2_script_parameter(numberOfLayers, distance):
+def get_f2_script_parameter(numberOfLayers, distance):
     
-    textFile = open("config/F2/ScriptPartSetParameters.txt", "r")
+    textFile = open("config/f2/ScriptPartSetParameters.txt", "r")
     lines = textFile.readlines()
     
     for i in range(len(lines)):
@@ -197,9 +197,9 @@ def get_F2_script_parameter(numberOfLayers, distance):
     
     return lines
 
-def get_F2_script_load_image(file):
+def get_f2_script_load_image(file):
     ""
-    textFile = open("config/F2/ScriptPartLoadImage.txt", "r")
+    textFile = open("config/f2/ScriptPartLoadImage.txt", "r")
     lines = textFile.readlines()
     
     for i in range(len(lines)):
@@ -207,14 +207,14 @@ def get_F2_script_load_image(file):
     
     return lines
 
-def get_F2_script_propagete(fileName, scatterPlateRandom):
+def get_f2_script_propagete(fileName, scatterPlateRandom):
     "returns only the part of the script to calculate the electrical field"
-    outputPath = pathData + "/F2/output/speckle"
+    outputPath = pathData + pathOutputSpeckle
     
     base = os.path.basename(fileName)
     name = os.path.splitext(base)
     
-    textFile = open("config/F2/ScriptPartCalculatePropagation.txt", "r")
+    textFile = open("config/f2/ScriptPartCalculatePropagation.txt", "r")
     lines = textFile.readlines()
     
     for i in range(len(lines)):

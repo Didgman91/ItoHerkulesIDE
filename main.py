@@ -10,48 +10,47 @@ import os
 
 import time
 
-from lib.F2 import F2
+from lib.f2 import f2
 from lib.toolbox import toolbox
-from lib.toolbox.zipData import zip_Data
-from lib.neuronalNetwork import neuronalNetwork
+from lib.toolbox.zipData import zip_data
+from lib.neuronal_network import neuronal_network
 
-from config.neuronalNetwork.model.model import model_Deep_Specle_Correlation_Class
+from config.neuronal_network.model.model import model_deep_specle_correlation_class
 
 # By calling a module, e.g. F2_main(), the folder name is written to this list.
 # This folder is located in the "data" folder and contains all data of the
 # module. This will be zipped later.
-executed_Modules = []
+executed_modules = []
 
-def F2_main(folder):
-    global executed_Modules
-    executed_Modules += ["F2"]
+def f2_main(folder):
+    global executed_modules
+    executed_modules += ["F2"]
     # -------------------------------------
     # F2
     # -------------------------------------
     toolbox.print_program_section_name("F2")
 
-    number_Of_Layers = 100
-    distance = 100  # [m]
+    number_of_layers = 5
+    distance = 5  # [m]
 
-    F2.generate_folder_structure()
+    f2.generate_folder_structure()
 
     # -------------------------------------
     # IMPORT: Image
     # -------------------------------------
     #toolbox.print_program_section_name("IMPORT: MNIST images")
     #
-    #image_Path = F2.load_MNIST_train_images("data/imagePool/MNIST/samples", range(10))
+    #image_path = F2.load_mNIST_train_images("data/imagePool/MNIST/samples", range(10))
 
     toolbox.print_program_section_name("IMPORT: NIST images")
 
-#    image_Path = toolbox.get_file_path_with_extension("../../imagePool/NIST/by_write/hsf_0/f0000_14/c0000_14/", ["png"])
-#    image_Path = toolbox.get_file_path_with_extension_include_subfolders(folder,
-#                                                                         ["png"])
-    image_Path = ["rect815.png"]
-    image_Path = F2.load_image(image_Path[:1], invertColor=True, resize=True, xPixel=64, yPixel=64)
+    image_path = toolbox.get_file_path_with_extension_include_subfolders(folder,
+                                                                         ["png"])
 
-    if image_Path == []:
-        print("no files")
+    image_path = f2.load_image(image_path[:1], invertColor=True, resize=True, xPixel=64, yPixel=64)
+
+    if image_path == []:
+        print("F2: no files")
         exit()
 
     # ---------------------------------------------
@@ -59,8 +58,8 @@ def F2_main(folder):
     # ---------------------------------------------
     toolbox.print_program_section_name("F2: Generate and save scatter plate")
 
-    scatter_Plate_Random = F2.create_scatter_plate(number_Of_Layers, distance)
-    #scatter_Plate_Random = ['data/F2/intermediateData/scatterPlate/scatter_Plate_RandomX', 'data/F2/intermediateData/scatterPlate/scatter_Plate_RandomY']
+    scatter_plate_random = f2.create_scatter_plate(number_of_layers, distance)
+    #scatter_plate_random = ['data/F2/intermediate_data/scatter_plate/scatter_plate_random_x', 'data/F2/intermediate_data/scatter_plate/scatter_plate_random_y']
 
     # -------------------------------------------------
     # F2: Load scatter plate and calculate speckle
@@ -68,13 +67,13 @@ def F2_main(folder):
     toolbox.print_program_section_name(
         "F2: Load scatter plate and calculate speckle")
 
-    image_Path = toolbox.get_file_path_with_extension(
-        "data/F2/input/NIST/", ["bmp"])
+    image_path = toolbox.get_file_path_with_extension(
+        "data/f2/input/nist/", ["bmp"])
 
-    F2.calculate_propagation(
-        image_Path, scatter_Plate_Random, number_Of_Layers, distance)
+    f2.calculate_propagation(
+        image_path, scatter_plate_random, number_of_layers, distance)
 
-    folder, path, layer = F2.sortToFolderByLayer()
+    folder, path, layer = f2.sortToFolderByLayer()
 
     #import matplotlib.pyplot as plt
     #
@@ -82,7 +81,7 @@ def F2_main(folder):
     #    plt.figure()
     #    plt.imshow(images[i], cmap='gray')
     #    plt.axis('off')
-    #    plt.title(image_Path[i])
+    #    plt.title(image_path[i])
     #
     #
     #    plt.show()
@@ -90,35 +89,32 @@ def F2_main(folder):
     return folder, path, layer
 
 
-def NN(layer, neuronal_Network_Path_Extension_Pretrained_Weights=""):
-    global executed_Modules
-    executed_Modules += ["neuronalNetwork"]
+def nn_main(layer, neuronal_network_path_extension_pretrained_weights=""):
+    global executed_modules
+    executed_modules += ["neuronal_network"]
     # ---------------------------------------------
     # NEURONAL NETWORK: load data
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: load data")
 
     print("the model is loading...")
-    m = model_Deep_Specle_Correlation_Class()
+    m = model_deep_specle_correlation_class()
 
-    nn = neuronalNetwork.neuronal_Network_Class(m.get_Model(), layer)
-#    nn = neuronalNetwork.neuronal_Network_Class(layer)
-#    model_File_Path = "lib/neuronalNetwork/model.py"
-#    model = nn.load_Model(
-#        model_File_Path, neuronal_Network_Path_Extension_Pretrained_Weights)
+    nn = neuronal_network.neuronal_network_class(m.get_model(), layer)
+
     print("done")
 
     print("the training and test datasets are loading...")
-    image_Path = toolbox.get_file_path_with_extension(
-        "data/F2/input/NIST", ["bmp"])
-    image_Ground_Truth_Path = nn.load_Ground_Truth_Data(image_Path[:-10])
-    image_Validation_Ground_Truth_Path = nn.load_Validation_Ground_Truth_Data(
-        image_Path[-10:])
+    image_path = toolbox.get_file_path_with_extension(
+        "data/f2/input/nist", ["bmp"])
+    image_ground_truth_path = nn.load_ground_truth_data(image_path[:-10])
+    image_validation_ground_truth_path = nn.load_validation_ground_truth_data(
+        image_path[-10:])
 
-    image_Path = toolbox.get_file_path_with_extension(
-        "data/F2/output/speckle/"+layer, ["bmp"])
-    image_Speckle_Path = nn.load_Training_Data(image_Path[:-10])
-    image_Validation_Speckle_Path = nn.load_Validation_Data(image_Path[-10:])
+    image_path = toolbox.get_file_path_with_extension(
+        "data/f2/output/speckle/"+layer, ["bmp"])
+    image_speckle_path = nn.load_training_data(image_path[:-10])
+    image_validation_speckle_path = nn.load_validation_data(image_path[-10:])
     print("done")
 
     # ---------------------------------------------
@@ -126,23 +122,23 @@ def NN(layer, neuronal_Network_Path_Extension_Pretrained_Weights=""):
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: train network")
 
-    nn.train_Network(
-        image_Speckle_Path, image_Ground_Truth_Path,
-        fit_Epochs=100, fit_Batch_Size=16)
+    nn.train_network(
+        image_speckle_path, image_ground_truth_path,
+        fit_epochs=100, fit_batch_size=16)
 
     # ---------------------------------------------
     # NEURONAL NETWORK: validata network
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: validate network")
 
-    nn.validate_Network(image_Validation_Speckle_Path)
+    nn.validate_network(image_validation_speckle_path)
 
     # ---------------------------------------------
     # NEURONAL NETWORK: test network
     # ---------------------------------------------
 #    toolbox.print_program_section_name("NEURONAL NETWORK: test network")
 
-#    nn.test_Network(image_Test_Speckle_Path, model)
+#    nn.test_network(image_test_speckle_path, model)
 
     # ---------------------------------------------
     # NEURONAL NETWORK: Evaluation
@@ -150,37 +146,37 @@ def NN(layer, neuronal_Network_Path_Extension_Pretrained_Weights=""):
 #    toolbox.print_program_section_name("NEURONAL NETWORK: Evaluation")
 
 
-def NnAllLayers(layers, path_Extension=""):
-#    global executed_Modules
-#    executed_Modules += ["neuronalNetwork"]
+def nn_all_layers(layers, path_extension=""):
+    global executed_modules
+    executed_modules += ["neuronal_network"]
     # ---------------------------------------------
     # NEURONAL NETWORK: load data
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: load data")
 
     print("the model is loading...")
-    m = model_Deep_Specle_Correlation_Class()
+    m = model_deep_specle_correlation_class()
 
-    nn = neuronalNetwork.neuronal_Network_Class(m.get_Model(), path_Extension)
-#    model = nn.load_Weights()
+    nn = neuronal_network.neuronal_network_class(m.get_model(), path_extension)
+#    model = nn.load_weights()
     print("done")
 
     print("the training and test datasets are loading...")
-    image_Path = toolbox.get_file_path_with_extension(
+    image_path = toolbox.get_file_path_with_extension(
         "data/20181209_F2/input/NIST", ["bmp"])
-    image_Ground_Truth_Path = nn.load_Ground_Truth_Data(
-        image_Path[:-10], layers)
-    image_Validation_Ground_Truth_Path = nn.load_Validation_Ground_Truth_Data(
-        image_Path[-10:], layers)
+    image_ground_truth_path = nn.load_ground_truth_data(
+        image_path[:-10], layers)
+    image_validation_ground_truth_path = nn.load_validation_ground_truth_data(
+        image_path[-10:], layers)
 
-    image_Speckle_Path = []
-    image_Validation_Speckle_Path = []
+    image_speckle_path = []
+    image_validation_speckle_path = []
     for layer in layers:
-        image_Path = toolbox.get_file_path_with_extension(
+        image_path = toolbox.get_file_path_with_extension(
             "data/20181209_F2/output/speckle/"+layer, ["bmp"])
 
-        image_Speckle_Path += nn.load_Training_Data(image_Path[:-10], layer)
-        image_Validation_Speckle_Path += nn.load_Validation_Data(image_Path[-10:], layer)
+        image_speckle_path += nn.load_training_data(image_path[:-10], layer)
+        image_validation_speckle_path += nn.load_validation_data(image_path[-10:], layer)
     print("done")
 
     # ---------------------------------------------
@@ -188,93 +184,73 @@ def NnAllLayers(layers, path_Extension=""):
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: train network")
 
-    nn.train_Network(
-        image_Speckle_Path, image_Ground_Truth_Path,
-        fit_Epochs=1, fit_Batch_Size=16)
+    nn.train_network(
+        image_speckle_path, image_ground_truth_path,
+        fit_epochs=1, fit_batch_size=16)
 
     # ---------------------------------------------
     # NEURONAL NETWORK: validata network
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: validate network")
 
-    path_pred = nn.validate_Network(image_Validation_Speckle_Path)
-x
+    path_pred = nn.validate_network(image_validation_speckle_path)
+
     # ---------------------------------------------
     # NEURONAL NETWORK: test network
     # ---------------------------------------------
 #    toolbox.print_program_section_name("NEURONAL NETWORK: test network")
 
-#    nn.test_Network(image_Test_Speckle_Path, model)
+#    nn.test_network(image_test_speckle_path, model)
 
     # ---------------------------------------------
     # NEURONAL NETWORK: Evaluation
     # ---------------------------------------------
     toolbox.print_program_section_name("NEURONAL NETWORK: Evaluation")
     
-    nn.evaluate_Network([nn.jaccard_index, nn.pearson_correlation_coefficient],
-                        image_Validation_Speckle_Path,
+    nn.evaluate_network([nn.jaccard_index, nn.pearson_correlation_coefficient],
+                        image_validation_speckle_path,
                         path_pred)
 
-#folder, path, layer = F2_main("../imagePool/NIST/by_write/hsf_0/f0000_14/c0000_14/")
+#folder, path, layer = f2_main("../imagePool/NIST/by_write/hsf_0/f0000_14/c0000_14/")
 
 dirs = os.listdir("data/20181209_F2/output/speckle/")
-dirs.sort()
+#dirs.sort()
 #for i in range(len(dirs)):
 #    if i % 5 == 0:
 #        toolbox.print_program_section_name("DIRECTORY: {}".format(dirs[i]))
-#        NN(dirs[i])
+#        nn_main(dirs[i])
 
-toolbox.print_program_section_name("NN All: first 3 m")
-NnAllLayers(dirs[:3], "3meter")
+toolbox.print_program_section_name("NN All: first 2 m")
+nn_all_layers(dirs[:2], "2meter")
 
 #toolbox.print_program_section_name("NN All: first 10 m")
-#NnAllLayers(dirs[:10], "10meter")
+#nn_all_layers(dirs[:10], "10meter")
 
 #toolbox.print_program_section_name("NN All: first 20 m")
-#NnAllLayers(dirs[:20], "20meter")
+#nn_all_layers(dirs[:20], "20meter")
 
 #toolbox.print_program_section_name("NN All: first 40 m")
-#NnAllLayers(dirs[:40], "40meter")
+#nn_all_layers(dirs[:40], "40meter")
 
 #toolbox.print_program_section_name("NN All: first 60 m")
-#NnAllLayers(dirs[:60], "60meter")
+#nn_all_layers(dirs[:60], "60meter")
 
 #toolbox.print_program_section_name("NN All: first 80 m")
-#NnAllLayers(dirs[:80], "80meter")
+#nn_all_layers(dirs[:80], "80meter")
 
 #toolbox.print_program_section_name("NN All: first 100 m")
-#NnAllLayers(dirs, "100meter")
+#nn_all_layers(dirs, "100meter")
 
 # for i in range(len(dirs)):
 #    if i % 5 == 0:
 #        toolbox.print_program_section_name("DIRECTORY: {}".format(dirs[i]))
-#        NN(dirs[i])
+#        nn_main(dirs[i])
 # if i==0:
-# NN(dirs[i])
+# nn_main(dirs[i])
 # else:
 ##            NN(dirs[i], dirs[i-1])
 # if i>1:
 # break
-
-# -------------------------------------
-# COPY FILES TO SERVER
-# -------------------------------------
-#
-#
-# -------------------------------------
-# CACLULATE SPECKLE
-# -------------------------------------
-#
-#output, exitCode, t = F2.run_Process("ls", "-lsa")
-#
-# for i in range(len(output)):
-#    print("")
-#    print(output[i])
-#
-#
-#print("time [s]: %.6f" % (t))
-#
-#
 
 
 # ---------------------------------------------
@@ -282,22 +258,22 @@ NnAllLayers(dirs[:3], "3meter")
 # ---------------------------------------------
 toolbox.print_program_section_name("BACKUP AND DEDUPLICATION BY COMPRESSION")
 
-path_Backup = "backup"
-os.makedirs(path_Backup, 0o777, True)
+path_backup = "backup"
+os.makedirs(path_backup, 0o777, True)
 
 modules = ""
 folders = []
-for m in executed_Modules:
+for m in executed_modules:
     modules += "_" + m
     folders += ["data/" + m]
 
 time.strftime("%y%m%d_%H%M")
 t = time.strftime("%y%m%d_%H%M")
-zip_Settings = {'zip_File_Name': "{}/{}{}.zip".format(path_Backup, t, modules),
-                'zip_Include_Folder_List': ["config", "lib"] + folders,
-                'zip_Include_File_List': ["main.py"],
-                'skipped_Folders': [".git", "__pycache__"]}
+zip_settings = {'zip_file_name': "{}/{}{}.zip".format(path_backup, t, modules),
+                'zip_include_folder_list': ["config", "lib"] + folders,
+                'zip_include_file_list': ["main.py"],
+                'skipped_folders': [".git", "__pycache__"]}
 
-zip_Data(zip_Settings)
+zip_data(zip_settings)
 
-#toolbox.send_Message("main.py finished")
+#toolbox.send_message("main.py finished")

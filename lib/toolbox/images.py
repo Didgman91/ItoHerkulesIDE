@@ -90,7 +90,7 @@ def convert_image_list_to_4D_np_array(images):
             buffer = []
             for i in images:
                 b = Image.fromarray(np.uint8(i * 255)).convert('L')
-                buffer += [np.asarray(b, dtype="int32")]
+                buffer += [np.asarray(b)/255]
 
             images = np.stack((buffer))
     if images.max() > 1:

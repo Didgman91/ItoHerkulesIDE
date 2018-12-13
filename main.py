@@ -126,15 +126,22 @@ def nn_main(layer, neuronal_network_path_extension_pretrained_weights=""):
     image_speckle_path.sort()
     image_ground_truth_path.sort()
     
-    training_data = ti.get_image_as_npy(image_speckle_path)
-    ground_truth = ti.get_image_as_npy(image_ground_truth_path)
-
+#    training_data = ti.get_image_as_npy(image_speckle_path)
+#    ground_truth = ti.get_image_as_npy(image_ground_truth_path)
+    
+    def process(training_path, ground_truth_path):
+        train = ti.get_image_as_npy(training_path)
+        ground_truth = ti.get_image_as_npy(ground_truth_path)
+    
+        return train, ground_truth
+    
     batch_size = 16
-    optimizer = m.get_optimizer(batch_size)
+    optimizer = m.get_optimizer([batch_size])
     nn.train_network(
-        training_data, ground_truth,
+        image_speckle_path, image_ground_truth_path,
         'sparse_categorical_crossentropy', optimizer,
-        fit_epochs=1, fit_batch_size=batch_size)
+        fit_epochs=1, fit_batch_size=batch_size,
+        process_data=process)
 
     # ---------------------------------------------
     # NEURONAL NETWORK: validata network
@@ -201,6 +208,9 @@ def nn_all_layers(layers, path_extension=""):
 
         image_speckle_path += nn.load_training_data(image_path[:-10], layer)
         image_validation_speckle_path += nn.load_validation_data(image_path[-10:], layer)
+    
+    image_speckle_path.sort()
+    image_validation_speckle_path.sort()
     print("done")
 
     # ---------------------------------------------
@@ -211,15 +221,22 @@ def nn_all_layers(layers, path_extension=""):
     image_speckle_path.sort()
     image_ground_truth_path.sort()
     
-    training_data = ti.get_image_as_npy(image_speckle_path)
-    ground_truth = ti.get_image_as_npy(image_ground_truth_path)
+#    training_data = ti.get_image_as_npy(image_speckle_path)
+#    ground_truth = ti.get_image_as_npy(image_ground_truth_path)
+    
+    def process(training_path, ground_truth_path):
+        train = ti.get_image_as_npy(training_path)
+        ground_truth = ti.get_image_as_npy(ground_truth_path)
+    
+        return train, ground_truth
     
     batch_size = 16
     optimizer = m.get_optimizer([batch_size])
     nn.train_network(
-        training_data, ground_truth,
+        image_speckle_path, image_ground_truth_path,
         'sparse_categorical_crossentropy', optimizer,
-        fit_epochs=100, fit_batch_size=batch_size)
+        fit_epochs=1, fit_batch_size=batch_size,
+        process_data=process)
 
     # ---------------------------------------------
     # NEURONAL NETWORK: validata network

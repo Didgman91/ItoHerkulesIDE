@@ -9,6 +9,8 @@ Created on Thu Nov 15 16:58:44 2018
 import os
 from shutil import copyfile
 
+import math
+
 import pickle
 
 import numpy as np
@@ -34,19 +36,26 @@ from .losses import jd
 #from keras.regularizers import l2
 
 
-def process(training_path, ground_truth_path):
-    train = ti.get_image_as_npy(training_path)
-    ground_truth = ti.get_image_as_npy(ground_truth_path)
-
-    return train, ground_truth
-
-
-def generate_arrays_from_list(train, ground_truth, batch_size):
+def generate_arrays_from_list(train, ground_truth, batch_size, process):
     while True:
-        for i in range(len(train)):
+        size = len(train)
+        number_batchs = size/batch_size
+        number_batchs = math.ceil(number_batchs)
+
+        for i in range(number_batchs):
             # create numpy arrays of input data
-            # and labels, from each line in the file
-            x, y = process(train[i], ground_truth[i])
+            # and labels, from each line in the list
+            x = []
+            y = []
+
+            begin = i * batch_size
+            end = begin + batch_size
+            if end >= size:
+                end = size
+
+            x, y = process(train[begin:end],
+                           ground_truth[begin:end])
+
             yield x, y
 
 # def generate_arrays(data, ground_truth, batch_size):
@@ -468,16 +477,22 @@ class neuronal_network_class:
     def train_network(self, training_data, ground_truth,
                       loss, optimizer,
                       fit_epochs, fit_batch_size,
-                      use_fit_generator=False):
+                      process_data=[]):
         """ Runs the routine to train the network.
 
         Arguments
         ----
             training_data
-                list of the training dataset
+                list of the training dataset. It must be a list of numpy
+                arrays. If the process_data function is specified, then this
+                argument contains a list that can be processed by the
+                process_data function
 
             ground_truth
-                list of the ground truth dataset
+                list of the ground truth dataset. It must be a list of numpy
+                arrays. If the process_data function is specified, then this
+                argument contains a list that can be processed by the
+                process_data function
 
             loss
                 Can be a string that corresponds to the name of the Keras loss
@@ -493,11 +508,32 @@ class neuronal_network_class:
             fit_batch_size
                 batch size
 
-            use_fit_generator
-                DO NOT USE (under development)
-                if True, then fit_generator() is used instead of fit().
+            process_data
+                if it is specified, then fit_generator() is used instead of
+                fit().
+
+        process_data
+        ----
+        Arguments
+            training_data
+                the previous defined argument training_data is looped
+                through to this function
+
+            grond_truth
+                the previous defined argument grond_truth is looped
+                through to this function
+
+        Returns
+            x
+                Numpy array of training data (Keras)
+
+            y
+                Numpy array of target (label) data (Keras)
         """
-        
+        use_fit_generator = False;
+
+        if process_data != []:
+            use_fit_generator = True
 
         # Compile model
         self.model.compile(loss=loss, optimizer=optimizer)
@@ -505,7 +541,7 @@ class neuronal_network_class:
         # Fit the model
         history = []
         if use_fit_generator is True:
-            history = self.model.fit_generator(generate_arrays_from_list(training_data, ground_truth),
+            history = self.model.fit_generator(generate_arrays_from_list(training_data, ground_truth, fit_batch_size, process_data),
                                                steps_per_epoch=fit_batch_size,
                                                epochs=fit_epochs)
         else:

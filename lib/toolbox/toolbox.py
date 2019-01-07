@@ -13,8 +13,10 @@ import time
 
 import numpy as np
 
-from PIL import Image, ImageOps
+from PIL import Image
+from PIL import ImageOps
 
+import shutil
 
 def send_message(message):
     subprocess.Popen(['notify-send', message])
@@ -92,8 +94,31 @@ def get_file_path_with_extension_include_subfolders(path_folder, extension):
     return filePath
 
 
-def get_file_name(path):
+def get_file_name(path, with_extension = False):
     """ Returns the file name out of the path.
+
+    Arguments
+    ----
+        path
+            path to file
+
+        with_extension
+            if it is set to True, the return value also contains the extension.
+
+    Returns
+    ----
+        the file name
+    """
+    base = os.path.basename(path)
+    file_name = os.path.splitext(base)[0]
+    
+    if with_extension is True:
+        file_name += os.path.splitext(base)[1]
+
+    return file_name
+
+def get_file_extension(path):
+    """ Returns the file extension out of the path.
 
     Arguments
     ----
@@ -102,13 +127,12 @@ def get_file_name(path):
 
     Returns
     ----
-        the file name
+        the file extension
     """
     base = os.path.basename(path)
-    file_name = os.path.splitext(base)[0]
+    file_extension = os.path.splitext(base)[1]
 
-    return file_name
-
+    return file_extension
 
 def load_image(source_path, destination_path, invert_color=False,
                resize=False, x_pixel=0, y_pixel=0, prefix=""):
@@ -196,6 +220,27 @@ def load_np_images(path_image, extension=["npy", "bin"]):
 
     return image
 
+def copy_folder(source, destination):
+    """ Copies entire folders.
+    
+    Arguments
+    ----
+        source
+            Folder to copy.
+        destination
+            Folder in which the copy is stored.
+    Reference
+    ----
+        https://www.pythoncentral.io/how-to-recursively-copy-a-directory-folder-in-python/
+    """
+    try:
+        shutil.copytree(source, destination)
+    # Directories are the same
+    except shutil.Error as e:
+        print('Directory not copied. Error: %s' % e)
+    # Any error saying that the directory doesn't exist
+    except OSError as e:
+        print('Directory not copied. Error: %s' % e)
 
 def print_program_section_name(name):
     """Formats and prints the _name_ on stdout.

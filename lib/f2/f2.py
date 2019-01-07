@@ -64,7 +64,7 @@ def create_scatter_plate(numberOfLayers, distance, parameter=""):
     if parameter == "":
         parameter = get_f2_script_parameter(numberOfLayers, distance)
     
-    textFile = open("config/F2/ScriptPartCreateScatterPlate.txt", "r")
+    textFile = open("config/f2/ScriptPartCreateScatterPlate.txt", "r")
     lines = textFile.readlines()
     
     for i in range(len(lines)):
@@ -86,35 +86,48 @@ def create_scatter_plate(numberOfLayers, distance, parameter=""):
     
     return scatterPlateRandom
             
-def calculate_propagation(imagePath, scatterPlateRandom, numberOfLayers, distance):
+def calculate_propagation(pupil_function, scatterPlateRandom, numberOfLayers, distance, parameters):
     
     parameterScript = get_f2_script_parameter(numberOfLayers, distance)
     
     imageScript = []
     propagateScript = []
-    for i in range(len(imagePath)):
-        rv = get_f2_script_load_image(imagePath[i])
-        imageScript = imageScript + [rv]
+    if pupil_function != []:
+        for i in range(len(pupil_function)):
+            rv = get_f2_script_load_image(pupil_function[i])
+            imageScript = imageScript + [rv]
+            
+            rv = get_f2_script_propagete(pupil_function[i], scatterPlateRandom)
+            propagateScript = propagateScript + [rv]
         
-        rv = get_f2_script_propagete(imagePath[i], scatterPlateRandom)
-        propagateScript = propagateScript + [rv]
-    
-    
-    for i in range(len(imagePath)):
-        script = parameterScript + imageScript[i] + propagateScript[i]
+        
+        for i in range(len(pupil_function)):
+            script = parameterScript + imageScript[i] + propagateScript[i]
+            
+            with open(pathScript + "/" + fileNameScriptCalculatePropagation, "w") as text_file:
+                for ii in range(len(script)):
+                    if script[ii][-1] == '\n':
+                        script[ii] = script[ii][:-1]
+                    print(script[ii], file=text_file)
+            
+            print("F2 propagation calculation: Image {}/{}".format(i+1, len(pupil_function)))
+            run_script(pathScript + "/" + fileNameScriptCalculatePropagation)
+    else:
+        propagateScript = get_f2_script_propagete([], scatterPlateRandom, parameters)
+        script = parameterScript + propagateScript
         
         with open(pathScript + "/" + fileNameScriptCalculatePropagation, "w") as text_file:
             for ii in range(len(script)):
                 if script[ii][-1] == '\n':
                     script[ii] = script[ii][:-1]
                 print(script[ii], file=text_file)
-        
-        print("F2 propagation calculation: Image {}/{}".format(i+1, len(imagePath)))
+    
+        print("F2 propagation calculation")
         run_script(pathScript + "/" + fileNameScriptCalculatePropagation)
     
     return 
 
-def sortToFolderByLayer(folderPath = pathData + pathOutputSpeckle, keyword="layer"):
+def sortToFolderByLayer(folderPath = pathData + pathOutputSpeckle, keyword="layer", subfolder=""):
     "moves the files with the extension 'layerxxxx' to a corresponding folder 'layerxxxx'"
     rvPath = []
     rvFolder = []
@@ -133,7 +146,7 @@ def sortToFolderByLayer(folderPath = pathData + pathOutputSpeckle, keyword="laye
         
         layerNumber = name[0][startStrLayerNumber:]
         
-        folder = fp[:-len(base)] + keyword + layerNumber
+        folder = fp[:-len(base)] + subfolder + keyword + layerNumber
         os.makedirs(folder, 0o777, True)
         
         # move file into the new folder
@@ -207,17 +220,26 @@ def get_f2_script_load_image(file):
     
     return lines
 
-def get_f2_script_propagete(fileName, scatterPlateRandom):
+def get_f2_script_propagete(fileName, scatterPlateRandom, parameters):
     "returns only the part of the script to calculate the electrical field"
     outputPath = pathData + pathOutputSpeckle
     
-    base = os.path.basename(fileName)
-    name = os.path.splitext(base)
+    if fileName != []:
+        base = os.path.basename(fileName)
+        name = os.path.splitext(base)[0]
+    else:
+        name = "no_pupil_function"
     
     textFile = open("config/f2/ScriptPartCalculatePropagation.txt", "r")
     lines = textFile.readlines()
     
     for i in range(len(lines)):
-        lines[i] = lines[i].format(py_scatterPlateRandomX=scatterPlateRandom[0], py_scatterPlateRandomY=scatterPlateRandom[1], py_outputPath=outputPath, py_fileName=name[0])
+        lines[i] = lines[i].format(
+                py_scatterPlateRandomX=scatterPlateRandom[0],
+                py_scatterPlateRandomY=scatterPlateRandom[1],
+                py_outputPath=outputPath,
+                py_fileName=name,
+                py_point_source_xpos="{}".format(parameters['point_source_x_pos']),
+                py_point_source_ypos="{}".format(parameters['point_source_y_pos']))
             
     return lines

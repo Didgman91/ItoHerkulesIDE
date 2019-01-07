@@ -410,6 +410,7 @@ TSWLatexianTemp*
 python/output
 data
 config
+backup
 !lib
 tmp
 *.zip

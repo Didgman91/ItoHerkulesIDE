@@ -23,16 +23,16 @@ from config.neuronal_network.model.model import model_deep_specle_correlation_cl
 # module. This will be zipped later.
 executed_modules = []
 
-def f2_main(folder):
+def f2_main(folder, shift):
     global executed_modules
-    executed_modules += ["F2"]
+    executed_modules += ["f2"]
     # -------------------------------------
     # F2
     # -------------------------------------
     toolbox.print_program_section_name("F2")
 
-    number_of_layers = 5
-    distance = 5  # [m]
+    number_of_layers = 2
+    distance = 2  # [m]
 
     f2.generate_folder_structure()
 
@@ -45,22 +45,22 @@ def f2_main(folder):
 
     toolbox.print_program_section_name("IMPORT: NIST images")
 
-    image_path = toolbox.get_file_path_with_extension_include_subfolders(folder,
-                                                                         ["png"])
+    #image_path = toolbox.get_file_path_with_extension_include_subfolders(folder,
+    #                                                                     ["png"])
 
-    image_path = f2.load_image(image_path[:1], invertColor=True, resize=True, xPixel=64, yPixel=64)
+    #image_path = f2.load_image(image_path[:1], invertColor=True, resize=True, xPixel=64, yPixel=64)
 
-    if image_path == []:
-        print("F2: no files")
-        exit()
+    #if image_path == []:
+    #    print("F2: no files")
+    #    exit()
 
     # ---------------------------------------------
     # F2: Generate and save scatter plate
     # ---------------------------------------------
     toolbox.print_program_section_name("F2: Generate and save scatter plate")
 
-    scatter_plate_random = f2.create_scatter_plate(number_of_layers, distance)
-    #scatter_plate_random = ['data/F2/intermediate_data/scatter_plate/scatter_plate_random_x', 'data/F2/intermediate_data/scatter_plate/scatter_plate_random_y']
+#    scatter_plate_random = f2.create_scatter_plate(number_of_layers, distance)
+    scatter_plate_random = ['data/f2/intermediate_data/scatter_plate/scatter_plate_random_x', 'data/f2/intermediate_data/scatter_plate/scatter_plate_random_y']
 
     # -------------------------------------------------
     # F2: Load scatter plate and calculate speckle
@@ -68,13 +68,16 @@ def f2_main(folder):
     toolbox.print_program_section_name(
         "F2: Load scatter plate and calculate speckle")
 
-    image_path = toolbox.get_file_path_with_extension(
-        "data/f2/input/nist/", ["bmp"])
+#    image_path = toolbox.get_file_path_with_extension(
+#        "data/f2/input/nist/", ["bmp"])
+
+    parameters = {"point_source_x_pos": shift,
+                  "point_source_y_pos": 0}
 
     f2.calculate_propagation(
-        image_path, scatter_plate_random, number_of_layers, distance)
+        [], scatter_plate_random, number_of_layers, distance, parameters)
 
-    folder, path, layer = f2.sortToFolderByLayer()
+    folder, path, layer = f2.sortToFolderByLayer(subfolder="{},0/".format(shift))
 
     #import matplotlib.pyplot as plt
     #
@@ -272,17 +275,17 @@ def nn_all_layers(layers, path_extension=""):
                         image_validation_speckle_path,
                         path_pred)
 
-#folder, path, layer = f2_main("../imagePool/NIST/by_write/hsf_0/f0000_14/c0000_14/")
+#folder, path, layer = f2_main("", 10)
 
-dirs = os.listdir("data/20181209_F2/output/speckle/")
+#dirs = os.listdir("data/20181209_F2/output/speckle/")
 #dirs.sort()
 #for i in range(len(dirs)):
 #    if i % 5 == 0:
 #        toolbox.print_program_section_name("DIRECTORY: {}".format(dirs[i]))
 #        nn_main(dirs[i])
 
-toolbox.print_program_section_name("NN All: first 2 m")
-nn_all_layers(dirs[:2], "2meter")
+#toolbox.print_program_section_name("NN All: first 2 m")
+#nn_all_layers(dirs[:2], "2meter")
 
 #toolbox.print_program_section_name("NN All: first 10 m")
 #nn_all_layers(dirs[:10], "10meter")
@@ -314,6 +317,30 @@ nn_all_layers(dirs[:2], "2meter")
 # break
 
 
+#folder, path, layer = f2_main("", 0)
+#folder, path, layer = f2_main("", 1000)
+for i in range(1,6):
+    folder, path, layer = f2_main("", pow(10,i))
+    
+#    # ---------------------------------------------
+#    # CALCULATE MEMORY EFFECT
+#    # ---------------------------------------------
+#    executed_modules += "memory_effect"
+#    toolbox.print_program_section_name("CALCULATE MEMORY EFFECT")
+#    
+#    path_memory_effect = "data/memory_effect/input/variable_fog"
+#    os.makedirs(path_memory_effect, 0o777, True)
+#    
+#    path_speckle = path_memory_effect + "/{},0".format(pow(10,i))
+#    
+#    os.makedirs(path_speckle, 0o777, True)
+#    
+#    for f in folder:
+#        if f[-1] == "/":
+#            f = f[:-1]
+#        destination_folder_name = os.path.split(f)[-1]
+#        toolbox.copy_folder(f, path_speckle + "/" + destination_folder_name)
+    
 # ---------------------------------------------
 # BACKUP AND DEDUPLICATION BY COMPRESSION
 # ---------------------------------------------
@@ -336,5 +363,7 @@ zip_settings = {'zip_file_name': "{}/{}{}.zip".format(path_backup, t, modules),
                 'skipped_folders': [".git", "__pycache__"]}
 
 zip_data(zip_settings)
+
+executed_modules = []
 
 #toolbox.send_message("main.py finished")

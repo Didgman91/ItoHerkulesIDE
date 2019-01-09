@@ -7,6 +7,8 @@ Created on Tue Nov 13 16:07:11 2018
 """
 import os
 
+import time
+
 from PIL import Image
 from PIL import ImageOps
 
@@ -36,7 +38,8 @@ def run_script(path, printStdout = True):
     "starts the F2 programm with the path of the script file as argument"
 
     processName = "F2"
-
+    start_time = time.strftime("%d.%m.%y %H:%M")
+    
     output, exitCode, t = toolbox.run_process(processName, [path])
 
     if printStdout:
@@ -44,6 +47,14 @@ def run_script(path, printStdout = True):
             print(i)
     
     with open(pathData+pathIntermediateDataStdout+"/"+fileNameStdout, "a") as stdoutFile:
+        lines = ["----------------------------------------------\n",
+                 "\n",
+                 "Start time: {}\n".format(start_time),
+                 "Wall time: {:.3} s\n".format(t),
+                 "\n"]
+        
+        stdoutFile.writelines(lines)
+        
         for o in output:
             stdoutFile.write(o)
     
@@ -97,7 +108,7 @@ def calculate_propagation(pupil_function, scatterPlateRandom, numberOfLayers, di
             rv = get_f2_script_load_image(pupil_function[i])
             imageScript = imageScript + [rv]
             
-            rv = get_f2_script_propagete(pupil_function[i], scatterPlateRandom)
+            rv = get_f2_script_propagete(pupil_function[i], scatterPlateRandom, parameters)
             propagateScript = propagateScript + [rv]
         
         
@@ -206,7 +217,7 @@ def get_f2_script_parameter(numberOfLayers, distance):
     
     for i in range(len(lines)):
         lines[i] = lines[i].format(py_numberOfLayers=numberOfLayers,
-             py_distance=distance)
+             py_distance="{:.16f}".format(distance))
     
     return lines
 

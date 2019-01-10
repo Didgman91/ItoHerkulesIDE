@@ -65,65 +65,111 @@ shift_1000 = []
 #shift_100000 = []
 name_10 = []
 for i in range(len(image_0_0)):
-#    shift_10 += [np.convolve(image_0_0[i,:,:,0].ravel(), image_10_0[i,:,:,0].ravel())]
-#    shift_100 += [np.convolve(image_0_0[i,:,:,0].ravel(), image_100_0[i,:,:,0].ravel())]
-#    shift_1000 += [np.convolve(image_0_0[i,:,:,0].ravel(), image_1000_0[i,:,:,0].ravel())]
-    shift_0 += [signal.fftconvolve(image_0_0[i,:,:,0].ravel(), image_0_0[i,:,:,0].ravel()[::-1])]
-    shift_10 += [signal.fftconvolve(image_0_0[i,:,:,0].ravel(), image_10_0[i,:,:,0].ravel()[::-1])]
-    shift_100 += [signal.fftconvolve(image_0_0[i,:,:,0].ravel(), image_100_0[i,:,:,0].ravel()[::-1])]
-    shift_1000 += [signal.fftconvolve(image_0_0[i,:,:,0].ravel(), image_1000_0[i,:,:,0].ravel()[::-1])]
+    shift_0 += [signal.fftconvolve(image_0_0[i,:,:,0], image_0_0[i,:,:,0][::-1,::-1])]
+    shift_10 += [signal.fftconvolve(image_0_0[i,:,:,0], image_10_0[i,:,:,0][::-1,::-1])]
+    shift_100 += [signal.fftconvolve(image_0_0[i,:,:,0], image_100_0[i,:,:,0][::-1,::-1])]
+    shift_1000 += [signal.fftconvolve(image_0_0[i,:,:,0], image_1000_0[i,:,:,0][::-1,::-1])]
     
 #    shift_10000 += [np.convolve(image_0_0[i,:,:,0].ravel(), image_10000_0[i,:,:,0].ravel())]
 #    shift_100000 += [np.convolve(image_0_0[i,:,:,0].ravel(), image_100000_0[i,:,:,0].ravel())]
     name_10 += [toolbox.get_file_name(imagePath_0_0[i])]    
 
-for i in range(int(len(shift_1000))):
-    plt.figure()
+
+def plot(c, title):
+    dim = len(np.shape(c))
+
+    p = plt.figure()
     
-    name = name_10[i][-9:]
-    plt.suptitle(name)
+    if dim == 1:
+        plt.plot(c)
+    elif dim == 2:
+        plt.imshow(c, cmap='gray')
+    #plt.axis('off')
     
-    plt.subplot(1,5,1)
-    plt.plot(shift_0[i])
-#    plt.axis('off')
-    plt.title("shift 0")
-    
-    plt.subplot(1,5,2)
-    plt.plot(shift_10[i])
-#    plt.axis('off')
-    plt.title("shift 10")
-    
-    plt.subplot(1,5,3)
-    plt.plot(shift_100[i])
-#    plt.axis('off')
-    plt.title("shift 100")
-#    
-    plt.subplot(1,5,4)
-    plt.plot(shift_1000[i])
-#    plt.axis('off')
-    plt.title("shift 10^3")
-    
-#    plt.subplot(1,5,4)
-#    plt.plot(shift_10000[i])
-##    plt.axis('off')
-#    plt.title("shift 10^4")
-#    
-#    plt.subplot(1,5,5)
-#    plt.plot(shift_100000[i])
-##    plt.axis('off')
-#    plt.title("shift 10^5")
+    plt.title(title)
     
     plt.show()
-
-
-layer = 0
-size = np.size(shift_1000[layer])
-posistion_max = np.argmax(shift_100[layer])
-shift = (size-1)/2 - posistion_max
-
-print("shift [px]: {}".format(shift))
-print("shift [mm]: {}".format(shift*100/256))
     
+    return p
+
+def get_pos(c, mm_per_pixel):
+    size = np.array(np.shape(c))
+    posistion_max = np.array(np.unravel_index(np.argmax(c, axis=None), c.shape))
+    shift = (size - 1)/2 - posistion_max
+    
+    dim = len(np.shape(c))
+    if dim == 1:
+        print("shift: {}".format(shift[0]))
+    elif dim == 2:
+        print("shift [px]: ({}, {})".format(shift[0], shift[1]))
+        print("shift [mm]: ({}, {})".format(shift[0]*mm_per_pixel, shift[1]*mm_per_pixel))
+    
+    return shift
+
+position = []
+
+for i in range(int(len(shift_0))):    
+    print("\n -------------- Layer {}  --------------\n".format(i + 1))    
+    mm_per_pixel = 100/256
+
+    buffer = []
+        
+#    plot(shift_0[i], "auto correlation")
+    buffer += [get_pos(shift_0[i], mm_per_pixel)]
+    
+#    plot(shift_10[i], "cross correlation: 10")
+    buffer += [get_pos(shift_10[i], mm_per_pixel)]
+    
+#    plot(shift_100[i], "cross correlation: 100")
+    buffer += [get_pos(shift_100[i], mm_per_pixel)]
+    
+#    plot(shift_1000[i], "cross correlation: 1000")
+    buffer += [get_pos(shift_1000[i], mm_per_pixel)]
+    
+    position += [buffer]
+
+
+position = np.stack(position)
+
+buffer = []
+for i in range(len(position)):
+    buffer_intern = [position[i,0,1]]
+    buffer_intern += [position[i,1,1]]
+    buffer_intern += [position[i,2,1]]
+    buffer_intern += [position[i,3,1]]
+    
+    buffer += [buffer_intern]
+
+mm_per_pixel = 100/256
+buffer = np.stack(buffer) / mm_per_pixel
+
+f = plt.figure()
+
+plt.plot(buffer[:,0], label="0")
+plt.plot(buffer[:,1], label="10")
+plt.plot(buffer[:,2], label="100")
+plt.plot(buffer[:,3], label="1000")
+
+plt.title("x-shift")
+plt.xlabel("fog / m")
+plt.ylabel("calculated shift / mm")
+plt.legend(loc="down right")
+
+plt.show()
+
+
+#f = plot(buffer, "x-shift(0, 10, 100, 1000) per layer")
+
+f.savefig("x-shift.pdf", bbox_inches='tight')
+    
+
+
+#size = np.array(np.shape(c))
+#posistion_max = np.array(np.unravel_index(np.argmax(c, axis=None), c.shape))
+#shift = (size - 1)/2 - posistion_max
+#
+#print("shift [px]: ({}, {})".format(shift[0], shift[1]))
+#print("shift [mm]: ({}, {})".format(shift[0]*100/256, shift[1]*100/256))
     
 #intensity_1d = shift_10[2][256:,:256].ravel()
 #

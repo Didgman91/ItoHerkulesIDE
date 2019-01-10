@@ -31,8 +31,8 @@ def f2_main(folder, shift):
     # -------------------------------------
     toolbox.print_program_section_name("F2")
 
-    number_of_layers = 2
-    distance = 2  # [m]
+    number_of_layers = 100
+    distance = 100000  # [mm]
 
     f2.generate_folder_structure()
 
@@ -317,10 +317,9 @@ def nn_all_layers(layers, path_extension=""):
 # break
 
 
-#folder, path, layer = f2_main("", 0)
-#folder, path, layer = f2_main("", 1000)
-for i in range(1,6):
-    folder, path, layer = f2_main("", pow(10,i))
+folder, path, layer = f2_main("", 0)
+#for i in range(1,10):
+#    folder, path, layer = f2_main("", i*5)
     
 #    # ---------------------------------------------
 #    # CALCULATE MEMORY EFFECT

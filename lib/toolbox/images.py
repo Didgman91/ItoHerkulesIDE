@@ -9,6 +9,7 @@ Created on Thu Dec 13 11:26:02 2018
 import os
 
 import numpy as np
+from scipy import signal
 
 from PIL import Image
 from PIL import ImageOps
@@ -163,3 +164,87 @@ def convert_3d_npy_to_image(npy, invert_color=False):
         image = ImageOps.invert(image)
 
     return image
+
+def get_convolution_2d(image_1, image_2):
+    """Calculates the convolution of two images using signal.fftconvolve().
+    
+    Arguments
+    ----
+        image_1
+            first four-dimensional input array
+        image_2
+            second four-dimensional input array
+
+    Returns
+    ----
+        an array with the convolution of image_1 with image_2
+
+    Dimensions
+    -----
+        first dimension
+            image number
+        second dimension
+            first dimension of the image
+        third dimension
+            second dimension of the image
+        fourth dimension
+            channel of the image
+
+        The convolution is calculated for each dataset and channel.
+    """
+    buffer = []
+    shape = np.shape(image_1)
+    dimension_image_number = 0
+    dimension_iamge_channel = 3
+    
+    for i in range(shape[dimension_image_number]):
+        buffer_channel = []
+        for ii in range(shape[dimension_iamge_channel]):
+            buffer_channel += [signal.fftconvolve(image_1[i,:,:,ii],
+                                                  image_2[i,:,:,ii])]
+        buffer_channel = np.stack(buffer_channel, axis=2)
+        buffer += [buffer_channel]
+    
+    buffer = np.stack(buffer)
+    
+    return buffer
+
+def __get_max_position_2d(array_2d):
+    """
+    Argument
+    ----
+        array_2d
+            two-dimensional array, but it can also be a one-dimensional array.
+    Returns
+    ----
+        the indices of the maximum values of a two-dimensional array.
+
+    todo
+    ----
+        If there are multiple positions with the same max value, then the
+        position of the first(?) is returned.
+    """
+    posistion_max = np.array(np.unravel_index(np.argmax(array_2d, axis=None),
+                                              array_2d.shape))
+    
+    return posistion_max
+
+def get_max_position(image):
+    """ Returns the indices of the maximum values of an array. The number of
+    dimensions is limited by three, where the third dimension is 
+    """
+    shape = np.array(np.shape(image))
+
+    position_max = []
+    if len(shape) == 1:
+        position_max = __get_max_position_2d(image)
+
+    elif len(shape) == 2:
+        position_max = __get_max_position_2d(image)
+
+    elif len(shape) == 3:
+        for i in range(shape[2]):
+            position_max += [__get_max_position_2d(image[:,:,i])]
+        np.stack(position_max, axis=1)
+    
+    return position_max

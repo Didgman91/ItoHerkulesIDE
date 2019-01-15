@@ -57,6 +57,21 @@ image_1000_0 = ti.get_image_as_npy(imagePath_1000_0)
 #image_100000_0 = ti.get_image_as_npy(imagePath_100000_0)
 
 
+## test
+#
+#image = [image_0_0, image_10_0, image_100_0, image_1000_0]
+#
+#shift = []
+#for i in range(len(image)):
+#    shift += [ti.get_convolution_2d(image_0_0, image[i])]
+#
+#
+#
+##max_pos = ti.get_max_position(shift[1][0])
+#
+#
+## ~test
+
 shift_0 = []
 shift_10 = []
 shift_100 = []
@@ -73,6 +88,8 @@ for i in range(len(image_0_0)):
 #    shift_10000 += [np.convolve(image_0_0[i,:,:,0].ravel(), image_10000_0[i,:,:,0].ravel())]
 #    shift_100000 += [np.convolve(image_0_0[i,:,:,0].ravel(), image_100000_0[i,:,:,0].ravel())]
     name_10 += [toolbox.get_file_name(imagePath_0_0[i])]    
+
+
 
 
 def plot(c, title):
@@ -108,6 +125,26 @@ def get_pos(c, mm_per_pixel):
 
 position = []
 
+#for i in range(int(len(shift))):    
+#    print("\n -------------- Layer {}  --------------\n".format(i + 1))    
+#    mm_per_pixel = 100/256
+#
+#    buffer = []
+#        
+##    plot(shift_0[i], "auto correlation")
+#    buffer += [get_pos(shift[0][i,:,:,0], mm_per_pixel)]
+#    
+##    plot(shift_10[i], "cross correlation: 10")
+#    buffer += [get_pos(shift[1][i,:,:,0], mm_per_pixel)]
+#    
+##    plot(shift_100[i], "cross correlation: 100")
+#    buffer += [get_pos(shift[2][i,:,:,0], mm_per_pixel)]0
+#    
+##    plot(shift_1000[i], "cross correlation: 1000")
+#    buffer += [get_pos(shift[3][i,:,:,0], mm_per_pixel)]
+#    
+#    position += [buffer]
+
 for i in range(int(len(shift_0))):    
     print("\n -------------- Layer {}  --------------\n".format(i + 1))    
     mm_per_pixel = 100/256
@@ -127,7 +164,6 @@ for i in range(int(len(shift_0))):
     buffer += [get_pos(shift_1000[i], mm_per_pixel)]
     
     position += [buffer]
-
 
 position = np.stack(position)
 

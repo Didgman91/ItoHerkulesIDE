@@ -209,6 +209,83 @@ def get_convolution_2d(image_1, image_2):
     
     return buffer
 
+def get_cross_correlation_2d(image_1, image_2):
+    """Calculates the cross-correlation of two images using
+    signal.fftconvolve().
+    
+    Arguments
+    ----
+        image_1
+            first four-dimensional input array
+        image_2
+            second four-dimensional input array
+
+    Returns
+    ----
+        an array with the cross-correlation of image_1 with image_2
+
+    Dimensions
+    -----
+        first dimension
+            image number
+        second dimension
+            first dimension of the image
+        third dimension
+            second dimension of the image
+        fourth dimension
+            channel of the image
+
+        The cross-correlation is calculated for each dataset and channel.
+    """
+    buffer = []
+    shape = np.shape(image_1)
+    dimension_image_number = 0
+    dimension_iamge_channel = 3
+    
+    for i in range(shape[dimension_image_number]):
+        buffer_channel = []
+        for ii in range(shape[dimension_iamge_channel]):
+            buffer_channel += [signal.fftconvolve(image_1[i,:,:,ii],
+                                                  image_2[i,:,:,ii][::-1,::-1])]
+        buffer_channel = np.stack(buffer_channel, axis=2)
+        buffer += [buffer_channel]
+    
+    buffer = np.stack(buffer)
+    
+    return buffer
+
+def get_autocorrelation_2d(image_1):
+    """Calculates the autocorrelation of two images using
+    signal.fftconvolve().
+    
+    Arguments
+    ----
+        image_1
+            first four-dimensional input array
+        image_2
+            second four-dimensional input array
+
+    Returns
+    ----
+        an array with the autocorrelation of image_1 with image_2
+
+    Dimensions
+    -----
+        first dimension
+            image number
+        second dimension
+            first dimension of the image
+        third dimension
+            second dimension of the image
+        fourth dimension
+            channel of the image
+
+        The autocorrelation is calculated for each dataset and channel.
+    """
+    buffer = get_cross_correlation_2d(image_1, image_1)
+    
+    return buffer
+
 def __get_max_position_2d(array_2d):
     """
     Argument
@@ -229,10 +306,58 @@ def __get_max_position_2d(array_2d):
     
     return posistion_max
 
-def get_max_position(image):
-    """ Returns the indices of the maximum values of an array. The number of
-    dimensions is limited by three, where the third dimension is 
+def get_max_position(image, relative_position=[]):
+    """ Returns the indices of the maximum value of an array.
+    
+    **!!! Note the changed dimension meaning of the return value !!!**
+    
+    Accepted dimensionality
+    ----
+        Up to four-dimensional datasets are accepted.
+        
+        - one dimension
+            series of measuring points
+        - two dimensions
+            two-dimensional array (e.g. an image with just
+            intensity values)
+        - three dimensions
+            an image with multiple channels
+            ([x-pixles, y-pixels, color channels])
+        - four dimensions
+            a serie of images with multiple channels
+            ([image number, x-pixles, y-pixels, color channels])
+
+    Returns
+    ----
+        Depending on the _image_ dimension, it returns a scalar or a deep
+        list.
+        
+        - one dimension
+            The function returns a scalar.
+        - two dimensions
+            The function returns an array with the x- and y-position of the
+            maximum in the image.
+        - three dimensions
+            The function returns a list with arrays. This contains the x- and
+            y-position of the maximum. (e.g. [channel, x position, y position])
+        - four dimensions
+            The function returns a list in a list with array's. This contains
+            the x- and y-position of the maximum.
+            (e.g. [image number, channel, x position, y position])
     """
+    def check_ndarray(data):
+        if type(data) is np.ndarray:
+            return True
+        else:
+            return False
+    
+    def calculate_relative_position(data, position):
+        if len(np.shape(data)) == 1:
+            if check_ndarray(data) is True:
+                data -= position
+
+        return data
+
     shape = np.array(np.shape(image))
 
     position_max = []
@@ -243,8 +368,26 @@ def get_max_position(image):
         position_max = __get_max_position_2d(image)
 
     elif len(shape) == 3:
-        for i in range(shape[2]):
+        dimension_iamge_channel = 2
+        for i in range(shape[dimension_iamge_channel]):
             position_max += [__get_max_position_2d(image[:,:,i])]
-        np.stack(position_max, axis=1)
-    
+        np.stack(position_max)
+
+    elif len(shape) == 4:
+        dimension_image_number = 0
+        dimension_iamge_channel = 3
+        
+        for i in range(shape[dimension_image_number]):
+            buffer_position_max = []
+            for ii in range(shape[dimension_iamge_channel]):
+#                buffer_position_max += [__get_max_position_2d(image[i,:,:,ii])]
+                buffer = __get_max_position_2d(image[i,:,:,ii])
+                if relative_position != []:
+                    buffer = calculate_relative_position(buffer,
+                                                         relative_position)
+                buffer_position_max += [buffer]
+            np.stack(buffer_position_max)
+            position_max += [buffer_position_max]
+        np.stack(position_max)
+
     return position_max

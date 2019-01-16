@@ -1,0 +1,129 @@
+% !TeX spellcheck = en_GB
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Article Notes
+% LaTeX Template
+% Version 1.0 (1/10/15)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Authors:
+% Vel (vel@latextemplates.com)
+% Christopher Eliot (christopher.eliot@hofstra.edu)
+% Anthony Dardis (anthony.dardis@hofstra.edu)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[
+10pt, % Default font size is 10pt, can alternatively be 11pt or 12pt
+a4paper, % Alternatively letterpaper for US letter
+%twocolumn, % Alternatively onecolumn
+onecolumn
+%landscape % Alternatively portrait
+portrait
+]{article}
+
+\input{structure.tex} % Input the file specifying the document layout and structure
+
+%----------------------------------------------------------------------------------------
+%	ARTICLE INFORMATION
+%----------------------------------------------------------------------------------------
+
+\articletitle{KW0} % The title of the article
+\articlecitation{Notes} % The BibTeX citation key from your bibliography
+
+\datenotesstarted{November 13, 2018} % The date when these notes were first made
+\docdate{\datenotesstarted; rev. \today} % The date when the notes were lasted updated (automatically the current date)
+
+\docauthor{Max Daiber-Huppert} % Your name
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\pagestyle{myheadings} % Use custom headers
+\markright{\doctitle} % Place the article information into the header
+
+%----------------------------------------------------------------------------------------
+%	PRINT ARTICLE INFORMATION
+%----------------------------------------------------------------------------------------
+
+\thispagestyle{plain} % Plain formatting on the first page
+
+\printtitle % Print the title
+
+\FloatBarrier
+\section{Plot}
+
+\begin{tikzpicture}[y=.2cm, x=.7cm,font=\sffamily]
+%axis
+\draw (0,0) -- coordinate (x axis mid) (10,0);
+\draw (0,0) -- coordinate (y axis mid) (0,30);
+%ticks
+\foreach \x in {0,...,10}
+\draw (\x,1pt) -- (\x,-3pt)
+node[anchor=north] {\x};
+\foreach \y in {0,5,...,30}
+\draw (1pt,\y) -- (-3pt,\y) 
+node[anchor=east] {\y}; 
+%labels      
+\node[below=0.8cm] at (x axis mid) {MOPS};
+\node[rotate=90, above=0.8cm] at (y axis mid) {Power [mW]};
+
+%plots
+\draw plot[mark=*, mark options={fill=white}] 
+file {csv/div_soft.data};
+\draw plot[mark=triangle*, mark options={fill=white} ] 
+file {csv/div_ciu.data};
+\draw plot[mark=square*, mark options={fill=white}]
+file {csv/div_ciu_oscar.data};
+\draw plot[mark=square*]
+file {csv/div_ciu_oscar_extrapolated.data};  
+
+%legend
+\begin{scope}[shift={(4,4)}] 
+\draw (0,0) -- 
+plot[mark=*, mark options={fill=white}] (0.25,0) -- (0.5,0) 
+node[right]{soft};
+\draw[yshift=\baselineskip] (0,0) -- 
+plot[mark=triangle*, mark options={fill=white}] (0.25,0) -- (0.5,0)
+node[right]{ciu};
+\draw[yshift=2\baselineskip] (0,0) -- 
+plot[mark=square*, mark options={fill=white}] (0.25,0) -- (0.5,0)
+node[right]{ciu + oscar};
+\draw[yshift=3\baselineskip] (0,0) -- 
+plot[mark=square*, mark options={fill=black}] (0.25,0) -- (0.5,0)
+node[right]{ciu + oscar extrapolated};
+\end{scope}
+\end{tikzpicture}
+
+
+\FloatBarrier
+\subsection{Results}
+
+%----------------------------------------------------------------------------------------
+%	ATTACHMENT
+%----------------------------------------------------------------------------------------
+
+%\section{Attachment}
+%Deep Speckle Correlation: \attachfile[icon=Paperclip]{Attachment/Deep_Speckle_correlation.pdf}
+
+%----------------------------------------------------------------------------------------
+%	BIBLIOGRAPHY
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\refname}{Reference} % Change the default bibliography title
+
+\bibliography{sample} % Input your bibliography file
+
+%----------------------------------------------------------------------------------------
+
+\end{document}

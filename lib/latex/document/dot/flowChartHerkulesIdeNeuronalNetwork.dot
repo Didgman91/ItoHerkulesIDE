@@ -1,0 +1,29 @@
+digraph G {
+	//graph[splines=ortho]
+	rankdir="TB"
+	
+	edge[weight=2];
+	a0 [label="NN: Import data\n(e.g. from a specific ``fog layer'')"];
+	a1 [label="NN: Train network"];
+	a2 [label="NN: Test network"]
+	a21[label="NN: Evaluation"]
+	a3 [label="next\ndata set\?"];
+	
+	start -> a0 [label="python main.py"];
+	a0 -> a1;
+	a1 -> a2;
+	a2 -> a21
+	a21 -> a3;
+	a3 -> end [label="no"];
+
+	start [shape=Msquare];
+	a0 [shape = rectangle];
+	a1 [shape = rectangle];
+	a2 [shape = rectangle];
+	a21 [shape = rectangle];
+	a3 [shape = diamond];
+	end [shape=Msquare];
+
+	edge[weight=1];
+	a3 -> a0 [label="yes", tailport=e, headport=e];
+}

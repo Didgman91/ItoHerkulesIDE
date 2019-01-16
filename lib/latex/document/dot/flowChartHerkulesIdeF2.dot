@@ -1,0 +1,26 @@
+digraph G {
+	rankdir="TB"
+	
+	edge[weight=2];
+	a0 [label="F2: Import data"];
+	a1 [label="F2: Generate and save scatter plate"];
+	a2 [label="F2: Load scatter plate and (next) image\n$ \\rightarrow $ Calculate specle"];
+	a3 [label="next\nimage\?"];
+	
+	start -> a0 [label="python main.py"];
+	a0 -> a1;
+	a1 -> a2;
+	a2 -> a3;
+	a3 -> end [label="no"];
+
+
+	start [shape=Msquare];
+	a0 [shape = rectangle];
+	a1 [shape = rectangle];
+	a2 [shape = rectangle];
+	a3 [shape = diamond];
+	end [shape=Msquare];
+
+	edge[weight=1];
+	a3 -> a2 [label="yes", tailport=e, headport=e];
+}

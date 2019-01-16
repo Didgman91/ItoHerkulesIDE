@@ -1,0 +1,103 @@
+#!/bin/bash
+
+#
+# return value = at least one file does not exsist
+# return value = 1: file 1 is newer
+# return value = 2: file 2 is newer
+#
+checkForNewerFile () {
+	file1="$1"
+	file2="$2"
+	f1date=$(stat -c %Y $file1)
+	error=$?
+	f2date=$(stat -c %Y $file2)
+	let "error=error+$?"
+#	echo "Error Value $error"
+	if ((error == 0));
+		then
+		if ((f1date > f2date));
+			then
+#				echo "file1 is newer"
+				return 1
+			else
+#				echo "file 2 is newer"
+				return 2
+		fi
+		else
+			return 0
+	fi
+}
+
+convertDot2Svg () {
+	file=$1
+	outputFolder=$2
+	echo "File: $file"
+	fname=$(basename "$file")
+	#echo $fname
+	fnameWithoutExtension=${fname::-4}
+	#echo $fnameWithoutExtension
+	#fdir=$(dirname "$file")
+	#echo $fdir
+	input="$file"
+	output="$outputFolder/$fnameWithoutExtension.svg"
+
+	checkForNewerFile $input $output
+	rvNewer=$?
+#	echo "rvNewer $rvNewer"
+	if ((rvNewer < 2));
+		then
+			dot -Tsvg "$input" -o "$output"
+			echo " saved as $output"
+			return 0
+		else
+			echo "No changes detected. Don't have to convert it again."
+			return 1
+	fi
+}
+
+convertSvg2PdfTex () {
+	file=$1
+	outputFolder=$2
+	echo "File: $file"
+	fdir=$(dirname "$file")
+	fname=$(basename "$file")
+	fnameWithoutExtension=${fname::-4}
+	# creat input and output var
+	input="$fdir/$fnameWithoutExtension.svg"
+	output="$outputFolder/$fnameWithoutExtension.pdf"
+	# check
+	checkForNewerFile $input $output
+	rvNewer=$?
+#	 echo "rvNewer $rvNewer"
+	if ((rvNewer < 2));
+		then
+			inkscape --file "$input" --export-area-drawing --export-pdf-version 1.5 --export-latex --export-pdf "$output"	
+			echo " saved as $outputFolder/$fnameWithoutExtension.pdf(_tex)"
+			return 0
+		else
+			echo "No changes detected. Don't have to convert it again."
+			return 1
+	fi
+}
+
+echo "--- Convert dot 2 svg ---"
+
+for file in ./dot/*.dot ; do
+	convertDot2Svg "$file" "./dot_svg"
+done
+
+echo ""
+echo "--- Convert dot_svg 2 pdf_tex ---"
+
+for file in ./dot_svg/*.svg ; do
+	convertSvg2PdfTex "$file" ./image
+done
+
+echo ""
+echo "--- Convert dot_svg 2 pdf_tex ---"
+
+for file in ./svg/*.svg ; do
+	convertSvg2PdfTex "$file" ./image
+done
+
+exit 0

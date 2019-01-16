@@ -1,0 +1,79 @@
+%% Creator: Inkscape inkscape 0.92.3, www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'flowChartHerkulesIdeNeuronalNetwork.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{223.00000075bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,2.49327354)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{flowChartHerkulesIdeNeuronalNetwork.pdf}}%
+    \put(0.46188341,1.99910308){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}NN: Import data\end{tabular}}}}%
+    \put(0.46188341,1.93183851){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}(e.g. from a specific ``fog layer'')\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{flowChartHerkulesIdeNeuronalNetwork.pdf}}%
+    \put(0.46188341,1.63363223){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}NN: Train network\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{flowChartHerkulesIdeNeuronalNetwork.pdf}}%
+    \put(0.46188341,1.30627797){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}NN: Test network\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{flowChartHerkulesIdeNeuronalNetwork.pdf}}%
+    \put(0.46188341,0.97892378){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}NN: Evaluation\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=5]{flowChartHerkulesIdeNeuronalNetwork.pdf}}%
+    \put(0.46188341,0.59551571){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}next\end{tabular}}}}%
+    \put(0.46188341,0.52825113){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}data set?\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=6]{flowChartHerkulesIdeNeuronalNetwork.pdf}}%
+    \put(0.93946188,1.30627797){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}yes\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=7]{flowChartHerkulesIdeNeuronalNetwork.pdf}}%
+    \put(0.46188341,0.08206278){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}end\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=8]{flowChartHerkulesIdeNeuronalNetwork.pdf}}%
+    \put(0.49327354,0.27713004){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}no\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=9]{flowChartHerkulesIdeNeuronalNetwork.pdf}}%
+    \put(0.46188341,2.36905824){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}start\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=10]{flowChartHerkulesIdeNeuronalNetwork.pdf}}%
+    \put(0.65695067,2.16502237){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}python main.py\end{tabular}}}}%
+  \end{picture}%
+\endgroup%

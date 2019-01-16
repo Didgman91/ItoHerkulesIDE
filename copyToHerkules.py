@@ -17,7 +17,7 @@ import paramiko
 
 # zip settings
 zip_Settings = {'zip_File_Name': "herkules.zip",
-                'zip_Include_Folder_List': ["config", "lib"],
+                'zip_Include_Folder_List': ["config", "lib", "script"],
                 'zip_Include_File_List': ["main.py"],
                 'skipped_Folders': [".git", "__pycache__"]}
 

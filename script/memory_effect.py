@@ -110,7 +110,7 @@ def evaluate_data(path):
     
     shift = []
     for i in range(len(image)):
-        shift += [ti.get_cross_correlation_2d(image[0], image[i])]
+        shift += [ti.get_cross_correlation_2d(image[i], image[0])]
     
     
     max_pos = []

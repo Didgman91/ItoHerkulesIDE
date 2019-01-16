@@ -1,0 +1,69 @@
+\begin{figure}[h]
+	\begin{center}
+		\begin{tikzpicture}
+		\begin{axis}[
+		width=\linewidth, % Scale the plot to \linewidth
+		grid=major, % Display a grid
+		grid style={dashed,gray!30}, % Set the style
+		xlabel=fog, % Set the labels
+		ylabel=x-shift,
+		x unit=\si{\milli \meter}, % Set the respective units
+		y unit=\si{\meter},
+%		legend style={at={(0.5,-0.2)},anchor=north}, % Put the legend below the plot
+		x tick label style={rotate=90,anchor=east} % Display labels sideways
+		]
+		
+		py_addplot
+%		\addplot 
+%		table[x=fog / m,y=x-shift,col sep=comma] {csv/shift_5.csv};
+%		\addlegendentry{shift 5\,mm}
+		
+		\end{axis}
+		\end{tikzpicture}
+		\caption{memory effect}
+	\end{center}
+\end{figure}
+
+
+%
+%\begin{tikzpicture}[y=.2cm, x=.7cm,font=\sffamily]
+%%axis
+%\draw (0,0) -- coordinate (x axis mid) (100,0);
+%\draw (0,0) -- coordinate (y axis mid) (0,30);
+%%ticks
+%\foreach \x in {0,10,...,100}
+%\draw (\x,1pt) -- (\x,-3pt)
+%node[anchor=north] {\x};
+%\foreach \y in {0,5,...,30}
+%\draw (1pt,\y) -- (-3pt,\y) 
+%node[anchor=east] {\y}; 
+%%labels      
+%\node[below=0.8cm] at (x axis mid) {MOPS};
+%\node[rotate=90, above=0.8cm] at (y axis mid) {Power [mW]};
+%
+%%plots
+%\draw plot[mark=*, mark options={fill=white}] 
+%file {csv/shift_5.csv};
+%\draw plot[mark=triangle*, mark options={fill=white} ] 
+%file {csv/shift_10.csv};
+%\draw plot[mark=square*, mark options={fill=white}]
+%file {csv/shift_15.csv};
+%\draw plot[mark=square*]
+%file {csv/shift_20.csv};  
+%
+%%legend
+%\begin{scope}[shift={(4,4)}] 
+%\draw (0,0) -- 
+%plot[mark=*, mark options={fill=white}] (0.25,0) -- (0.5,0) 
+%node[right]{soft};
+%\draw[yshift=\baselineskip] (0,0) -- 
+%plot[mark=triangle*, mark options={fill=white}] (0.25,0) -- (0.5,0)
+%node[right]{ciu};
+%\draw[yshift=2\baselineskip] (0,0) -- 
+%plot[mark=square*, mark options={fill=white}] (0.25,0) -- (0.5,0)
+%node[right]{ciu + oscar};
+%\draw[yshift=3\baselineskip] (0,0) -- 
+%plot[mark=square*, mark options={fill=black}] (0.25,0) -- (0.5,0)
+%node[right]{ciu + oscar extrapolated};
+%\end{scope}
+%\end{tikzpicture}

@@ -20,13 +20,17 @@ import matplotlib.pyplot as plt
 
 # test
 
-shift = me.evaluate_data()
+path = ["./data/memory_effect/input/same_fog/0,0/",
+        "./data/memory_effect/input/same_fog/5,0/",
+        "./data/memory_effect/input/same_fog/10,0/"]
+
+shift = me.evaluate_data(path)
 shift = np.stack(shift)
 f = plt.figure()
 
 for i in range(len(shift)):
     l = shift[i,:,1]
-    plt.plot(l, label="{}".format(i))
+    plt.plot(l, label="{} mm".format(i*5))
 
 plt.title("x-shift")
 plt.xlabel("fog / m")

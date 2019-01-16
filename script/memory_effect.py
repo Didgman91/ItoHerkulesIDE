@@ -86,7 +86,7 @@ def f2_main(folder, shift, generate_scatter_plate = True):
 
     return folder, path, layer
 
-def evaluate_data():
+def evaluate_data(path):
     def __load(path):
         imagePath = toolbox.get_file_path_with_extension_include_subfolders(path, ["bmp"])
         
@@ -101,10 +101,12 @@ def evaluate_data():
     
     
     image = []
-    image += [__load("./data/memory_effect/input/same_fog/0,0/")]
-    image += [__load("./data/memory_effect/input/same_fog/10,0/")]
-    image += [__load("./data/memory_effect/input/same_fog/100,0/")]
-    image += [__load("./data/memory_effect/input/same_fog/1000,0/")]
+    for p in path:
+        image += [__load(p)]
+#    image += [__load("./data/memory_effect/input/same_fog/0,0/")]
+#    image += [__load("./data/memory_effect/input/same_fog/10,0/")]
+#    image += [__load("./data/memory_effect/input/same_fog/100,0/")]
+#    image += [__load("./data/memory_effect/input/same_fog/1000,0/")]
     
     shift = []
     for i in range(len(image)):

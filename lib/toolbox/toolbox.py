@@ -11,6 +11,12 @@ import sys
 import subprocess
 import time
 
+import errno
+
+import re
+
+import fileinput
+
 import numpy as np
 
 from PIL import Image
@@ -220,6 +226,32 @@ def load_np_images(path_image, extension=["npy", "bin"]):
 
     return image
 
+def copy(source, destination, *ignore_patterns):
+    """ Copies entire folders.
+    
+    Arguments
+    ----
+        source
+            Folder to copy.
+        destination
+            Folder in which the copy is stored.
+    Reference
+    ----
+        https://www.pythoncentral.io/how-to-recursively-copy-a-directory-folder-in-python/
+    """
+    try:
+        shutil.copytree(source, destination, ignore=shutil.ignore_patterns(ignore_patterns))
+    # Directories are the same
+    except shutil.Error as e:
+        print('Directory not copied. Error: %s' % e)
+    # Any error saying that the directory doesn't exist
+    except OSError as e:
+        # If the error was caused because the source wasn't a directory
+        if e.errno == errno.ENOTDIR:
+            shutil.copy(source, destination)
+        else:
+            print('Directory not copied. Error: %s' % e)
+
 def copy_folder(source, destination):
     """ Copies entire folders.
     
@@ -241,6 +273,51 @@ def copy_folder(source, destination):
     # Any error saying that the directory doesn't exist
     except OSError as e:
         print('Directory not copied. Error: %s' % e)
+
+def create_folder(path):
+    """makes a directory
+    
+    Argument
+    ----
+        path
+            path of the directory
+    """
+    os.makedirs(path, 0o777, True)
+
+def replace(text, dictionary):
+    """Replaces placeholders in a text with a dictionary.
+    
+    Arguments
+    ----
+        text
+            string with placeholders
+        dictionary
+            Dictionary used to replace placeholders.
+
+    Returns
+    ----
+        a text without placeholders, if the dictonary contains all
+        placeholders.
+    """
+    pattern = re.compile(r'\b(' + '|'.join(dictionary.keys()) + r')\b')
+    result = pattern.sub(lambda x: dictionary[x.group()], text)
+    
+    return result
+
+def replace_in_file(path, dictionary):
+    """Replaces placeholders in a text file with a dictionary.
+
+    Arguments
+    ----
+        path
+            text file path
+        dictionary
+            Dictionary used to replace placeholders.
+    """
+    with fileinput.FileInput(path, inplace=True) as file:
+        for line in file:
+            buffer = replace(line, dictionary)
+            print(buffer, end='')
 
 def print_program_section_name(name):
     """Formats and prints the _name_ on stdout.
@@ -264,7 +341,7 @@ def print_program_section_name(name):
     print("# {}".format(line))
 
 
-def run_process(process, arg=[""]):
+def run_process(process, arg=[""], working_dir = "", path_stdout_file = ""):
     """stars a process with arguments
 
     Arguments
@@ -291,10 +368,12 @@ def run_process(process, arg=[""]):
     print("Process: {}".format(process))
     print("Argument: {}".format(arg))
     sys.stdout.flush()
+    t = time.strftime("%y%m%d_%H%M")
+#    arg += ["| tee " + path_stdout_file + "{}_stdout.txt".format(t)]
     p = subprocess.Popen([process] + arg,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT,
-                         cwd=os.getcwd())
+                         cwd=os.getcwd() + working_dir)
 
     output = p.communicate()
     exit_code = p.returncode

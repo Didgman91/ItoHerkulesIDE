@@ -40,7 +40,8 @@ def run_script(path, printStdout = True):
     processName = "F2"
     start_time = time.strftime("%d.%m.%y %H:%M")
     
-    output, exitCode, t = toolbox.run_process(processName, [path])
+    output, exitCode, t = toolbox.run_process(processName,
+                                              [path])
 
     if printStdout:
         for i in output:
@@ -69,13 +70,14 @@ def generate_folder_structure(path="data"):
     os.makedirs(path+pathOutputSpeckle, 0o777, True)
     os.makedirs(path+pathOutputDocumentation, 0o777, True)
     
-def create_scatter_plate(numberOfLayers, distance, parameter=""):
+def create_scatter_plate(numberOfLayers, distance, parameter="",
+                         path="config/f2/ScriptPartCreateScatterPlate.txt"):
     "Creats the scatterplate and saves it in the folder _path_."
     
     if parameter == "":
         parameter = get_f2_script_parameter(numberOfLayers, distance)
     
-    textFile = open("config/f2/ScriptPartCreateScatterPlate.txt", "r")
+    textFile = open(path, "r")
     lines = textFile.readlines()
     
     for i in range(len(lines)):
@@ -97,7 +99,7 @@ def create_scatter_plate(numberOfLayers, distance, parameter=""):
     
     return scatterPlateRandom
             
-def calculate_propagation(pupil_function, scatterPlateRandom, numberOfLayers, distance, parameters):
+def calculate_propagation(pupil_function, scatterPlateRandom, numberOfLayers, distance, parameters = []):
     
     parameterScript = get_f2_script_parameter(numberOfLayers, distance)
     
@@ -108,7 +110,7 @@ def calculate_propagation(pupil_function, scatterPlateRandom, numberOfLayers, di
             rv = get_f2_script_load_image(pupil_function[i])
             imageScript = imageScript + [rv]
             
-            rv = get_f2_script_propagete(pupil_function[i], scatterPlateRandom, parameters)
+            rv = get_f2_script_propagete(pupil_function[i], scatterPlateRandom)
             propagateScript = propagateScript + [rv]
         
         
@@ -210,9 +212,9 @@ def load_image(imagePath, invertColor=False, resize=False, xPixel=0, yPixel=0):
     return rv
     
 
-def get_f2_script_parameter(numberOfLayers, distance):
+def get_f2_script_parameter(numberOfLayers, distance, path="config/f2/ScriptPartSetParameters.txt"):
     
-    textFile = open("config/f2/ScriptPartSetParameters.txt", "r")
+    textFile = open(path, "r")
     lines = textFile.readlines()
     
     for i in range(len(lines)):
@@ -221,7 +223,7 @@ def get_f2_script_parameter(numberOfLayers, distance):
     
     return lines
 
-def get_f2_script_load_image(file):
+def get_f2_script_load_image(file, path="config/f2/ScriptPartLoadImage.txt"):
     ""
     textFile = open("config/f2/ScriptPartLoadImage.txt", "r")
     lines = textFile.readlines()
@@ -231,7 +233,8 @@ def get_f2_script_load_image(file):
     
     return lines
 
-def get_f2_script_propagete(fileName, scatterPlateRandom, parameters):
+def get_f2_script_propagete(fileName, scatterPlateRandom,
+                            path="config/f2/ScriptPartCalculatePropagation.txt"):
     "returns only the part of the script to calculate the electrical field"
     outputPath = pathData + pathOutputSpeckle
     
@@ -241,7 +244,7 @@ def get_f2_script_propagete(fileName, scatterPlateRandom, parameters):
     else:
         name = "no_pupil_function"
     
-    textFile = open("config/f2/ScriptPartCalculatePropagation.txt", "r")
+    textFile = open(path, "r")
     lines = textFile.readlines()
     
     for i in range(len(lines)):
@@ -249,8 +252,6 @@ def get_f2_script_propagete(fileName, scatterPlateRandom, parameters):
                 py_scatterPlateRandomX=scatterPlateRandom[0],
                 py_scatterPlateRandomY=scatterPlateRandom[1],
                 py_outputPath=outputPath,
-                py_fileName=name,
-                py_point_source_xpos="{}".format(parameters['point_source_x_pos']),
-                py_point_source_ypos="{}".format(parameters['point_source_y_pos']))
+                py_fileName=name)
             
     return lines

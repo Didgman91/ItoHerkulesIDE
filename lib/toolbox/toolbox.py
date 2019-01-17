@@ -24,6 +24,8 @@ from PIL import ImageOps
 
 import shutil
 
+from lib.toolbox.zipData import zip_data
+
 def send_message(message):
     subprocess.Popen(['notify-send', message])
     return
@@ -401,3 +403,32 @@ def run_process(process, arg=[""], working_dir = "", path_stdout_file = ""):
         output_decoded = output_decoded + [output[i].decode("utf-8")]
 
     return output_decoded, exit_code, t
+
+def backup(executed_modules, path_backup="backup"):
+    create_folder(path_backup)
+    
+    modules = ""
+    folders = []
+    for m in executed_modules:
+        modules += "_" + m
+        folders += ["data/" + m]
+    
+    folders = make_distinct_list(folders)
+    
+    t = time.strftime("%y%m%d_%H%M")
+    zip_settings = {'zip_file_name': "{}/{}{}.zip".format(path_backup, t, modules),
+                    'zip_include_folder_list': ["config", "lib"] + folders,
+                    'zip_include_file_list': ["main.py"],
+                    'skipped_folders': [".git", "__pycache__"]}
+    
+    flag_copy = True
+    
+    def copy_files(data, destination):
+        for f in data:
+            copy(f, "{}/{}{}".format(path_backup, t, modules))
+    
+    if flag_copy is True:
+        create_folder("{}/{}{}".format(path_backup, t, modules))
+        copy_files(zip_settings["zip_include_folder_list"] + zip_settings["zip_include_file_list"])
+    else:
+        zip_data(zip_settings)

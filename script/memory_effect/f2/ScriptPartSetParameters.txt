@@ -1,0 +1,58 @@
+! *************************************************************
+! Beugung an Nebel-Partikel (homogene groesse)
+! Bestimmung totale, kollimierte und diffuse Reflexion 
+! in Abhaengigkeit der Propagationstiefe
+! *************************************************************
+
+!Dnebel=10-20 mu
+!rho_nebel=0.01 - 0.3 g /m^3
+
+mu=1000
+mm=1000*mu
+m=1000*mm
+rho=997*1000 !dichte Wasser g/m**3
+nwasser=1.33
+
+!**************************** Nebelparameter
+d=40*mu
+rhon=0.2 !g/m**3
+dist={py_distance}*mm
+dp=200*mm    ! Simulationsgebiet
+sam=4096*3*2      ! Sampling
+max={py_numberOfLayers}       ! Anzahl Schichten
+!****************************
+
+
+!**************************** Beleuchtungsparameter/Objekt
+lam=514
+iPixelX=64!640
+iPixelY=iPixelX!400
+
+
+!**************************** Exportparameter
+ePixelX=512!sam
+ePixelY=ePixelX
+!****************************
+
+? "Durchmesser Nebeltropfen [nm]         : ",d
+? "Durchmesser Nebeltropfen in Pixel     : ",d/dp*sam
+v=4/3*Pi[]*(d/2/m)**3
+? "Volumen Nebeltropfen [m**3]           : ",v
+
+mnebel=v*rho  ! masse wasser pro nebeltropfen
+? "Masse Nebeltropfen [g]                : ",mnebel
+
+nm3=rhon/mnebel ! Anzahl Nebeltropfen / m**3
+? "Anzahl Nebeltropfen / m**3            : ",nm3
+? "Anzahl Nebeltropfen / mm Schichtdicke : ",nm3/1000
+
+p1=-dp/2 ! Simulationsgebiet
+p2=dp/2
+p3=-dp/2
+p4=dp/2
+
+x0=dist/max    ! Schichtdicke 
+? "Schichtdicke [m]                      : ",x0/m
+
+streuanz=nm3*(x0*dp*dp/(m**3))
+? "Anzahl Nebeltropfen Schicht           : ",streuanz

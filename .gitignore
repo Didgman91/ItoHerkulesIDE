@@ -414,3 +414,4 @@ backup
 !lib
 tmp
 *.zip
+!script/*/config

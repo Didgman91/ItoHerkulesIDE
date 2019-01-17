@@ -226,6 +226,19 @@ def load_np_images(path_image, extension=["npy", "bin"]):
 
     return image
 
+def make_distinct_list(seq):
+    """Makes a list of distinct elements.
+    Arguments
+    ----
+        seg: list
+            input list
+    
+    Returns
+    ----
+        a list of distinct elements. The order is not preserved.
+    """
+    return list(set(seq))
+
 def copy(source, destination, *ignore_patterns):
     """ Copies entire folders.
     

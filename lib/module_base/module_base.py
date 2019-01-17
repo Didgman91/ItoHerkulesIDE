@@ -6,17 +6,31 @@ Created on Wed Jan 16 18:40:35 2019
 @author: itodaiber
 """
 
-import os
-
 from lib.toolbox import toolbox
 
 class module_base(object):
+    """
+    This class creats the folder structure for mudules. This folder structure
+    represents the data structure with _input_, _intermediate_data_ and
+    _output_ folders.
+    
+    Example of a derived class
+    ----
+    
+    
+    >>> from lib.module_base.module_base import module_base
+    >>> 
+    >>> class test_module(module_base):
+    >>>     def __init__(self, **kwds):
+    >>>        super(test_module, self).__init__(**kwds)
+    
+    """
     def __init__(self, name, **kwds):
-        """Creats folders and subfolders
+        """During initialisation folders and subfolders are created.
 
         Arguments
         ----
-            name
+            name : str
                 name of the module
         """
         self._module_name = name
@@ -42,9 +56,9 @@ class module_base(object):
         
         Arguments
         ----
-            path
+            path : str
                 Path of the data to be copied. [string, list of string]
-            subfolder
+            subfolder : str
                 optional: name of the subfolder in the input directory
             *ignore_pattern
                 optional: pattern of files to be ignored during copy operation

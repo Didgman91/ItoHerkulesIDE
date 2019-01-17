@@ -59,17 +59,25 @@ for m in executed_modules:
     modules += "_" + m
     folders += ["data/" + m]
 
+folder = toolbox.make_distinct_list(folder)
+
 t = time.strftime("%y%m%d_%H%M")
 zip_settings = {'zip_file_name': "{}/{}{}.zip".format(path_backup, t, modules),
                 'zip_include_folder_list': ["config", "lib"] + folders,
                 'zip_include_file_list': ["main.py"],
                 'skipped_folders': [".git", "__pycache__"]}
 
-zip_data(zip_settings)
+flag_copy = True
 
-def copy_files(folders, destination):
-    for f in folders:
-        toolbox.copy_folder(f, destination)
+def copy_files(data, destination):
+    for f in data:
+        toolbox.copy(f, "{}/{}{}".format(path_backup, t, modules))
+
+if flag_copy is True:
+    toolbox.create_folder("{}/{}{}".format(path_backup, t, modules))
+    copy_files(zip_settings["zip_include_folder_list"] + zip_settings["zip_include_file_list"])
+else:
+    zip_data(zip_settings)
     
 
 executed_modules = []

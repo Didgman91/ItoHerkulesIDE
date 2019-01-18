@@ -110,7 +110,7 @@ def calculate_propagation(pupil_function, scatterPlateRandom, numberOfLayers, di
             rv = get_f2_script_load_image(pupil_function[i])
             imageScript = imageScript + [rv]
             
-            rv = get_f2_script_propagete(pupil_function[i], scatterPlateRandom)
+            rv = get_f2_script_propagete(pupil_function[i], scatterPlateRandom, parameters)
             propagateScript = propagateScript + [rv]
         
         
@@ -247,11 +247,21 @@ def get_f2_script_propagete(fileName, scatterPlateRandom,
     textFile = open(path, "r")
     lines = textFile.readlines()
     
-    for i in range(len(lines)):
-        lines[i] = lines[i].format(
-                py_scatterPlateRandomX=scatterPlateRandom[0],
-                py_scatterPlateRandomY=scatterPlateRandom[1],
-                py_outputPath=outputPath,
-                py_fileName=name)
+    if parameters == []:
+        for i in range(len(lines)):
+            lines[i] = lines[i].format(
+                    py_scatterPlateRandomX=scatterPlateRandom[0],
+                    py_scatterPlateRandomY=scatterPlateRandom[1],
+                    py_outputPath=outputPath,
+                    py_fileName=name)
+    else:
+        for i in range(len(lines)):
+            lines[i] = lines[i].format(
+                    py_scatterPlateRandomX=scatterPlateRandom[0],
+                    py_scatterPlateRandomY=scatterPlateRandom[1],
+                    py_outputPath=outputPath,
+                    py_fileName=name,
+                    py_point_source_xpos="{}".format(parameters['point_source_x_pos']),
+                    py_point_source_ypos="{}".format(parameters['point_source_y_pos']))
             
     return lines

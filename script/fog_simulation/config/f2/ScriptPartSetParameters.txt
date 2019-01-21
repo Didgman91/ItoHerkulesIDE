@@ -1,3 +1,5 @@
+CudaInit
+
 ! *************************************************************
 ! Beugung an Nebel-Partikel (homogene groesse)
 ! Bestimmung totale, kollimierte und diffuse Reflexion 

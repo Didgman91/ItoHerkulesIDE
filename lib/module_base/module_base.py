@@ -22,7 +22,7 @@ class module_base(object):
     >>> 
     >>> class test_module(module_base):
     >>>     def __init__(self, **kwds):
-    >>>        super(test_module, self).__init__(**kwds)
+    >>>        super(test_module, self).__init__(name="test_module", **kwds)
     
     """
     def __init__(self, name, **kwds):
@@ -60,7 +60,7 @@ class module_base(object):
                 Path of the data to be copied. [string, list of string]
             subfolder : str
                 optional: name of the subfolder in the input directory
-            *ignore_pattern
+            *ignore_pattern: [, ".png", ...]
                 optional: pattern of files to be ignored during copy operation
         """
 
@@ -75,6 +75,24 @@ class module_base(object):
         elif type(path) is str:
             toolbox.copy(path, self.path_input + subfolder, ignore_pattern)
 
+    def load_input_from_module(self, module, subfolder = "", *ignore_pattern):
+        """ Copies files and folders in the output folder to the input
+        directory.
+        
+        Arguments
+        ----
+            module: object derived from *module_base*
+                contains the output directory path
+            subfolder : str
+                optional: name of the subfolder in the input directory
+            *ignore_pattern: [, ".png", ...]
+                optional: pattern of files to be ignored during copy operation        
+        """
+        
+        path = module.path_output
+        
+        self.load_input(path, subfolder=subfolder, ignore_pattern)
+        
     @property
     def module_name(self):
         """name of the module"""

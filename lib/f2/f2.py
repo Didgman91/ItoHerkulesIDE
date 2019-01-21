@@ -16,6 +16,8 @@ from ..toolbox import toolbox
 
 #from ..DataIO import mnistLib as mnist
 
+
+
 pathData = "data"
 
 pathScript = pathData + "/f2/intermediate_data/script"
@@ -233,7 +235,7 @@ def get_f2_script_load_image(file, path="config/f2/ScriptPartLoadImage.txt"):
     
     return lines
 
-def get_f2_script_propagete(fileName, scatterPlateRandom,
+def get_f2_script_propagete(fileName, scatterPlateRandom, parameters,
                             path="config/f2/ScriptPartCalculatePropagation.txt"):
     "returns only the part of the script to calculate the electrical field"
     outputPath = pathData + pathOutputSpeckle

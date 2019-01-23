@@ -15,6 +15,8 @@ import paramiko
 # settings
 # ---------------------------------------------
 
+project_name = "memory_effect_high_output"
+
 # zip settings
 zip_Settings = {'zip_File_Name': "herkules.zip",
                 'zip_Include_Folder_List': ["config", "lib", "script"],
@@ -40,13 +42,14 @@ sftp_Settings = {'host': "herkules.ito.uni-stuttgart.de",
                  'port': 22,
                  'user_Name': "itodaiber",
                  'key_File': key_file_path,
-                 'path_Remote': "./tmp/",
+                 'path_Remote': "/home/Freenas/itodaiber/tmp/{}/".format(project_name),
                  'file': zip_Settings['zip_File_Name']}
 
 # additional execute after compression and copying
 # For example:
-# execute = "bsub 'python3.4 main.py'"
-execute = ""
+# execute = "bsub -J {} 'python3.4 main.py'".format(project_name)
+#execute = ""
+execute = "bsub -J {} 'python3.4 main.py'".format(project_name)
 
 # ---------------------------------------------
 # ~settings

@@ -32,6 +32,34 @@ from lib.latex import documentation
 #test = test_module(name="test_module")
 
 
+image_path = toolbox.get_file_path_with_extension("/home/maxdh/Documents/tmp", ["bmp"])
+image_path.sort()
+
+import imageio
+
+for ip in image_path:
+    image = imageio.imread(ip, 'bmp')
+
+    histogram, bin_edges = np.histogram(image[:,:,1], 256)
+#    
+    file_name = ip[-13:-4]
+#    
+#    f = plt.figure()
+#    plt.plot(histogram)
+#    plt.title(ip[-13:])
+#    name = "{}.pdf".format(file_name)
+#    f.savefig(name, bbox_inches="tight")
+    
+    export = []
+    hist_max = histogram.max()
+    for ii in range(len(histogram)):
+        export += [np.array([ii+1, histogram[ii] / hist_max])]
+    
+    np.savetxt("./hist/hist_{}.csv".format(file_name),
+               export,
+               delimiter = ',',
+               header='8-bit intesity,normalized histogram',
+               comments='')
 
 ## ------------------------------mod tex files (add plots) ------------------------------
 #path_plot = "lib/latex/document/tex/plot/plot.tex"

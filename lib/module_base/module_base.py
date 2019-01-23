@@ -51,7 +51,7 @@ class module_base(object):
         toolbox.create_folder(self._path_intermediate_data)
         toolbox.create_folder(self._path_documentation)
 
-    def load_input(self, path, subfolder = "", *ignore_pattern):
+    def load_input(self, path, subfolder, *ignore_pattern):
         """ Copies files and folders to the input directory.
         
         Arguments
@@ -59,7 +59,8 @@ class module_base(object):
             path : str
                 Path of the data to be copied. [string, list of string]
             subfolder : str
-                optional: name of the subfolder in the input directory
+                Name of the subfolder in the input directory. To avoid
+                generating a subfolder, set it to "".
             *ignore_pattern: [, ".png", ...]
                 optional: pattern of files to be ignored during copy operation
         """
@@ -75,7 +76,7 @@ class module_base(object):
         elif type(path) is str:
             toolbox.copy(path, self.path_input + subfolder, ignore_pattern)
 
-    def load_input_from_module(self, module, subfolder = "", *ignore_pattern):
+    def load_input_from_module(self, module, subfolder, *ignore_pattern):
         """ Copies files and folders in the output folder to the input
         directory.
         
@@ -84,14 +85,15 @@ class module_base(object):
             module: object derived from *module_base*
                 contains the output directory path
             subfolder : str
-                optional: name of the subfolder in the input directory
+                Name of the subfolder in the input directory.To avoid
+                generating a subfolder, set it to "".
             *ignore_pattern: [, ".png", ...]
                 optional: pattern of files to be ignored during copy operation        
         """
         
         path = module.path_output
         
-        self.load_input(path, subfolder=subfolder, ignore_pattern)
+        self.load_input(path, subfolder, ignore_pattern)
         
     @property
     def module_name(self):

@@ -20,7 +20,7 @@ class memory_effect(module_base):
        
        self.shift_folder_name = "shfit/"
 
-    def f2_main(folder, shift, generate_scatter_plate = True):
+    def f2_main(self, folder, shift, generate_scatter_plate = True):
     #    global executed_modules
     #    executed_modules += ["f2"]
         # -------------------------------------
@@ -94,7 +94,7 @@ class memory_effect(module_base):
     
         return folder, path, layer
     
-    def evaluate_data(path):
+    def evaluate_data(self, path):
         def __load(path):
             imagePath = toolbox.get_file_path_with_extension_include_subfolders(path, ["bmp"])
             
@@ -154,10 +154,12 @@ class memory_effect(module_base):
         return shift_mm
     
     def run(self):
+        executed_modules = []
         folder, path, layer = self.f2_main("", 0)
-#        for i in range(1,10):
-#            executed_modules += ["f2"]
-#            folder, path, layer = me.f2_main("", i*5, generate_scatter_plate=False)
+        executed_modules += ["f2"]
+        for i in range(1,10):
+            executed_modules += ["f2"]
+            folder, path, layer = self.f2_main("", i*5, False)
         
 #        todo: f2 -> class f2
 #        self.load_input_from_module()
@@ -202,3 +204,7 @@ class memory_effect(module_base):
                        delimiter = ',',
                        header='fog / m,x-shift',
                        comments='')
+        
+        executed_modules += [self.module_name]
+        
+        return executed_modules

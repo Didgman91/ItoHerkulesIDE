@@ -19,9 +19,10 @@ import script.fog_simulation as fs
 # module. This will be zipped later.
 executed_modules = []
 
-fs.run()
-executed_modules = ["f2"]
+#fs.run()
 
+m = me.memory_effect()
+executed_modules = m.run()
 
 #folder, path, layer = me.f2_main("", 0)
 #for i in range(1,10):

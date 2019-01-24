@@ -15,45 +15,81 @@ import paramiko
 # settings
 # ---------------------------------------------
 
-project_name = "memory_effect_high_output"
+project_name = "hello"
 
 # zip settings
-zip_Settings = {'zip_File_Name': "herkules.zip",
+zip_settings = {'zip_File_Name': "herkules.zip",
                 'zip_Include_Folder_List': ["config", "lib", "script"],
                 'zip_Include_File_List': ["main.py"],
                 'skipped_Folders': [".git", "__pycache__"]}
 
-# sftp settings
+# environment
 
-# login without password:
-# - generate an OpenSSH key
-# - save as ~/.ssh/herkules
-# - add the public key to the .ssh/authorized_keys file on the server
-#
-# __Hint__
-#
-# PuTTY
-#   Conversions -> Export OpenSSH key
-#
+class env:
+    herkules = "herkules"
+    herkules_2 = "herkules2"
+    bartosz = "bartosz"
+    jia = "jia"
+    sergej = "sergej"
+    zhou = "zhou"
+    
+environment = env.sergej
 
-user_Dir = os.path.expanduser("~")
-key_file_path = os.path.normpath("{}/.ssh/herkules".format(user_Dir))
-sftp_Settings = {'host': "herkules.ito.uni-stuttgart.de",
-                 'port': 22,
-                 'user_Name': "itodaiber",
-                 'key_File': key_file_path,
-                 'path_Remote': "/home/Freenas/itodaiber/tmp/{}/".format(project_name),
-                 'file': zip_Settings['zip_File_Name']}
-
-# additional execute after compression and copying
-# For example:
-# execute = "bsub -J {} 'python3.4 main.py'".format(project_name)
-#execute = ""
-execute = "bsub -J {} 'python3.4 main.py'".format(project_name)
+#remote_command = "python3.4 main.py"
+remote_command = "echo hello grid"
 
 # ---------------------------------------------
 # ~settings
 # ---------------------------------------------
+
+
+def get_sftp_settings(project_name, environment, remote_command):
+    # sftp settings
+
+    # login without password:
+    # - generate an OpenSSH key
+    # - save as ~/.ssh/herkules
+    # - add the public key to the .ssh/authorized_keys file on the server
+    #
+    # __Hint__
+    #
+    # PuTTY
+    #   Conversions -> Export OpenSSH key
+    #
+
+    remote_user = "itodaiber"
+    
+    user_Dir = os.path.expanduser("~")
+    
+    sftp_settings = []
+    
+    # additional execute after compression and copying
+    # For example:
+    # execute = "bsub -J {} 'python3.4 main.py'".format(project_name)
+    execute = []
+    if environment == env.herkules:
+        key_file_path = os.path.normpath("{}/.ssh/herkules".format(user_Dir))
+        sftp_settings = {'host': "herkules.ito.uni-stuttgart.de",
+                         'port': 22,
+                         'user_Name': remote_user,
+                         'key_File': key_file_path,
+                         'path_Remote': "/home/Freenas/{}/{}/".format(remote_user, project_name),
+                         'file': zip_settings['zip_File_Name']}
+        execute = "bsub -J {} '{}'".format(project_name, remote_command)
+    else:
+        key_file_path = os.path.normpath("{}/.ssh/herkules2".format(user_Dir))
+        sftp_settings = {'host': "herkules2.ito.uni-stuttgart.de",
+                         'port': 22,
+                         'user_Name': remote_user,
+                         'key_File': key_file_path,
+                         'path_Remote': "/home/Grid/{}/{}/".format(remote_user, project_name),
+                         'file': zip_settings['zip_File_Name']}
+        execute = "bsub -R\"select[hname={}]\" -J {} '{}'".format(environment, project_name, remote_command)
+    
+    
+    
+    
+    return sftp_settings, execute
 
 
 def zip_Project(zip_Settings):
@@ -134,27 +170,27 @@ def zip_Project(zip_Settings):
     zip_it(zip_Include_Folder_List, zip_Include_File_List, zip_File_Name)
 
 
-def copy_To_Server(sftp_Settings, execute=""):
+def copy_To_Server(sftp_settings, execute=""):
     """Copies a zip file via sftp to a folder on a server.
 
     Arguments
     ----
-        sftp_Settings
+        sftp_settings
             Contains all settings related the copy process to a server.
             For example host, port and user name.
 
         execute
             Command to be called after copying and decompression the file.
     """
-    host = sftp_Settings['host']
-    port = sftp_Settings['port']
+    host = sftp_settings['host']
+    port = sftp_settings['port']
 
-    user_Name = sftp_Settings['user_Name']
-    key_File = sftp_Settings['key_File']
+    user_Name = sftp_settings['user_Name']
+    key_File = sftp_settings['key_File']
 
-    path_Remote = sftp_Settings['path_Remote']
+    path_Remote = sftp_settings['path_Remote']
 
-    file_Name = sftp_Settings['file']
+    file_Name = sftp_settings['file']
 
     # open connection
     ssh_client = paramiko.SSHClient()
@@ -200,14 +236,16 @@ def copy_To_Server(sftp_Settings, execute=""):
 # ---------------------------------------------
 # Zip the project
 # ---------------------------------------------
-zip_Project(zip_Settings)
+zip_Project(zip_settings)
 
 # ---------------------------------------------
 # Copy project to the server
 # ---------------------------------------------
-copy_To_Server(sftp_Settings, execute)
+sftp_settings, execute = get_sftp_settings(project_name, environment, remote_command)
+
+copy_To_Server(sftp_settings, execute)
 
 # ---------------------------------------------
 # clean up local folder
 # ---------------------------------------------
-os.remove(zip_Settings['zip_File_Name'])
+os.remove(zip_settings['zip_File_Name'])

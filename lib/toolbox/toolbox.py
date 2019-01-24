@@ -432,3 +432,38 @@ def backup(executed_modules, path_backup="backup"):
         copy_files(zip_settings["zip_include_folder_list"] + zip_settings["zip_include_file_list"])
     else:
         zip_data(zip_settings)
+        
+def save_as_csv(array, path, header):
+    """
+    Arguments
+    ----
+        array: numpy array
+            1- or 2-dimensional array
+        path: string
+            path where the csv file is stored
+        header: list<string>
+            list of the headers for each colmn of the csv file
+    """
+    array_shape = np.shape(array)
+    
+    export = []
+    if len(array_shape) == 1:
+        for ii in range(len(array)):
+            export += [np.array([ii+1, array[ii]])]
+    elif len(array_shape) == 2:
+        export = array
+    elif len(array_shape) > 2:
+        return 
+    
+    delemiter = ","
+    header_intern = ""
+    for h in header:
+        header_intern += h + delemiter
+    
+    header_intern = header_intern[:-len(delemiter)]
+    
+    np.savetxt(path,
+               export,
+               delimiter = delemiter,
+               header=header_intern,
+               comments='')

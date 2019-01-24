@@ -31,35 +31,53 @@ from lib.latex import documentation
 #
 #test = test_module(name="test_module")
 
+#
+#image_path = toolbox.get_file_path_with_extension("/home/maxdh/Documents/tmp", ["bmp"])
+#image_path.sort()
+#
+#import imageio
+#
+#for ip in image_path:
+#    image = imageio.imread(ip, 'bmp')
+#
+#    histogram, bin_edges = np.histogram(image[:,:,1], 256)
+##    
+#    file_name = ip[-13:-4]
+##    
+##    f = plt.figure()
+##    plt.plot(histogram)
+##    plt.title(ip[-13:])
+##    name = "{}.pdf".format(file_name)
+##    f.savefig(name, bbox_inches="tight")
+#    
+#    export = []
+#    hist_max = histogram.max()
+#    for ii in range(len(histogram)):
+#        export += [np.array([ii+1, histogram[ii] / hist_max])]
+#    
+#    np.savetxt("./hist/hist_{}.csv".format(file_name),
+#               export,
+#               delimiter = ',',
+#               header='8-bit intesity,normalized histogram',
+#               comments='')
+#
 
-image_path = toolbox.get_file_path_with_extension("/home/maxdh/Documents/tmp", ["bmp"])
-image_path.sort()
+#hist = ti.get_histogram([path], 256)
 
 import imageio
 
-for ip in image_path:
-    image = imageio.imread(ip, 'bmp')
+path = "./tmp/Intensity_no_pupil_function_layer0001.bmp"
+image = imageio.imread(path, 'bmp')
 
-    histogram, bin_edges = np.histogram(image[:,:,1], 256)
-#    
-    file_name = ip[-13:-4]
-#    
-#    f = plt.figure()
-#    plt.plot(histogram)
-#    plt.title(ip[-13:])
-#    name = "{}.pdf".format(file_name)
-#    f.savefig(name, bbox_inches="tight")
-    
-    export = []
-    hist_max = histogram.max()
-    for ii in range(len(histogram)):
-        export += [np.array([ii+1, histogram[ii] / hist_max])]
-    
-    np.savetxt("./hist/hist_{}.csv".format(file_name),
-               export,
-               delimiter = ',',
-               header='8-bit intesity,normalized histogram',
-               comments='')
+#f = plt.figure()
+#plt.plot(image[:,4096,0])
+#plt.show()
+
+toolbox.save_as_csv(image[:,4096,0], "./tmp/intersection_y_4096.csv", ["x","y"])
+
+
+
+
 
 ## ------------------------------mod tex files (add plots) ------------------------------
 #path_plot = "lib/latex/document/tex/plot/plot.tex"

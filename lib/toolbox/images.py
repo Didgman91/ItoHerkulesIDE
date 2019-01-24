@@ -14,6 +14,8 @@ from scipy import signal
 from PIL import Image
 from PIL import ImageOps
 
+import imageio
+
 def get_image_as_npy(image_path):
     """ Opens the images listed under _image_path_ and returns them as a
     list of numpy arrays.
@@ -391,3 +393,35 @@ def get_max_position(image, relative_position=[]):
         np.stack(position_max)
 
     return position_max
+
+def get_histogram(image_path, bins=10):
+    """ The histogram is computed over the flattened array.
+    Arguments
+    ----
+        image_path: list<string>
+            path of the image
+        bins: int or sequence of scalars or str, optional
+            further information: numpy.histogram
+    
+    Returns
+    ----
+        the histogram of the image per channel.
+    """
+    
+    histogram = []
+    for ip in image_path:
+        image = imageio.imread(ip, 'bmp')
+        
+        image_shape = np.shape(image)
+        
+        hist = []
+        if len(image_shape) == 3:
+            for i in range(image_shape[2]):
+                buffer, bin_edges = np.histogram(image, bins)
+                hist += [buffer]
+        else:
+            hist, bin_edges = np.histogram(image, bins)
+        
+        histogram += [hist]
+    
+    return histogram

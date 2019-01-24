@@ -11,6 +11,15 @@ import os
 import zipfile
 import paramiko
 
+
+class env:
+    herkules = "herkules"
+    herkules_2 = "herkules2"
+    bartosz = "bartosz"
+    jia = "jia"
+    sergej = "sergej"
+    zhou = "zhou"
+
 # ---------------------------------------------
 # settings
 # ---------------------------------------------
@@ -24,48 +33,58 @@ zip_settings = {'zip_File_Name': "herkules.zip",
                 'skipped_Folders': [".git", "__pycache__"]}
 
 # environment
+environment = env.herkules_2
 
-class env:
-    herkules = "herkules"
-    herkules_2 = "herkules2"
-    bartosz = "bartosz"
-    jia = "jia"
-    sergej = "sergej"
-    zhou = "zhou"
-    
-environment = env.sergej
-
+# additional execute after compression and copying
+# For example:
 #remote_command = "python3.4 main.py"
 remote_command = "echo hello grid"
+
+remote_user = "itodaiber"
+
+
+# Hint
+# check your key files
 
 # ---------------------------------------------
 # ~settings
 # ---------------------------------------------
 
+def get_sftp_settings(project_name, environment, remote_user, remote_command):
+    """
+    Arguments
+    ----
+        project_name
+            name of the destination folder and the name of the job (bsub)
+        environment
+            equal to the remote host name
+        remote_user
+            user name on the remote host (environment)
+        remote_command
+            command that runs on the host
+        
+    SFTP settings
+    ----
 
-def get_sftp_settings(project_name, environment, remote_command):
-    # sftp settings
+    login without password:
+        - generate an OpenSSH key
+        - save as ~/.ssh/herkules
+        - add the public key to the .ssh/authorized_keys file on the server
 
-    # login without password:
-    # - generate an OpenSSH key
-    # - save as ~/.ssh/herkules
-    # - add the public key to the .ssh/authorized_keys file on the server
-    #
-    # __Hint__
-    #
-    # PuTTY
-    #   Conversions -> Export OpenSSH key
-    #
-
-    remote_user = "itodaiber"
+    Hint
+    ----
+        PuTTY
+            Conversions -> Export OpenSSH key
+      
+        Further information
+            http://linuxproblem.org/art_9.html
+    
+    """
     
     user_Dir = os.path.expanduser("~")
     
     sftp_settings = []
     
-    # additional execute after compression and copying
-    # For example:
-    # execute = "bsub -J {} 'python3.4 main.py'".format(project_name)
     execute = []
     if environment == env.herkules:
         key_file_path = os.path.normpath("{}/.ssh/herkules".format(user_Dir))
@@ -73,7 +92,7 @@ def get_sftp_settings(project_name, environment, remote_command):
                          'port': 22,
                          'user_Name': remote_user,
                          'key_File': key_file_path,
-                         'path_Remote': "/home/Freenas/{}/{}/".format(remote_user, project_name),
+                         'path_Remote': "/home/{}/{}/".format(remote_user, project_name),
                          'file': zip_settings['zip_File_Name']}
         execute = "bsub -J {} '{}'".format(project_name, remote_command)
     else:
@@ -241,7 +260,7 @@ zip_Project(zip_settings)
 # ---------------------------------------------
 # Copy project to the server
 # ---------------------------------------------
-sftp_settings, execute = get_sftp_settings(project_name, environment, remote_command)
+sftp_settings, execute = get_sftp_settings(project_name, environment, remote_user, remote_command)
 
 copy_To_Server(sftp_settings, execute)
 

@@ -299,6 +299,108 @@ def create_folder(path):
     """
     os.makedirs(path, 0o777, True)
 
+def read_file_lines(path):
+    """
+    Argument
+    ----
+        path: string
+            path to a text file
+    
+    Returns
+    ----
+        the lines of a text file.
+    """
+
+    textFile = open(path, "r")
+    lines = textFile.read().splitlines()
+    
+    return lines
+
+def get_intersection(list_1, list_2, str_diff_exact=True):
+    """
+    Arguments
+    ----
+        list_1: list
+            1-dimensional list of objects
+        lsit_2: list
+            1-dimensional list of objects
+        str_diff_exact: boolean, optinal
+            If *True* and the lists are lists of strings, then the string of a
+            *list_2* element can be a substring of a *list_1* element. This is
+            then also taken into account at the intersection of bouth lists.
+    Returns
+    ----
+        a list with the intersection of *list_2* and *list_1*.
+    """
+    # check input
+    if list_1 == [] or list_2 == [] or type(list_1) is not list or type(list_1) is not list:
+        return
+    
+    def _intersection(first, second):
+        second = set(second)
+        return [item for item in first if item in second]
+    
+    # creat list with relative complement
+    if str_diff_exact is False:
+        if type(list_1[0]) is str and type(list_2[0]) is str:
+            for b in list_2:
+                buffer = []
+                for a in list_1:
+                    if b in a:
+                        buffer += [a]
+                    else:
+                        continue
+                list_1 = buffer
+            return list_1
+        else:
+            _intersection(list_1, list_2)
+            return
+    else:
+        return _intersection(list_1, list_2)
+
+def get_relative_complement(list_1, list_2, str_diff_exact=True):
+    """
+    Arguments
+    ----
+        list_1: list
+            1-dimensional list of objects
+        lsit_2: list
+            1-dimensional list of objects
+        str_diff_exact: boolean, optinal
+            If *True* and the lists are lists of strings, then the string of a
+            *list_2* element can be a substring of a *list_1* element. This is then
+            also removed from list *list_1*.
+    Returns
+    ----
+        a list with the relative complement of *list_2* in *list_1*.
+    """
+    # check input
+    if list_1 == [] or list_2 == [] or type(list_1) is not list or type(list_1) is not list:
+        return
+    
+    def _diff(first, second):
+        second = set(second)
+        return [item for item in first if item not in second]
+    
+    # creat list with relative complement
+    if str_diff_exact is False:
+        if type(list_1[0]) is str and type(list_2[0]) is str:
+            for b in list_2:
+                buffer = []
+                for a in list_1:
+                    if b in a:
+                        continue
+                    else:
+                        buffer += [a]
+                list_1 = buffer
+            return list_1
+        else:
+            _diff(list_1, list_2)
+            return
+    else:
+        return _diff(list_1, list_2)
+    
+
 def replace(text, dictionary):
     """Replaces placeholders in a text with a dictionary.
     

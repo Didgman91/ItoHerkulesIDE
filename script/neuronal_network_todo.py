@@ -6,16 +6,17 @@ Created on Tue Jan 15 21:59:04 2019
 @author: maxdh
 """
 
+import os
 
 from lib.toolbox import toolbox
 from lib.toolbox import images as ti
 
 from lib.neuronal_network import neuronal_network
 
-from ..config.neuronal_network.model.model import model_deep_specle_correlation_class
+from config.neuronal_network.model.model import model_deep_specle_correlation_class
 
 def nn_main(layer, neuronal_network_path_extension_pretrained_weights=""):
-    global executed_modules
+#    global executed_modules
     executed_modules += ["neuronal_network"]
     # ---------------------------------------------
     # NEURONAL NETWORK: load data
@@ -100,9 +101,9 @@ def nn_main(layer, neuronal_network_path_extension_pretrained_weights=""):
                         image_validation_speckle_path,
                         path_pred)
 
-def nn_all_layers(layers, path_extension=""):
-    global executed_modules
-    executed_modules += ["neuronal_network"]
+def nn_all_layers(path_extension=""):
+#    global executed_modules
+#    executed_modules += ["neuronal_network"]
     # ---------------------------------------------
     # NEURONAL NETWORK: load data
     # ---------------------------------------------

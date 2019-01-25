@@ -164,7 +164,7 @@ class memory_effect(module_base):
 #        todo: f2 -> class f2
 #        self.load_input_from_module()
         
-        self.load_input(f2.pathData + f2.pathOutputSpeckle)
+        self.load_input(f2.pathData + f2.pathOutputSpeckle, "")
         
 #        path = ["./data/memory_effect/input/same_fog/0,0/",
 #        "./data/memory_effect/input/same_fog/5,0/",

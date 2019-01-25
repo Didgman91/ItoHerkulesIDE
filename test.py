@@ -64,19 +64,22 @@ from lib.latex import documentation
 
 #hist = ti.get_histogram([path], 256)
 
-import imageio
+#import imageio
+#
+#path = "./tmp/Intensity_no_pupil_function_layer0001.bmp"
+#image = imageio.imread(path, 'bmp')
+#
+##f = plt.figure()
+##plt.plot(image[:,4096,0])
+##plt.show()
+#
+#toolbox.save_as_csv(image[:,4096,0], "./tmp/intersection_y_4096.csv", ["x","y"])
 
-path = "./tmp/Intensity_no_pupil_function_layer0001.bmp"
-image = imageio.imread(path, 'bmp')
 
-#f = plt.figure()
-#plt.plot(image[:,4096,0])
-#plt.show()
-
-toolbox.save_as_csv(image[:,4096,0], "./tmp/intersection_y_4096.csv", ["x","y"])
-
-
-
+all_bmp = toolbox.get_file_path_with_extension_include_subfolders("/home/itodaiber/Documents/ITO/imagePool/NIST/by_write/hsf_2/f1000_45/", ["png"])
+ready = toolbox.read_file_lines("ready.txt")
+ready = list(set(ready))
+diff = toolbox.get_relative_complement(all_bmp, ready, False)
 
 
 ## ------------------------------mod tex files (add plots) ------------------------------

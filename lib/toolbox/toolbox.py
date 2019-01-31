@@ -506,24 +506,25 @@ def run_process(process, arg=[""], working_dir = "", path_stdout_file = ""):
 
     return output_decoded, exit_code, t
 
-def backup(executed_modules, path_backup="backup"):
+def backup(executed_modules, path_backup="backup", flag_copy = False, backup_data = False):
     create_folder(path_backup)
     
     modules = ""
     folders = []
     for m in executed_modules:
         modules += "_" + m
-        folders += ["data/" + m]
+        if backup_data is True:
+            folders += ["data/" + m]
     
     folders = make_distinct_list(folders)
     
+    
     t = time.strftime("%y%m%d_%H%M")
     zip_settings = {'zip_file_name': "{}/{}{}.zip".format(path_backup, t, modules),
-                    'zip_include_folder_list': ["config", "lib"] + folders,
+                    'zip_include_folder_list': ["config", "lib", "script"] + folders,
                     'zip_include_file_list': ["main.py"],
                     'skipped_folders': [".git", "__pycache__"]}
     
-    flag_copy = True
     
     def copy_files(data, destination):
         for f in data:

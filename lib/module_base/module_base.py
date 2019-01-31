@@ -118,7 +118,7 @@ class module_base(object):
     @property
     def path_ouput(self):
         """relative path of the _output_ directory"""
-        return self._path_ouput
+        return self._path_output
 
     @property
     def path_documentation(self):

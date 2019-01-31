@@ -15,6 +15,10 @@ from lib.neuronal_network import neuronal_network
 
 from config.neuronal_network.model.model import model_deep_specle_correlation_class
 
+def init():
+#    neuronal_network.set_tf_gpu_fraction()
+    neuronal_network.set_tf_gpu_allow_growth()
+
 def nn_main(layer, neuronal_network_path_extension_pretrained_weights=""):
 #    global executed_modules
     executed_modules += ["neuronal_network"]

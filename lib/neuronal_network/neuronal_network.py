@@ -35,6 +35,28 @@ from .losses import jd
 #from keras.layers.normalization import BatchNormalization
 #from keras.regularizers import l2
 
+def set_tf_gpu_fraction(fraction=0.12):
+    def get_session(gpu_fraction=0.12):
+        '''Assume that you have 16GB of GPU memory and want to allocate ~2GB'''
+    
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_fraction)
+    
+        return tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+    
+    K.set_session(get_session(fraction))
+    print("Keras GPU fraction: {}".format(fraction))
+
+def set_tf_gpu_allow_growth():
+    def get_session():
+        
+        gpu_options = tf.GPUOptions(allow_growth=True)
+    
+        return tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+    
+    print("PRE !! Keras GPU memory: allow growth")
+    K.set_session(get_session())
+    print("Keras GPU memory: allow growth")
+
 
 def generate_arrays_from_list(train, ground_truth, batch_size, process):
     while True:
@@ -120,6 +142,9 @@ class neuronal_network_class:
         """
 
         self.model = model
+        
+        self.image_x_pixel = 64
+        self.image_y_pixel = 64
 
         self.path_data = "data"
         self.path_neuronal_network_data = "/neuronal_network"
@@ -221,6 +246,7 @@ class neuronal_network_class:
             0o777,
             True)
         os.makedirs(self.path_data + self.path_output_evaluation, 0o777, True)
+        
 
     def load_model(self, modelFilePath="",
                    neuronal_network_path_extensionPretrainedWeights=""):
@@ -294,7 +320,9 @@ class neuronal_network_class:
 
         return self.model
 
-    def load_training_data(self, image_path, prefix=""):
+    def load_training_data(self, image_path, prefix="", resize=False,
+                           x_pixel=64,
+                           y_pixel=64):
         """
         Loads the training data and copies the listed files under
         _image_path_ into the input folder.
@@ -317,11 +345,17 @@ class neuronal_network_class:
             image_path,
             self.path_data +
             self.path_input_training_data,
-            prefix=prefix)
+            prefix=prefix,
+            resize=resize,
+            x_pixel=x_pixel,
+            y_pixel=y_pixel)
         return path
 
     def load_ground_truth_data(self, image_path,
-                               load_multiple_times_with_prefix=[]):
+                               load_multiple_times_with_prefix=[],
+                               resize=False,
+                               x_pixel=64,
+                               y_pixel=64):
         """Loads the ground truth training data and copies the listed files
         under _image_path_ into the input folder.
 
@@ -344,17 +378,25 @@ class neuronal_network_class:
             path = toolbox.load_image(
                 image_path,
                 self.path_data +
-                self.path_input_training_data_ground_truth)
+                self.path_input_training_data_ground_truth,
+                resize=resize,
+                x_pixel=x_pixel,
+                y_pixel=y_pixel)
         else:
             for prefix in load_multiple_times_with_prefix:
                 path += toolbox.load_image(
                     image_path,
                     self.path_data +
                     self.path_input_training_data_ground_truth,
-                    prefix="{}_".format(prefix))
+                    prefix="{}_".format(prefix),
+                    resize=resize,
+                    x_pixel=x_pixel,
+                    y_pixel=y_pixel)
         return path
 
-    def load_test_data(self, image_path, prefix=""):
+    def load_test_data(self, image_path, prefix="", resize=False,
+                       x_pixel=64,
+                       y_pixel=64):
         """Loads the test data and copies the listed files under _image_path_
         into the input folder.
 
@@ -376,11 +418,16 @@ class neuronal_network_class:
             image_path,
             self.path_data +
             self.path_input_test_data,
-            prefix=prefix)
+            prefix=prefix,
+            resize=resize,
+            x_pixel=x_pixel,
+            y_pixel=y_pixel)
         return path
 
     def load_test_ground_truth_data(
-            self, image_path, load_multiple_with_prefix=[]):
+            self, image_path, load_multiple_with_prefix=[], resize=False,
+               x_pixel=64,
+               y_pixel=64):
         """Loads the ground truth test data and copies the listed files under
         _image_path_ into the input folder.
 
@@ -403,7 +450,10 @@ class neuronal_network_class:
             path = toolbox.load_image(
                 image_path,
                 self.path_data +
-                self.path_input_test_data_ground_truth)
+                self.path_input_test_data_ground_truth,
+                resize=resize,
+                x_pixel=x_pixel,
+                y_pixel=y_pixel)
         else:
             for prefix in load_multiple_with_prefix:
                 destination = self.path_data \
@@ -411,10 +461,15 @@ class neuronal_network_class:
                 path += toolbox.load_image(
                         image_path,
                         destination,
-                        prefix="{}_".format(prefix))
+                        prefix="{}_".format(prefix),
+                        resize=resize,
+                        x_pixel=x_pixel,
+                        y_pixel=y_pixel)
         return path
 
-    def load_validation_data(self, image_path, prefix=""):
+    def load_validation_data(self, image_path, prefix="", resize=False,
+                               x_pixel=64,
+                               y_pixel=64):
         """Loads the validation data and copies the listed files under
         _image_path_ into the input folder.
 
@@ -433,14 +488,19 @@ class neuronal_network_class:
             a list of the copied images
         """
         path = toolbox.load_image(
-            image_path,
-            self.path_data +
-            self.path_input_validation_data,
-            prefix=prefix)
+                image_path,
+                self.path_data +
+                self.path_input_validation_data,
+                prefix=prefix,
+                resize=resize,
+                x_pixel=x_pixel,
+                y_pixel=y_pixel)
         return path
 
     def load_validation_ground_truth_data(
-            self, image_path, load_multiple_with_prefix=[]):
+            self, image_path, load_multiple_with_prefix=[], resize=False,
+               x_pixel=64,
+               y_pixel=64):
         """Loads the ground truth test data and copies the listed files under
         _image_path_ into the input folder.
 
@@ -463,7 +523,10 @@ class neuronal_network_class:
             path = toolbox.load_image(
                 image_path,
                 self.path_data +
-                self.path_input_validation_data_ground_truth)
+                self.path_input_validation_data_ground_truth,
+                resize=resize,
+                x_pixel=x_pixel,
+                y_pixel=y_pixel)
         else:
             for prefix in load_multiple_with_prefix:
                 destination = self.path_data \
@@ -471,10 +534,13 @@ class neuronal_network_class:
                 path += toolbox.load_image(
                         image_path,
                         destination,
-                        prefix="{}_".format(prefix))
+                        prefix="{}_".format(prefix),
+                        resize=resize,
+                        x_pixel=x_pixel,
+                        y_pixel=y_pixel)
         return path
 
-    def train_network(self, training_data, ground_truth,
+    def train_network(self, training_data=[], ground_truth=[],
                       loss, optimizer,
                       fit_epochs, fit_batch_size,
                       process_data=[]):
@@ -530,6 +596,30 @@ class neuronal_network_class:
             y
                 Numpy array of target (label) data (Keras)
         """
+        if training_data == []:
+            training_data = toolbox.get_file_path_with_extension(
+                    self.path_data + self.path_input_training_data, ["bmp"])
+            
+            training_data.sort()
+        
+        if ground_truth == []:
+            ground_truth = toolbox.get_file_path_with_extension(
+                    self.path_data + self.path_input_training_data_ground_truth,
+                    ["bmp"])
+            
+            ground_truth.sort()
+            
+            no_training_data = len(training_data)
+            no_ground_truth = len(ground_truth)
+            if no_training_data > no_ground_truth:
+                if no_training_data % no_ground_truth == 0:
+                    factor = no_training_data / no_ground_truth
+                    for i in range(factor):
+                        training_data += training_data
+                
+        
+        
+        
         use_fit_generator = False;
 
         if process_data != []:

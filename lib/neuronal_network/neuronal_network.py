@@ -540,7 +540,7 @@ class neuronal_network_class:
                         y_pixel=y_pixel)
         return path
 
-    def train_network(self, training_data=[], ground_truth=[],
+    def train_network(self, training_data, ground_truth,
                       loss, optimizer,
                       fit_epochs, fit_batch_size,
                       process_data=[]):

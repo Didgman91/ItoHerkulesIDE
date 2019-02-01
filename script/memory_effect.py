@@ -6,6 +6,10 @@ Created on Tue Jan 15 21:52:52 2019
 @author: maxdh
 """
 
+import os
+
+import gc
+
 import numpy as np
 
 from lib.f2 import f2
@@ -18,7 +22,7 @@ class memory_effect(module_base):
     def __init__(self, **kwds):
        super(memory_effect, self).__init__(name="memory_effect", **kwds)
        
-       self.shift_folder_name = "shfit/"
+       self.shift_folder_name = "/shfit"
 
     def f2_main(self, folder, shift, generate_scatter_plate = True):
     #    global executed_modules
@@ -95,11 +99,36 @@ class memory_effect(module_base):
         return folder, path, layer
     
     def evaluate_data(self, path):
-        def __load(path):
+        """
+        Arguments
+        ----
+            path: list<string>
+                folder paths
+                e.g.: ['data/f2/output/speckle/0,0',
+                       'data/f2/output/speckle/5,0',
+                       'data/f2/output/speckle/10,0']
+            
+        Folder content (example)
+        ----
+            path[0]
+            - layer0001/Intensity.bmp
+            - layer0002/Intensity.bmp
+            - layer0003/Intensity.bmp
+        """
+        def __load(path, search_pattern = "Intensity"):
+            """
+            Arguments
+            ----
+                path: string
+                    
+            Returns
+            ----
+                all images in the folder at *path* and its subfolders.
+            """
             imagePath = toolbox.get_file_path_with_extension_include_subfolders(path, ["bmp"])
             
             # only intesity images
-            imagePath = [s for s in imagePath if "Intensity" in s]
+            imagePath = [s for s in imagePath if search_pattern in s]
             
             imagePath.sort()
             
@@ -108,34 +137,94 @@ class memory_effect(module_base):
             return image
         
         
-        image = []
-        for p in path:
-            image += [__load(p)]
-    #    image += [__load("./data/memory_effect/input/same_fog/0,0/")]
-    #    image += [__load("./data/memory_effect/input/same_fog/10,0/")]
-    #    image += [__load("./data/memory_effect/input/same_fog/100,0/")]
-    #    image += [__load("./data/memory_effect/input/same_fog/1000,0/")]
+#        image = []
+#        for p in path:
+#            image += [__load(p)]
+#    #    image += [__load("./data/memory_effect/input/same_fog/0,0/")]
+#    #    image += [__load("./data/memory_effect/input/same_fog/10,0/")]
+#    #    image += [__load("./data/memory_effect/input/same_fog/100,0/")]
+#    #    image += [__load("./data/memory_effect/input/same_fog/1000,0/")]
+#        
+#        shift = []
+#        for i in range(len(image)):
+#            shift += [ti.get_cross_correlation_2d(image[i], image[0])]
         
-        shift = []
-        for i in range(len(image)):
-            shift += [ti.get_cross_correlation_2d(image[i], image[0])]
-        
-        
-        max_pos = []
-        size = np.array(np.shape(shift[0][0,:,:,0]))
-        position = (size - 1)/2
-        position = position.astype(int)
-        for s in shift:
-            max_pos += [ti.get_max_position(s, relative_position=position)]
-        
-        mm_per_pixel = 100/256
-        
-        max_pos = np.stack(max_pos)
-        max_pos =  np.multiply(max_pos, mm_per_pixel)
-    
+        mm_per_pixel = 50/(4096*2)
         shift_mm = []
-        for i in range(len(max_pos)):
-            shift_mm += [max_pos[i,:,0,:]]
+        
+#        image_0_shift = __load(path[0])
+#        
+#        size = np.array(np.shape(image_0_shift[0,:,:,0]))
+#        position = (size - 1)/2
+#        position = position.astype(int)
+        
+        # iterate shift folders: "5,0", "10,0", ...
+        for i in range(1,len(path)):
+            folders_layers = os.listdir(path[i])
+            folders_layers.sort()
+            
+            if path[i][-1] == "/":
+                    path[i] = path[i][:-1]
+            shift_folder = os.path.split(path[i])[-1]
+            max_pos = []
+            # iterate layers: "layer0001", "layer0002", ...
+            for ii in range(len(folders_layers)):
+                # image_0
+                image_0 = __load(path[0] + "/" + folders_layers[ii])
+                size = np.array(np.shape(image_0[0,:,:,0]))
+                position = (size - 1)/2
+                position = position.astype(int)
+                # ~ image_0
+                
+                image = __load(path[i] + "/" + folders_layers[ii])
+                shift = ti.get_cross_correlation_2d(image, image_0)
+#                shift = ti.get_cross_correlation_2d(image, np.stack([image_0_shift[ii]]))
+                
+                
+#                if ii % 10 == 0:
+#                    correlation_image_file_name = "{}_{}.bmp".format(shift_folder,
+#                                                folders_layers[ii])
+#                    shift_buffer = shift[0,:,:,0]
+#                    shift_buffer_max = np.max(shift_buffer)
+#                    ti.save_4D_npy_as_bmp(shift/shift_buffer_max, [correlation_image_file_name],
+#                                          self.path_intermediate_data)
+                
+                max_pos += [ti.get_max_position(shift, relative_position=position)]
+                
+                gc.collect()
+            
+            max_pos = np.stack(max_pos)
+            max_pos = np.multiply(max_pos, mm_per_pixel)
+            shift_mm_buffer = []
+            for k in range(len(max_pos)):
+                shift_mm_buffer += [max_pos[k,0,0,:]]
+            shift_mm += [shift_mm_buffer]
+            
+            
+#       -- old
+#        shift = []
+#        image_0_shift = __load(path[0])
+#        for i in range(len(path)-1):
+#            image = __load(path[i+1])
+#            shift += [ti.get_cross_correlation_2d(image, image_0_shift)]
+            
+        
+        
+#        max_pos = []
+#        size = np.array(np.shape(shift[0][0,:,:,0]))
+#        position = (size - 1)/2
+#        position = position.astype(int)
+#        for s in shift:
+#            max_pos += [ti.get_max_position(s, relative_position=position)]
+#        
+#        ~~ old
+            
+        
+        
+        
+    
+        
+        
         
         
     #    f = plt.figure()
@@ -155,28 +244,26 @@ class memory_effect(module_base):
     
     def run(self):
         executed_modules = []
-        folder, path, layer = self.f2_main("", 0)
-        executed_modules += ["f2"]
-        for i in range(1,10):
-            executed_modules += ["f2"]
-            folder, path, layer = self.f2_main("", i*5, False)
+#        folder, path, layer = self.f2_main("", 0)
+#        executed_modules += ["f2"]
+#        for i in range(1,10):
+#            executed_modules += ["f2"]
+#            folder, path, layer = self.f2_main("", i*5, False)
         
 #        todo: f2 -> class f2
 #        self.load_input_from_module()
         
-        self.load_input(f2.pathData + f2.pathOutputSpeckle, "")
+#        self.load_input(f2.pathData + f2.pathOutputSpeckle, "")
         
-#        path = ["./data/memory_effect/input/same_fog/0,0/",
-#        "./data/memory_effect/input/same_fog/5,0/",
-#        "./data/memory_effect/input/same_fog/10,0/",
-#        "./data/memory_effect/input/same_fog/15,0/",
-#        "./data/memory_effect/input/same_fog/20,0/",
-#        "./data/memory_effect/input/same_fog/25,0/",
-#        "./data/memory_effect/input/same_fog/30,0/",
-#        "./data/memory_effect/input/same_fog/35,0/",
-#        "./data/memory_effect/input/same_fog/40,0/",
-#        "./data/memory_effect/input/same_fog/45,0/"]
-
+        path = ["./data/f2/output/speckle/0,0/",
+        "./data/f2/output/speckle/5,0/",
+        "./data/f2/output/speckle/10,0/",
+        "./data/f2/output/speckle/15,0/",
+        "./data/f2/output/speckle/20,0/",
+        "./data/f2/output/speckle/25,0/",
+        "./data/f2/output/speckle/30,0/",
+        "./data/f2/output/speckle/35,0/"]
+        
         shift = self.evaluate_data(path)
         
 #        std = np.std(shift[1])
@@ -185,7 +272,9 @@ class memory_effect(module_base):
         shift = np.stack(shift)
         
         
+        shift_path = self.path_ouput + self.shift_folder_name
         
+        toolbox.create_folder(shift_path)
         
         for i in range(len(shift)):
             l = shift[i,:,1]
@@ -197,8 +286,7 @@ class memory_effect(module_base):
             export = np.stack(export)
             
             
-            np.savetxt(self.path_ouput\
-                       + self.shift_folder_name\
+            np.savetxt(shift_path\
                        + "/shift_{}.csv".format(i*5),
                        export,
                        delimiter = ',',

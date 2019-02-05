@@ -80,6 +80,11 @@ Do j,1,max
     BMPSave "{py_outputPath}/Argument_{py_fileName}_layer", j
    
     BMPClear
+    
+    Call bmp2_init
+    Call bmp2_plot2d_1(argument,"Argument_{py_fileName}"+'(I0.4)'j,50,"L")
+    Call bmp2_plot2d_2(intensity,"Intensity_{py_fileName}"+'(I0.4)'j,50,"L")
+    Call bmp2_save("{py_outputPath}/Overview_{py_fileName}_layer"+'(I0.4)'j+".bmp")
  
  a0=EnergyDensity a2
  b=Pupil a2,lam,dp,dp,1 ! FourierTransfo

@@ -149,7 +149,7 @@ class memory_effect(module_base):
 #        for i in range(len(image)):
 #            shift += [ti.get_cross_correlation_2d(image[i], image[0])]
         
-        mm_per_pixel = 50/(4096*2)
+        mm_per_pixel = 25/(4096*2)
         shift_mm = []
         
 #        image_0_shift = __load(path[0])
@@ -244,16 +244,16 @@ class memory_effect(module_base):
     
     def run(self):
         executed_modules = []
-#        folder, path, layer = self.f2_main("", 0)
-#        executed_modules += ["f2"]
-#        for i in range(1,10):
-#            executed_modules += ["f2"]
-#            folder, path, layer = self.f2_main("", i*5, False)
+        folder, path, layer = self.f2_main("", 0)
+        executed_modules += ["f2"]
+        for i in range(1,10):
+            executed_modules += ["f2"]
+            folder, path, layer = self.f2_main("", i*5, False)
         
-#        todo: f2 -> class f2
-#        self.load_input_from_module()
+        todo: f2 -> class f2
+        self.load_input_from_module()
         
-#        self.load_input(f2.pathData + f2.pathOutputSpeckle, "")
+        self.load_input(f2.pathData + f2.pathOutputSpeckle, "")
         
         path = ["./data/f2/output/speckle/0,0/",
         "./data/f2/output/speckle/5,0/",
@@ -262,7 +262,9 @@ class memory_effect(module_base):
         "./data/f2/output/speckle/20,0/",
         "./data/f2/output/speckle/25,0/",
         "./data/f2/output/speckle/30,0/",
-        "./data/f2/output/speckle/35,0/"]
+        "./data/f2/output/speckle/35,0/",
+        "./data/f2/output/speckle/40,0/",
+        "./data/f2/output/speckle/45,0/"]
         
         shift = self.evaluate_data(path)
         

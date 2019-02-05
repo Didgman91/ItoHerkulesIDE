@@ -173,6 +173,8 @@ def load_image(source_path, destination_path, invert_color=False,
 
     rv = []
     for ip in source_path:
+        print("load image: {}".format(ip))
+        
         file_extension = os.path.splitext(ip)[-1]
 
         im = Image.open(ip)
@@ -298,6 +300,29 @@ def create_folder(path):
             path of the directory
     """
     os.makedirs(path, 0o777, True)
+
+def get_subfolders(path, show_hidden_folders = False):
+    """
+    Argument
+    ----
+        path: string
+            path of a directory
+        show_hidden_folders: bool
+            if true, also the hidden subdirectories are returned..
+    
+    Returns
+    ----
+        a list<string> with the subdirectories.
+    """
+    content = os.listdir(path)
+    output = [dI for dI in content if os.path.isdir(os.path.join(path,dI))]
+    if show_hidden_folders is True:
+        buffer = []
+        for o in output:
+            if o[0] != ".":
+                buffer += [o]
+        output = buffer
+    return output
 
 def read_file_lines(path):
     """

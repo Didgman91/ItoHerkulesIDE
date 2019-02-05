@@ -77,7 +77,7 @@ def convert_image_list_to_4D_np_array(images):
     ----
 
     """
-    if (isinstance(images, list)) & (len(images) > 1):
+    if (isinstance(images, list)) & (len(images) > 0):
         # stack a list to a numpy array
         images = np.stack((images))
     elif isinstance(images, np.ndarray):
@@ -161,7 +161,12 @@ def convert_3d_npy_to_image(npy, invert_color=False):
     ----
         the image
     """
-    image = Image.fromarray(np.uint8(npy*255)).convert('RGB')
+    image = []
+    if np.shape(npy)[-1] == 1:
+        image = Image.fromarray(np.uint8(npy*255)[:,:,0], 'L').convert('RGB')
+    else:
+        image = Image.fromarray(np.uint8(npy*255)).convert('RGB')
+
     if invert_color is True:
         image = ImageOps.invert(image)
 

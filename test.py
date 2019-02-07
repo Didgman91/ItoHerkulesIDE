@@ -21,15 +21,7 @@ import matplotlib.pyplot as plt
 from lib.latex import documentation
 
 
-#from lib.module_base import module_base
-#
-#
-#
-#class test_module(module_base.module_base):
-#    def __init__(self, **kwds):
-#        super(test_module, self).__init__(**kwds)
-#
-#test = test_module(name="test_module")
+from lib.module_base import module_base
 
 #
 #image_path = toolbox.get_file_path_with_extension("/home/maxdh/Documents/tmp", ["bmp"])
@@ -65,8 +57,56 @@ from lib.latex import documentation
 #hist = ti.get_histogram([path], 256)
 
 #import imageio
+
+import cv2
+
+mm_per_pixel = 25.0/(4096*2)
+
+def show_intersection_and_calc_relative_max_pos(path, mm_per_pixel):
+    img = cv2.imread(path,0)
+    #cv2.imshow('image', img)
+    
+#    plt.imshow(img, cmap = 'plasma', interpolation = 'bicubic')
+#    plt.show()
+    
+    size = len(img[0])
+    middle = int(size/2)
+    
+    plt.figure()
+    plt.plot(img[:,middle])
+    plt.ylabel("pixel value")
+    plt.xlabel("pixel number")
+    plt.title(path)
+    plt.show()
+    
+    print(toolbox.get_file_name(path))
+    
+    max_pos, std = ti.get_max_position(img)
+    print("max position: {}, {}".format(max_pos[0], max_pos[1]))
+    print("std: {}".format(std))
+    
+    relative_pos = max_pos - np.array([middle, middle])
+    relative_pos = relative_pos * mm_per_pixel
+    print("relative max position [um]: {}, {}".format(relative_pos[0]*1000, relative_pos[1]*1000))
+    
+#    min_max_x = [int(max_pos[0]-size/10), int(max_pos[0]+size/10)]
+#    min_max_y = [int(max_pos[1]-size/10), int(max_pos[1]+size/10)]
+#    
+#    plt.imshow(img[min_max_x[0]:min_max_x[1], min_max_y[0]:min_max_y[1]], cmap = 'plasma', interpolation = 'bicubic')
+#    plt.show()
+
 #
 #path = "./tmp/Intensity_no_pupil_function_layer0001.bmp"
+#path = "/home/itodaiber/Documents/ITO/R - Repositories/HerkulesIDE/data/memory_effect/intermediate_data"
+path = "/tmp/5m"
+file = toolbox.get_file_path_with_extension(path, ["bmp"])
+
+file.sort()
+
+for f in file:    
+    print()
+    show_intersection_and_calc_relative_max_pos(f, mm_per_pixel)
+
 #image = imageio.imread(path, 'bmp')
 #
 ##f = plt.figure()

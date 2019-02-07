@@ -145,10 +145,13 @@ def calculate_propagation(pupil_function, scatterPlateRandom, numberOfLayers, di
 def sortToFolderByLayer(folderPath = pathData + pathOutputSpeckle, keyword="layer", subfolder=""):
     "moves the files with the extension 'layerxxxx' to a corresponding folder 'layerxxxx'"
     rvPath = []
-    rvFolder = []
     rvLayerNumber = []
     
     filePath = toolbox.get_file_path_with_extension(folderPath, ["bmp"])
+    
+    fp = filePath[0]
+    base = os.path.basename(fp)
+    rvFolder = fp[:-len(base)] + subfolder
     
     for fp in filePath:
         # create folder (path + keyword + layerNumber)
@@ -168,7 +171,6 @@ def sortToFolderByLayer(folderPath = pathData + pathOutputSpeckle, keyword="laye
         path = folder + "/" + base
         os.rename(fp, path)
         
-        rvFolder += [folder]
         rvPath += [path]
         rvLayerNumber += [layerNumber]
         

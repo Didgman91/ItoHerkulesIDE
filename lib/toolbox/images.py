@@ -297,21 +297,34 @@ def __get_max_position_2d(array_2d):
     """
     Argument
     ----
-        array_2d
+        array_2d: np.2darray
             two-dimensional array, but it can also be a one-dimensional array.
     Returns
     ----
         the indices of the maximum values of a two-dimensional array.
-
-    todo
-    ----
-        If there are multiple positions with the same max value, then the
-        position of the first(?) is returned.
+        If there are several items with the same maximum value, the middle
+        position of these items is calculated.
+        
+        position_max: np.2darray
+        
+        std: stadnard deviation tupel [x, y]
     """
-    posistion_max = np.array(np.unravel_index(np.argmax(array_2d, axis=None),
-                                              array_2d.shape))
     
-    return posistion_max
+    buffer_max = np.where(array_2d == array_2d.max())
+    
+    buffer_max_x = [buffer_max[0].min(), buffer_max[0].max()]
+    buffer_max_y = [buffer_max[1].min(), buffer_max[1].max()]
+    
+    
+    posistion_max = np.array([(buffer_max_x[1] + buffer_max_x[0]) / 2,
+                         (buffer_max_y[1] + buffer_max_y[0]) / 2])
+    
+    std_x = np.std(buffer_max[0])
+    std_y = np.std(buffer_max[1])
+    
+    std = np.array([std_x, std_y])
+    
+    return posistion_max, std
 
 def get_max_position(image, relative_position=[]):
     """ Returns the indices of the maximum value of an array.
@@ -368,16 +381,19 @@ def get_max_position(image, relative_position=[]):
     shape = np.array(np.shape(image))
 
     position_max = []
+    std = []
     if len(shape) == 1:
-        position_max = __get_max_position_2d(image)
+        position_max, std = __get_max_position_2d(image)
 
     elif len(shape) == 2:
-        position_max = __get_max_position_2d(image)
+        position_max, std = __get_max_position_2d(image)
 
     elif len(shape) == 3:
         dimension_iamge_channel = 2
         for i in range(shape[dimension_iamge_channel]):
-            position_max += [__get_max_position_2d(image[:,:,i])]
+            buffer_pos, buffer_std = __get_max_position_2d(image[:,:,i])
+            position_max += [buffer_pos]
+            std += [buffer_std]
         np.stack(position_max)
 
     elif len(shape) == 4:
@@ -386,18 +402,23 @@ def get_max_position(image, relative_position=[]):
         
         for i in range(shape[dimension_image_number]):
             buffer_position_max = []
+            buffer_std = []
             for ii in range(shape[dimension_iamge_channel]):
 #                buffer_position_max += [__get_max_position_2d(image[i,:,:,ii])]
-                buffer = __get_max_position_2d(image[i,:,:,ii])
+                buffer, buffer_std_rv = __get_max_position_2d(image[i,:,:,ii])
                 if relative_position != []:
                     buffer = calculate_relative_position(buffer,
                                                          relative_position)
                 buffer_position_max += [buffer]
-            np.stack(buffer_position_max)
+                buffer_std += [buffer_std_rv]
+            buffer_position_max = np.stack(buffer_position_max)
+            buffer_std = np.stack(buffer_std)
             position_max += [buffer_position_max]
-        np.stack(position_max)
+            std += [buffer_std]
+        position_max = np.stack(position_max)
+        std = np.stack(std)
 
-    return position_max
+    return position_max, std
 
 def get_histogram(image_path, bins=10):
     """ The histogram is computed over the flattened array.

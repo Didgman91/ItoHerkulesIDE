@@ -247,17 +247,20 @@ def get_cross_correlation_2d(image_1, image_2):
     buffer = []
     shape = np.shape(image_1)
     dimension_image_number = 0
-    dimension_iamge_channel = 3
+    dimension_image_channel = 3
     
-    for i in range(shape[dimension_image_number]):
-        buffer_channel = []
-        for ii in range(shape[dimension_iamge_channel]):
-            buffer_channel += [signal.fftconvolve(image_1[i,:,:,ii],
-                                                  image_2[i,:,:,ii][::-1,::-1])]
-        buffer_channel = np.stack(buffer_channel, axis=2)
-        buffer += [buffer_channel]
-    
-    buffer = np.stack(buffer)
+    if len(shape) == 2:
+        buffer = signal.fftconvolve(image_1,image_2[::-1,::-1])
+    elif len(shape) == 4:
+        for i in range(shape[dimension_image_number]):
+            buffer_channel = []
+            for ii in range(shape[dimension_image_channel]):
+                buffer_channel += [signal.fftconvolve(image_1[i,:,:,ii],
+                                                      image_2[i,:,:,ii][::-1,::-1])]
+            buffer_channel = np.stack(buffer_channel, axis=2)
+            buffer += [buffer_channel]
+        
+        buffer = np.stack(buffer)
     
     return buffer
 
@@ -292,6 +295,29 @@ def get_autocorrelation_2d(image_1):
     buffer = get_cross_correlation_2d(image_1, image_1)
     
     return buffer
+
+def get_intersection(array_2d, intersection_point=[], axis = 0):
+    """Returns the intersection of a 2d array. If no middle value is given, the
+    
+    Arguments
+    ----
+        array_2d: array
+            two-dimensional array
+        middle: list(integer)
+            contains two values representing the intersection point
+    
+    Returns
+    ----
+        a vector e.g. array_2d[0,:]
+    """
+    if intersection_point == []:
+        size = np.array(np.shape(array_2d))
+        intersection_point = (size/2).astype(int)
+    
+    if axis == 0:
+        return array_2d[:,intersection_point[1]]
+    else:
+        return array_2d[intersection_point[0],:]
 
 def __get_max_position_2d(array_2d):
     """
@@ -384,14 +410,23 @@ def get_max_position(image, relative_position=[]):
     std = []
     if len(shape) == 1:
         position_max, std = __get_max_position_2d(image)
+        if relative_position != []:
+                position_max = calculate_relative_position(position_max,
+                                                     relative_position)
 
     elif len(shape) == 2:
         position_max, std = __get_max_position_2d(image)
+        if relative_position != []:
+                position_max = calculate_relative_position(position_max,
+                                                     relative_position)
 
     elif len(shape) == 3:
         dimension_iamge_channel = 2
         for i in range(shape[dimension_iamge_channel]):
             buffer_pos, buffer_std = __get_max_position_2d(image[:,:,i])
+            if relative_position != []:
+                buffer = calculate_relative_position(buffer_pos,
+                                                     relative_position)
             position_max += [buffer_pos]
             std += [buffer_std]
         np.stack(position_max)

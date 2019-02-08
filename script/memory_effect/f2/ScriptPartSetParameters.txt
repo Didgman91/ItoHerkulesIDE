@@ -21,8 +21,8 @@ nwasser=1.33
 d=40*mu
 rhon=0.2 !g/m**3
 dist={py_distance}*mm
-dp=200*mm    ! Simulationsgebiet
-sam=4096*3*2      ! Sampling
+dp=25*mm    ! Simulationsgebiet
+sam=4096*2      ! Sampling
 max={py_numberOfLayers}       ! Anzahl Schichten
 !****************************
 
@@ -34,7 +34,7 @@ iPixelY=iPixelX!400
 
 
 !**************************** Exportparameter
-ePixelX=512!sam
+ePixelX=sam
 ePixelY=ePixelX
 !****************************
 

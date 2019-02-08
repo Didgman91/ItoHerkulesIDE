@@ -32,8 +32,8 @@ class memory_effect(module_base):
         # -------------------------------------
         toolbox.print_program_section_name("F2")
     
-        number_of_layers = 100
-        distance = 100000  # [mm]
+        number_of_layers = 5
+        distance = 50  # [mm]
     
         f2.generate_folder_structure()
     
@@ -115,7 +115,7 @@ class memory_effect(module_base):
             - layer0002/Intensity.bmp
             - layer0003/Intensity.bmp
         """
-        def __load(path, search_pattern = "Intensity"):
+        def __load(path, search_pattern = ""):
             """
             Arguments
             ----
@@ -127,7 +127,7 @@ class memory_effect(module_base):
             """
             imagePath = toolbox.get_file_path_with_extension_include_subfolders(path, ["bmp"])
             
-            # only intesity images
+            # e.g. only intesity images
             imagePath = [s for s in imagePath if search_pattern in s]
             
             imagePath.sort()
@@ -175,13 +175,13 @@ class memory_effect(module_base):
             # iterate layers: "layer0001", "layer0002", ...
             for ii in range(len(folders_layers)):
                 # image_0
-                image_0 = __load(path[0] + "/" + folders_layers[ii])
+                image_0 = __load(path[0] + "/" + folders_layers[ii], "Intensity")
                 size = np.array(np.shape(image_0[0,:,:,0]))
-                position = (size - 1)/2 
+                position = size/2
                 position = position.astype(int)
                 # ~ image_0
                 
-                image = __load(path[i] + "/" + folders_layers[ii])
+                image = __load(path[i] + "/" + folders_layers[ii], "Intensity")
                 shift = ti.get_cross_correlation_2d(image, image_0)
                 
                 del image_0

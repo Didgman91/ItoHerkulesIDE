@@ -12,6 +12,8 @@ import gc
 
 import numpy as np
 
+import matplotlib.pyplot as plt
+
 from lib.f2 import f2
 from lib.toolbox import toolbox
 from lib.toolbox import images as ti
@@ -32,8 +34,8 @@ class memory_effect(module_base):
         # -------------------------------------
         toolbox.print_program_section_name("F2")
     
-        number_of_layers = 5
-        distance = 50  # [mm]
+        number_of_layers = 10
+        distance = 100  # [mm]
     
         f2.generate_folder_structure()
     
@@ -136,6 +138,38 @@ class memory_effect(module_base):
             
             return image
         
+        def __save_intersection_image_and_calc_relative_max_pos(img, mm_per_pixel, img_path = "", axis=0):
+        
+            size = np.array(np.shape(img))
+            middle = (size/2).astype(int)
+        
+            max_pos, std = ti.get_max_position(img)
+            print("max position: {}, {}".format(max_pos[0], max_pos[1]))
+            print("std: {}".format(std))
+            
+            relative_pos = np.subtract(max_pos, middle)
+            relative_pos = relative_pos * mm_per_pixel
+            
+            intersection = ti.get_intersection(img, axis=axis)
+            
+            maximum = np.max(intersection)
+            intersection = intersection / maximum
+            
+            f = plt.figure()
+            plt.plot(intersection)
+            plt.ylabel("pixel value / {}".format(maximum))
+            plt.xlabel("pixel number / 1")
+            plt.title(img_path)
+            plt.text(0,0.900, "x-shift: {:.2f} um".format(relative_pos[0]*1000))
+            plt.text(0,0.850, "y-shift: {:.2f} um".format(relative_pos[1]*1000))
+            plt.text(0,0.800, "x- std: {:.2f} um".format(std[0]*mm_per_pixel*1000))
+            plt.text(0,0.750, "y- std: {:.2f} um".format(std[1]*mm_per_pixel*1000))
+            
+            if img_path != "":
+                f.savefig("{}_intersection.pdf".format(img_path[:-4]))
+            
+            return relative_pos, std
+        
         
 #        image = []
 #        for p in path:
@@ -195,6 +229,9 @@ class memory_effect(module_base):
                     shift_buffer_max = np.max(shift_buffer)
                     ti.save_4D_npy_as_bmp(shift/shift_buffer_max, [correlation_image_file_name],
                                           self.path_intermediate_data)
+                    
+                    file_path = self.path_intermediate_data + "/" + correlation_image_file_name + ".bmp"
+                    __save_intersection_image_and_calc_relative_max_pos(shift[0,:,:,0], mm_per_pixel, file_path, axis=1)
                 # ~ export cross correlation
                 
                 buffer_pos, buffer_std = ti.get_max_position(shift, relative_position=position)

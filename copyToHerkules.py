@@ -24,7 +24,9 @@ class env:
 # settings
 # ---------------------------------------------
 
-project_name = "hello"
+subfolder="KW13"
+
+project_name = "memory_effect_25_mm_fog_NA_0.0015"
 
 # zip settings
 zip_settings = {'zip_File_Name': "herkules.zip",
@@ -33,12 +35,12 @@ zip_settings = {'zip_File_Name': "herkules.zip",
                 'skipped_Folders': [".git", "__pycache__"]}
 
 # environment
-environment = env.herkules_2
+environment = env.herkules
 
 # additional execute after compression and copying
 # For example:
-#remote_command = "python3.4 main.py"
-remote_command = "echo hello grid"
+remote_command = "source activate keras_20190207 && python3.6 main.py"
+#remote_command = "echo hello grid"
 
 remote_user = "itodaiber"
 
@@ -72,7 +74,7 @@ def get_sftp_settings(project_name, environment, remote_user, remote_command):
         - add the public key to the .ssh/authorized_keys file on the server
 
     Hint
-    ----
+    -----
         PuTTY
             Conversions -> Export OpenSSH key
       
@@ -92,7 +94,7 @@ def get_sftp_settings(project_name, environment, remote_user, remote_command):
                          'port': 22,
                          'user_Name': remote_user,
                          'key_File': key_file_path,
-                         'path_Remote': "/home/{}/{}/".format(remote_user, project_name),
+                         'path_Remote': "/home/{}/{}/{}/".format(remote_user, subfolder, project_name),
                          'file': zip_settings['zip_File_Name']}
         execute = "bsub -J {} '{}'".format(project_name, remote_command)
     else:
@@ -101,9 +103,9 @@ def get_sftp_settings(project_name, environment, remote_user, remote_command):
                          'port': 22,
                          'user_Name': remote_user,
                          'key_File': key_file_path,
-                         'path_Remote': "/home/Grid/{}/{}/".format(remote_user, project_name),
+                         'path_Remote': "/home/Grid/{}/{}/{}/".format(remote_user, subfolder, project_name),
                          'file': zip_settings['zip_File_Name']}
-        execute = "bsub -R\"select[hname={}]\" -J {} '{}'".format(environment, project_name, remote_command)
+        execute = "bsub -R\"select[hname={}]\" -n2 -J {} '{}'".format(environment, project_name, remote_command)
     
     
     

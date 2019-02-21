@@ -25,6 +25,10 @@ class memory_effect(module_base):
        super(memory_effect, self).__init__(name="memory_effect", **kwds)
        
        self.shift_folder_name = "/shift"
+       
+       self.number_of_layers = 500
+       self.save_every_no_layer = 10 # saves the first one and if layer % save_every_no_layer == 0
+       self.distance = 5000  # [mm]
 
     def f2_main(self, folder, shift, generate_scatter_plate = True):
     #    global executed_modules
@@ -33,9 +37,6 @@ class memory_effect(module_base):
         # F2
         # -------------------------------------
         toolbox.print_program_section_name("F2")
-    
-        number_of_layers = 10
-        distance = 100  # [mm]
     
         f2.generate_folder_structure()
     
@@ -63,7 +64,7 @@ class memory_effect(module_base):
         toolbox.print_program_section_name("F2: Generate and save scatter plate")
     
         if generate_scatter_plate is True:
-            scatter_plate_random = f2.create_scatter_plate(number_of_layers, distance)
+            scatter_plate_random = f2.create_scatter_plate(self.number_of_layers, self.distance)
         else:
             scatter_plate_random = ['data/f2/intermediate_data/scatter_plate/scatter_plate_random_x', 'data/f2/intermediate_data/scatter_plate/scatter_plate_random_y']
     
@@ -80,7 +81,7 @@ class memory_effect(module_base):
                       "point_source_y_pos": 0}
     
         f2.calculate_propagation(
-            [], scatter_plate_random, number_of_layers, distance, parameters)
+            [], scatter_plate_random, self.number_of_layers, self.distance, parameters=parameters, save_every_no_layer=self.save_every_no_layer)
     
     #    path = []
     #    layer = []
@@ -100,7 +101,7 @@ class memory_effect(module_base):
     
         return folder, path, layer
     
-    def evaluate_data(self, path):
+    def evaluate_data(self, path, save_correlation_image=False):
         """
         Arguments
         ----
@@ -138,7 +139,7 @@ class memory_effect(module_base):
             
             return image
         
-        def __save_intersection_image_and_calc_relative_max_pos(img, mm_per_pixel, img_path = "", axis=0):
+        def __save_intersection_image_and_calc_relative_max_pos(img, mm_per_pixel, img_path = ""):
         
             size = np.array(np.shape(img))
             middle = (size/2).astype(int)
@@ -150,7 +151,30 @@ class memory_effect(module_base):
             relative_pos = np.subtract(max_pos, middle)
             relative_pos = relative_pos * mm_per_pixel
             
-            intersection = ti.get_intersection(img, axis=axis)
+            std = std * mm_per_pixel
+            
+            
+            # axis 0
+            intersection = ti.get_intersection(img, axis=0)
+            
+            maximum = np.max(intersection)
+            intersection = intersection / maximum
+            
+            f = plt.figure()
+            plt.plot(intersection)
+            plt.ylabel("pixel value / {:.3f}".format(maximum))
+            plt.xlabel("pixel number / 1")
+            plt.title(img_path)
+            plt.text(0,0.900, "x-shift: {:.2f} um".format(relative_pos[0]*1000))
+            plt.text(0,0.850, "y-shift: {:.2f} um".format(relative_pos[1]*1000))
+            plt.text(0,0.800, "x- std: {:.2f} um".format(std[0]*1000))
+            plt.text(0,0.750, "y- std: {:.2f} um".format(std[1]*1000))
+            
+            if img_path != "":
+                f.savefig("{}_intersection_x.pdf".format(img_path[:-4]))
+            
+            # axis 1
+            intersection = ti.get_intersection(img, axis=0)
             
             maximum = np.max(intersection)
             intersection = intersection / maximum
@@ -162,11 +186,11 @@ class memory_effect(module_base):
             plt.title(img_path)
             plt.text(0,0.900, "x-shift: {:.2f} um".format(relative_pos[0]*1000))
             plt.text(0,0.850, "y-shift: {:.2f} um".format(relative_pos[1]*1000))
-            plt.text(0,0.800, "x- std: {:.2f} um".format(std[0]*mm_per_pixel*1000))
-            plt.text(0,0.750, "y- std: {:.2f} um".format(std[1]*mm_per_pixel*1000))
+            plt.text(0,0.800, "x- std: {:.2f} um".format(std[0]*1000))
+            plt.text(0,0.750, "y- std: {:.2f} um".format(std[1]*1000))
             
             if img_path != "":
-                f.savefig("{}_intersection.pdf".format(img_path[:-4]))
+                f.savefig("{}_intersection_y.pdf".format(img_path[:-4]))
             
             return relative_pos, std
         
@@ -195,6 +219,17 @@ class memory_effect(module_base):
 #        position = (size - 1)/2
 #        position = position.astype(int)
         
+        # folder "0,0"
+        # subdirs e.d.: layer0001, layer0050, ...
+        folder_0_layers = os.listdir(path[0])
+        folder_0_layers.sort()
+        layers_int = []
+        for i in range(len(folder_0_layers)):
+            buffer = folder_0_layers[i][len("layer"):]
+            layers_int += [int(buffer)]
+        
+        del folder_0_layers
+        
         # iterate shift folders: "5,0", "10,0", ...
         for i in range(1,len(path)):
             folders_layers = os.listdir(path[i])
@@ -222,19 +257,20 @@ class memory_effect(module_base):
                 del image
                 
                 # export cross correlation
-                if ii % 1 == 0:
-                    correlation_image_file_name = "{}_{}".format(shift_folder,
-                                                folders_layers[ii])
+                correlation_image_file_name = "{}_{}".format(shift_folder,
+                                            folders_layers[ii])
+                if save_correlation_image is True:
                     shift_buffer = shift[0,:,:,0]
                     shift_buffer_max = np.max(shift_buffer)
-                    ti.save_4D_npy_as_bmp(shift/shift_buffer_max, [correlation_image_file_name],
+                    ti.save_4D_npy_as_bmp(shift/shift_buffer_max,
+                                          [correlation_image_file_name],
                                           self.path_intermediate_data)
-                    
-                    file_path = self.path_intermediate_data + "/" + correlation_image_file_name + ".bmp"
-                    __save_intersection_image_and_calc_relative_max_pos(shift[0,:,:,0], mm_per_pixel, file_path, axis=1)
+                
+                file_path = self.path_intermediate_data + "/" + correlation_image_file_name + ".bmp"
+                buffer_pos, buffer_std = __save_intersection_image_and_calc_relative_max_pos(shift[0,:,:,0], mm_per_pixel, file_path)
                 # ~ export cross correlation
                 
-                buffer_pos, buffer_std = ti.get_max_position(shift, relative_position=position)
+#                buffer_pos, buffer_std = ti.get_max_position(shift, relative_position=position)
                 
                 del shift
                 
@@ -246,45 +282,38 @@ class memory_effect(module_base):
             max_pos = np.stack(max_pos)
             std = np.stack(std)
             
-            max_pos = np.multiply(max_pos, mm_per_pixel)
-            std = np.multiply(std, mm_per_pixel)
+            shift_mm += [max_pos]
+            std_mm += [std]
             
-            shift_mm_buffer = []
-            std_mm_buffer = []
-            for k in range(len(max_pos)):
-                shift_mm_buffer += [max_pos[k,0,0,:]]
-                std_mm_buffer += [std[k,0,0,:]]
-            shift_mm += [shift_mm_buffer]
-            std_mm += [std_mm_buffer]
+#            max_pos = np.multiply(max_pos, mm_per_pixel)
+#            std = np.multiply(std, mm_per_pixel)
+            
+#            shift_mm_buffer = []
+#            std_mm_buffer = []
+#            for k in range(len(max_pos)):
+#                shift_mm_buffer += [max_pos[k,0,0,:]]
+#                std_mm_buffer += [std[k,0,0,:]]
+#            shift_mm += [shift_mm_buffer]
+#            std_mm += [std_mm_buffer]
         
-    #    f = plt.figure()
-    #    
-    #    for i in range(len(max_pos)):
-    #        l = max_pos[i,:,0,1]
-    #        plt.plot(l, label="{}".format(i))
-    #    
-    #    plt.title("x-shift")
-    #    plt.xlabel("fog / m")
-    #    plt.ylabel("calculated shift / mm")
-    #    plt.legend(loc="down right")
-    #    
-    #    plt.show()
-        
-        # export to csv
+        # export
         shift = np.stack(shift_mm)
         std = np.stack(std_mm)
         
         shift_path = self.path_ouput + self.shift_folder_name
         
         toolbox.create_folder(shift_path)
-        
+
+        dist_per_layer = self.distance / self.number_of_layers
+                
+        # export to csv
         for i in range(len(shift)):
             l = shift[i,:,:]
             s = std[i,:,:]
             
             export = []
             for ii in range(len(l)):
-                export += [np.array([ii+1, l[ii,0], l[ii,1], s[ii,0], s[ii,1]])]
+                export += [np.array([layers_int[ii]*dist_per_layer/1000, l[ii,0], l[ii,1], s[ii,0], s[ii,1]])]
             
             export = np.stack(export)
             
@@ -293,16 +322,35 @@ class memory_effect(module_base):
                        + "/shift_{}.csv".format(shift_folder_name[i]),
                        export,
                        delimiter = ',',
-                       header='fog / m, x-shift / um, y-shift / um, std_x / um, std_y / um',
+                       header='distance / m, x-shift / um, y-shift / um, std_x / um, std_y / um',
                        comments='')
-    
+        
+        
+        # export pdf plot
+        x = np.stack(layers_int) * dist_per_layer * 1000 # mm -> um
+        f = plt.figure()
+        for i in range(len(shift)):
+            l = shift[i,:,:]
+            s = std[i,:,:]
+            
+#            x = arange(1*dist_per_layer, (len(l)+1) * dist_per_layer, dist_per_layer)
+            
+            plt.plot(x, l[:,1], label=shift_folder_name[i])
+#            plt.errorbar(x, l[:,1], s[:,1], label="{} std of max".format(shift_folder_name[i]))
+        
+        plt.xlabel("distance / mm")
+        plt.ylabel("calculated shift / um")
+        plt.legend()
+        plt.grid(True)
+        f.savefig("{}/shift_overview.pdf".format(shift_path))
+        
         return shift_mm, std_mm, shift_folder_name
     
     def run(self):
         executed_modules = []
         folder_0, path_0, layer_0 = self.f2_main("", 0)
         executed_modules += ["f2"]
-        for i in range(1,6):
+        for i in range(1,5):
             executed_modules += ["f2"]
             folder, path, layer = self.f2_main("", 5**i, False)
             

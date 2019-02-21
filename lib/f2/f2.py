@@ -101,7 +101,7 @@ def create_scatter_plate(numberOfLayers, distance, parameter="",
     
     return scatterPlateRandom
             
-def calculate_propagation(pupil_function, scatterPlateRandom, numberOfLayers, distance, parameters = []):
+def calculate_propagation(pupil_function, scatterPlateRandom, numberOfLayers, distance, parameters = [], save_every_no_layer = 1):
     
     parameterScript = get_f2_script_parameter(numberOfLayers, distance)
     
@@ -112,7 +112,9 @@ def calculate_propagation(pupil_function, scatterPlateRandom, numberOfLayers, di
             rv = get_f2_script_load_image(pupil_function[i])
             imageScript = imageScript + [rv]
             
-            rv = get_f2_script_propagete(pupil_function[i], scatterPlateRandom, parameters)
+            rv = get_f2_script_propagete(pupil_function[i], scatterPlateRandom,
+                                         parameters=parameters,
+                                         save_every_no_layer = save_every_no_layer)
             propagateScript = propagateScript + [rv]
         
         
@@ -128,7 +130,9 @@ def calculate_propagation(pupil_function, scatterPlateRandom, numberOfLayers, di
             print("F2 propagation calculation: Image {}/{}".format(i+1, len(pupil_function)))
             run_script(pathScript + "/" + fileNameScriptCalculatePropagation)
     else:
-        propagateScript = get_f2_script_propagete([], scatterPlateRandom, parameters)
+        propagateScript = get_f2_script_propagete([], scatterPlateRandom,
+                                                  parameters=parameters,
+                                                  save_every_no_layer=save_every_no_layer)
         script = parameterScript + propagateScript
         
         with open(pathScript + "/" + fileNameScriptCalculatePropagation, "w") as text_file:
@@ -238,7 +242,8 @@ def get_f2_script_load_image(file, path="config/f2/ScriptPartLoadImage.txt"):
     return lines
 
 def get_f2_script_propagete(fileName, scatterPlateRandom, parameters,
-                            path="config/f2/ScriptPartCalculatePropagation.txt"):
+                            path="config/f2/ScriptPartCalculatePropagation.txt",
+                            save_every_no_layer = 1):
     "returns only the part of the script to calculate the electrical field"
     outputPath = pathData + pathOutputSpeckle
     
@@ -257,7 +262,8 @@ def get_f2_script_propagete(fileName, scatterPlateRandom, parameters,
                     py_scatterPlateRandomX=scatterPlateRandom[0],
                     py_scatterPlateRandomY=scatterPlateRandom[1],
                     py_outputPath=outputPath,
-                    py_fileName=name)
+                    py_fileName=name,
+                    py_save_every_no_layer=save_every_no_layer)
     else:
         for i in range(len(lines)):
             lines[i] = lines[i].format(
@@ -265,6 +271,7 @@ def get_f2_script_propagete(fileName, scatterPlateRandom, parameters,
                     py_scatterPlateRandomY=scatterPlateRandom[1],
                     py_outputPath=outputPath,
                     py_fileName=name,
+                    py_save_every_no_layer=save_every_no_layer,
                     py_point_source_xpos="{}".format(parameters['point_source_x_pos']),
                     py_point_source_ypos="{}".format(parameters['point_source_y_pos']))
             

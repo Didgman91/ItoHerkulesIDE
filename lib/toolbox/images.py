@@ -400,7 +400,7 @@ def get_max_position(image, relative_position=[]):
     def calculate_relative_position(data, position):
         if len(np.shape(data)) == 1:
             if check_ndarray(data) is True:
-                data -= position
+                data = np.subtract(data, position)
 
         return data
 

@@ -198,17 +198,78 @@ def show_intersection_and_calc_relative_max_pos(img, mm_per_pixel, img_path = ""
 #path = "/home/itodaiber/Documents/ITO/3 - Datasets/KW11/memory_effect_25_mm_fog_100_m/f2/25,0/"
 #path = "/home/itodaiber/Documents/ITO/3 - Datasets/KW11/memory_effect_25_mm_fog_100_m/memory_effect/"
 
-path = "/home/itodaiber/Documents/ITO/3 - Datasets/memory_effect_25_mm_thin_scatter_medium_NA_0.05/memory_effect/"
+#path = "/home/itodaiber/Documents/ITO/3 - Datasets/KW11/memory_effect_25_mm_thin_scatter_medium_NA_0.05/memory_effect/"
+#
+#file = toolbox.get_file_path_with_extension(path, ["bmp"])
+##file = toolbox.get_intersection(file, ["Intensity"], False)
+#file.sort()
+#
+#for f in file:
+#    print("---- new image ----")
+#    img = cv2.imread(f,0)
+#    print(f)
+#    show_intersection_and_calc_relative_max_pos(img, mm_per_pixel, f, axis=1, save_img=True)
 
-file = toolbox.get_file_path_with_extension(path, ["bmp"])
-#file = toolbox.get_intersection(file, ["Intensity"], False)
-file.sort()
 
-for f in file:    
-    print("---- new image ----")
-    img = cv2.imread(f,0)
-    print(f)
-    show_intersection_and_calc_relative_max_pos(img, mm_per_pixel, f, axis=1, save_img=True)
+
+## Sick LSM219
+#import math
+#
+#n = 1.000293
+#
+##spot_diameter = np.array([0.05, 0.10, 0.15, 0.20, 0.25, 0.30])
+##spot_range = np.array([2.5, 6.5, 10.9, 15, 19, 23.2])
+#
+#spot_diameter = np.array([0.10, 0.15, 0.20, 0.25, 0.30])
+#spot_range = np.array([6.5, 10.9, 15, 19, 23.2])
+#
+#na = []
+#for i in range(len(spot_diameter)):
+#    theta = math.atan(spot_diameter[i]/2 / spot_range[i])
+#    na += [math.sin(theta) * n]
+#
+#
+#na_mean = np.mean(na)
+#na_std = np.std(na)
+
+
+#
+#def plot_csv(path_list):
+#    for i in range(len(path_list)):
+#        file_name = toolbox.get_file_name(path_list)
+#        np.loadtxt(path_list[i])y
+#
+#   
+    
+
+#f = plt.figure()
+#x = np.array([1,2,3,4,5])
+#for i in range(4):
+#    plt.plot(x*i, label="{}".format(i))
+#
+#plt.xlabel('x')
+#plt.ylabel('y')
+#plt.legend()
+#plt.show()
+        
+# csv plot
+        
+
+plot_settings = {'suptitle': 'shift',
+                 'xlabel': 'distance / m',
+                 'xmul': 1,
+                 'ylabel': 'calculated shift / um',
+                 'ymul': 1000,
+                 'delimiter': ',',
+                 'skip_rows': 1}
+
+path = "data/memory_effect/output/shift"
+files = toolbox.get_file_path_with_extension(path, ["csv"])
+
+toolbox.csv_to_plot(files, path + "/shift.pdf", plot_settings=plot_settings,
+            x_column=0, y_column=[2])
+
+# ~csv plot
 
 
 

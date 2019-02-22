@@ -19,6 +19,8 @@ import fileinput
 
 import numpy as np
 
+import matplotlib.pyplot as plt
+
 from PIL import Image
 from PIL import ImageOps
 
@@ -595,3 +597,47 @@ def save_as_csv(array, path, header):
                delimiter = delemiter,
                header=header_intern,
                comments='')
+
+def csv_to_plot(csv_file_path_list, plot_save_path,
+                plot_settings,
+                x_column = 0, y_column = [1]):
+    """reads multiple csv files and plots specific columns.
+    Arguments
+    ----
+        csv_file_path_list: list<string>
+            list of csv file paths
+        plot_save_path: string
+            plot file path
+        plot_settings: dictionary
+        
+    Plot settings
+    -----
+        Example plot settings:
+            >>> plot_settings = {'suptitle': 'shift',
+            >>>                  'xlabel': 'distance / m',
+            >>>                  'xmul': 1,
+            >>>                  'ylabel': 'calculated shift / um',
+            >>>                  'ymul': 1000,
+            >>>                  'delimiter': ',',
+            >>>                  'skip_rows': 1}
+    """
+    p = plt.figure()
+    
+    for f in csv_file_path_list:
+        a = np.loadtxt(f, delimiter=plot_settings['delimiter'],
+                       skiprows=plot_settings['skip_rows'])
+        
+        for y in y_column:
+            label = get_file_name(f) + "_c{}".format(y)
+            x_value = a[:,x_column] * plot_settings['xmul']
+            y_value = a[:,y] * plot_settings['ymul']
+            plt.plot(x_value, y_value, label=label)
+        
+        plt.xlabel(plot_settings['xlabel'])
+        plt.ylabel(plot_settings['ylabel'])
+        
+        plt.legend()
+        
+        plt.suptitle(plot_settings['suptitle'])
+        
+    p.savefig(plot_save_path)

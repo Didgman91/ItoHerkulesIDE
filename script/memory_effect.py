@@ -327,11 +327,13 @@ class memory_effect(module_base):
         
         
         # export pdf plot
-        x = np.stack(layers_int) * dist_per_layer * 1000 # mm -> um
+        x = np.stack(layers_int) * dist_per_layer
         f = plt.figure()
+        file_name_extension = ""
         for i in range(len(shift)):
-            l = shift[i,:,:]
-            s = std[i,:,:]
+            file_name_extension += "_" + shift_folder_name
+            l = shift[i,:,:] * 1000 # mm -> um
+            s = std[i,:,:] * 1000 # mm -> um
             
 #            x = arange(1*dist_per_layer, (len(l)+1) * dist_per_layer, dist_per_layer)
             
@@ -342,7 +344,7 @@ class memory_effect(module_base):
         plt.ylabel("calculated shift / um")
         plt.legend()
         plt.grid(True)
-        f.savefig("{}/shift_overview.pdf".format(shift_path))
+        f.savefig("{}/shift_overview{}.pdf".format(shift_path, file_name_extension))
         
         return shift_mm, std_mm, shift_folder_name
     

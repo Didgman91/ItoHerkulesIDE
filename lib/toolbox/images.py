@@ -43,12 +43,12 @@ def get_image_as_npy(image_path):
         data = []
 
         if file_extension == ".bmp":
-            img = Image.open(ip)  # .convert('LA')
+            img = Image.open(ip).convert('L')
             img.load()
             data = np.asarray(img, dtype="int32") / 255
         elif (file_extension == ".npy") | (file_extension == ".bin"):
             data = np.load(ip)
-            data = Image.fromarray(np.uint8(data * 255))  # .convert('LA')
+            data = Image.fromarray(np.uint8(data * 255)).convert('L')
             data = np.asarray(data, dtype="int32") / 255
         else:
             continue

@@ -45,11 +45,11 @@ def get_image_as_npy(image_path):
         if file_extension == ".bmp":
             img = Image.open(ip).convert('L')
             img.load()
-            data = np.asarray(img, dtype="int32") / 255
+            data = np.asarray(img, dtype="uint8")
         elif (file_extension == ".npy") | (file_extension == ".bin"):
             data = np.load(ip)
             data = Image.fromarray(np.uint8(data * 255)).convert('L')
-            data = np.asarray(data, dtype="int32") / 255
+            data = np.asarray(data, dtype="uint8") / 255
         else:
             continue
 
@@ -92,12 +92,12 @@ def convert_image_list_to_4D_np_array(images):
         if images.shape[3] == 3:
             buffer = []
             for i in images:
-                b = Image.fromarray(np.uint8(i * 255)).convert('L')
-                buffer += [np.asarray(b)/255]
+                b = Image.fromarray(np.uint8(i)).convert('L')
+                buffer += [np.asarray(b, dtype="uint8")]
 
             images = np.stack((buffer))
     if images.max() > 1:
-        images = images / 255
+        images = images
 
     # reshape the numpy array (imageNumber, xPixels, yPixels, 1)
     if len(images.shape) == 3:

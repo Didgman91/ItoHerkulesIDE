@@ -14,6 +14,8 @@ from scipy import signal
 from PIL import Image
 from PIL import ImageOps
 
+import cv2
+
 import imageio
 
 def get_image_as_npy(image_path):
@@ -43,13 +45,14 @@ def get_image_as_npy(image_path):
         data = []
 
         if file_extension == ".bmp":
-            img = Image.open(ip).convert('L')
-            img.load()
-            data = np.asarray(img, dtype="int32") / 255
+#            img = Image.open(ip).convert('L')
+#            img.load()
+            img = cv2.imread(ip,cv2.IMREAD_GRAYSCALE)
+            data = np.asarray(img, dtype="uint8")
         elif (file_extension == ".npy") | (file_extension == ".bin"):
             data = np.load(ip)
-            data = Image.fromarray(np.uint8(data * 255)).convert('L')
-            data = np.asarray(data, dtype="int32") / 255
+#            data = Image.fromarray(np.uint8(data * 255)).convert('L')
+#            data = np.asarray(data, dtype="int32") / 255
         else:
             continue
 
@@ -81,21 +84,21 @@ def convert_image_list_to_4D_np_array(images):
         # stack a list to a numpy array
         images = np.stack((images))
     elif isinstance(images, np.ndarray):
-        buffer = 0    # do nothing
+        pass    # do nothing
     else:
         print("error: type of _images_ not supported")
         print("Type: {}".format(type(images)))
         return 0
 
-    # convert RGB image to gray scale image
-    if len(images.shape) == 4:
-        if images.shape[3] == 3:
-            buffer = []
-            for i in images:
-                b = Image.fromarray(np.uint8(i * 255)).convert('L')
-                buffer += [np.asarray(b)/255]
-
-            images = np.stack((buffer))
+#    # convert RGB image to gray scale image
+#    if len(images.shape) == 4:
+#        if images.shape[3] == 3:
+#            buffer = []
+#            for i in images:
+#                b = Image.fromarray(np.uint8(i * 255)).convert('L')
+#                buffer += [np.asarray(b)/255]
+#
+#            images = np.stack((buffer))
     if images.max() > 1:
         images = images / 255
 

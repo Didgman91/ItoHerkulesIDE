@@ -245,7 +245,7 @@ def make_distinct_list(seq):
     """
     return list(set(seq))
 
-def copy(source, destination, *ignore_patterns):
+def copy(source, destination, replace=False, ignore_patterns=[]):
     """ Copies entire folders.
     
     Arguments
@@ -259,7 +259,15 @@ def copy(source, destination, *ignore_patterns):
         https://www.pythoncentral.io/how-to-recursively-copy-a-directory-folder-in-python/
     """
     try:
-        shutil.copytree(source, destination, ignore=shutil.ignore_patterns(ignore_patterns))
+        if replace is True:
+            shutil.rmtree(destination, ignore_errors=True)
+        
+        if ignore_patterns == []:
+            shutil.copytree(source, destination)
+        else:
+            ignore = shutil.ignore_patterns(ignore_patterns)
+            shutil.copytree(source, destination, ignore=ignore)
+        
     # Directories are the same
     except shutil.Error as e:
         print('Directory not copied. Error: %s' % e)
@@ -636,7 +644,7 @@ def csv_to_plot(csv_file_path_list, plot_save_path,
         plt.xlabel(plot_settings['xlabel'])
         plt.ylabel(plot_settings['ylabel'])
         
-        plt.legend()
+        plt.legend(loc='best')
         
         plt.suptitle(plot_settings['suptitle'])
         

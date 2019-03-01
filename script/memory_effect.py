@@ -26,9 +26,9 @@ class memory_effect(module_base):
        
        self.shift_folder_name = "/shift"
        
-       self.number_of_layers = 500
-       self.save_every_no_layer = 10 # saves the first one and if layer % save_every_no_layer == 0
-       self.distance = 5000  # [mm]
+       self.number_of_layers = 25
+       self.save_every_no_layer = 1 # saves the first and second one and if layer % save_every_no_layer == 0
+       self.distance = 250  # [mm]
 
     def f2_main(self, folder, shift, generate_scatter_plate = True):
     #    global executed_modules
@@ -118,6 +118,14 @@ class memory_effect(module_base):
             - layer0002/Intensity.bmp
             - layer0003/Intensity.bmp
         """
+        
+        # ---------------------------------------------
+        # Memory Effect: evaluate
+        # ---------------------------------------------
+        toolbox.print_program_section_name(
+            "Memory Effect: evaluate")
+        print(path)
+        
         def __load(path, search_pattern = ""):
             """
             Arguments
@@ -207,7 +215,7 @@ class memory_effect(module_base):
 #        for i in range(len(image)):
 #            shift += [ti.get_cross_correlation_2d(image[i], image[0])]
         
-        mm_per_pixel = 25/(4096*2)
+        mm_per_pixel = 25/(4096*3)
         shift_mm = []
         std_mm = []
         
@@ -305,7 +313,7 @@ class memory_effect(module_base):
         toolbox.create_folder(shift_path)
 
         dist_per_layer = self.distance / self.number_of_layers
-                
+
         # export to csv
         for i in range(len(shift)):
             l = shift[i,:,:]
@@ -331,7 +339,7 @@ class memory_effect(module_base):
         f = plt.figure()
         file_name_extension = ""
         for i in range(len(shift)):
-            file_name_extension += "_" + shift_folder_name
+            file_name_extension += "_" + shift_folder_name[i]
             l = shift[i,:,:] * 1000 # mm -> um
             s = std[i,:,:] * 1000 # mm -> um
             
@@ -348,7 +356,26 @@ class memory_effect(module_base):
         
         return shift_mm, std_mm, shift_folder_name
     
+    def create_overview(self):
+        plot_settings = {'suptitle': 'shift',
+                 'xlabel': 'distance / m',
+                 'xmul': 1,
+                 'ylabel': 'calculated shift / um',
+                 'ymul': 1000,  # 2/3 correction of wrong evaluation sam parameter
+                 'delimiter': ',',
+                 'skip_rows': 1}
+
+        path = "data/memory_effect/output/shift"
+        files = toolbox.get_file_path_with_extension(path, ["csv"])
+        
+        
+        toolbox.csv_to_plot(files, path + "/shift.pdf", plot_settings=plot_settings,
+                    x_column=0, y_column=[2])
+    
     def run(self):
+        toolbox.copy("script/memory_effect/f2_thin_scatter_plate", "config/f2",
+                     replace=True)
+        
         executed_modules = []
         folder_0, path_0, layer_0 = self.f2_main("", 0)
         executed_modules += ["f2"]
@@ -357,6 +384,15 @@ class memory_effect(module_base):
             folder, path, layer = self.f2_main("", 5**i, False)
             
             self.evaluate_data([folder_0, folder])
+        
+        folder, path, layer = self.f2_main("", 50, False)
+        self.evaluate_data([folder_0, folder])
+        
+        folder, path, layer = self.f2_main("", 200, False)
+        self.evaluate_data([folder_0, folder])
+        
+        self.create_overview()
+        
         
 #        todo: f2 -> class f2
 #        self.load_input_from_module()

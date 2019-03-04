@@ -26,9 +26,9 @@ class memory_effect(module_base):
        
        self.shift_folder_name = "/shift"
        
-       self.number_of_layers = 25
+       self.number_of_layers = 50
        self.save_every_no_layer = 1 # saves the first and second one and if layer % save_every_no_layer == 0
-       self.distance = 250  # [mm]
+       self.distance = 500  # [mm]
 
     def f2_main(self, folder, shift, generate_scatter_plate = True):
     #    global executed_modules
@@ -367,13 +367,13 @@ class memory_effect(module_base):
 
         path = "data/memory_effect/output/shift"
         files = toolbox.get_file_path_with_extension(path, ["csv"])
-        
+        files.sort()
         
         toolbox.csv_to_plot(files, path + "/shift.pdf", plot_settings=plot_settings,
                     x_column=0, y_column=[2])
     
     def run(self):
-        toolbox.copy("script/memory_effect/f2_thin_scatter_plate", "config/f2",
+        toolbox.copy("script/memory_effect/f2_scatter_plate_microscope", "config/f2",
                      replace=True)
         
         executed_modules = []

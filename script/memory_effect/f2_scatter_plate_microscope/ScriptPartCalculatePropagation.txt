@@ -117,7 +117,7 @@ Do j,start,max
     a3=CopyArray a2   ! start every time at the scatter plate
     
     ? " Propagete ", j, "NA ", naProp
-    PwPropagationNF a3,lam,dp,dp,naProp,x0*(j-1) ! Propagiert Feld a3 mit FFT-Beampropagation
+    PwPropagationNF a3,lam,dp,dp,naProp,x0*(j-start+1) ! Propagiert Feld a3 mit FFT-Beampropagation
     
     If j .EQ. start
         Call export_with_argument(a3, ePixelX, ePixelY, j)

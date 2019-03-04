@@ -108,11 +108,11 @@ EndSub
      
     PupilFilter a2,ax ! ab zweiter Schicht, belegt Array mit Filter
     
-    Call export_with_argument(a2, ePixelX, ePixelY, 30)
+    Call export_with_argument(a2, ePixelX, ePixelY, 3)
 
 
 ! -------- propagate --------
-start=31
+start=4
 Do j,start,max
     a3=CopyArray a2   ! start every time at the scatter plate
     

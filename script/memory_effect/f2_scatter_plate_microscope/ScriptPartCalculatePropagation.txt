@@ -66,33 +66,18 @@ EndSub
     ax(1:sam,1:sam)=Cmplx[1,0]
     Grid ax,p1,p2,p3,p4  
     
-    ! --- shift illumination ---
-    test={py_point_source_xpos}*mu+{py_point_source_xpos}*mu
+    ! Thorlabs SM450
+    ! Core-Cladding Concentricity 0.75*mu
+    ! Numerical Aperture (Nominal) 0.10–0.14
+    a2=Illumination ax,Gauss, 1,0,0.75*mu,{py_point_source_xpos}*mu,{py_point_source_ypos}*mu,0,lam
     
-    If test .NE. 0
-        aShiftPoint(1:sam, 1:sam)=Cmplx[0,0]
-        Grid aShiftPoint,p1,p2,p3,p4
-        GridSet aShiftPoint,{py_point_source_xpos}*mu,{py_point_source_ypos}*mu,Cmplx[1,0]
-           
-        aShift=Pupil aShiftPoint, lam, dp, dp
-        
-        ax=ax*aShift
-    EndIf
-    ! ~~~ shift illumination ~~~
-        
-    na=0.0015004035103485358  ! laser scanner [KW13]
-    
-    r1=0.61*lam/na
-    ? "spot r_1 = ", r1
-    
+    na=0.12
     ? "NA: ",'(F0.7)'na
-    a2=IPupil ax, lam, dp,dp, na
     
     Call export_with_argument(a2, ePixelX, ePixelY, 0)
        
 ! -------- propagte to scatter plate --------
-    naProp=0.02499219116020307 ! math.sin(math.atan(25/2/500))
-    PwPropagationNF a2,lam,dp,dp,naProp,30*mm ! Propagiert Feld a2 mit FFT-Beampropagation
+    PwPropagationNF a2,lam,dp,dp,na,30*mm ! Propagiert Feld a2 mit FFT-Beampropagation
    
 ! -------- set scatter plate --------
 
@@ -109,9 +94,9 @@ EndSub
     PupilFilter a2,ax ! ab zweiter Schicht, belegt Array mit Filter
     
     Call export_with_argument(a2, ePixelX, ePixelY, 3)
-
-
+    
 ! -------- propagate --------
+naProp=0.009999500037496875 ! math.sin(math.atan(6/2/500))
 start=4
 Do j,start,max
     a3=CopyArray a2   ! start every time at the scatter plate

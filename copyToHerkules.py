@@ -24,7 +24,7 @@ class env:
 # settings
 # ---------------------------------------------
 
-subfolder="KW15"
+subfolder="KW16"
 
 project_name = "memory_effect_25_mm_fog_NA_0.0015"
 

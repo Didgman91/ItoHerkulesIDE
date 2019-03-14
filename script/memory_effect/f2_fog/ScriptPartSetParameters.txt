@@ -18,23 +18,23 @@ rho=997*1000 !dichte Wasser g/m**3
 nwasser=1.33
 
 !**************************** Nebelparameter
-d=40*mu
-rhon=0.2 !g/m**3
+d=20*mu
+rhon=2 !g/m**3
 dist={py_distance}*mm
 dp=25*mm    ! Simulationsgebiet
-sam=4096*2      ! Sampling
+sam=4096*3      ! Sampling
 max={py_numberOfLayers}       ! Anzahl Schichten
 !****************************
 
 
 !**************************** Beleuchtungsparameter/Objekt
-lam=514
+lam=905
 iPixelX=64!640
 iPixelY=iPixelX!400
 
 
 !**************************** Exportparameter
-ePixelX=sam
+ePixelX=4096
 ePixelY=ePixelX
 !****************************
 

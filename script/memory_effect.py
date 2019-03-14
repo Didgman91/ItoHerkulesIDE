@@ -26,9 +26,10 @@ class memory_effect(module_base):
        
        self.shift_folder_name = "/shift"
        
-       self.number_of_layers = 50
-       self.save_every_no_layer = 1 # saves the first and second one and if layer % save_every_no_layer == 0
+       self.number_of_layers = 500
+       self.save_every_no_layer = 10 # saves the first and second one and if layer % save_every_no_layer == 0
        self.distance = 500  # [mm]
+       self.mm_per_pixel = 25/(4096)
 
     def f2_main(self, folder, shift, generate_scatter_plate = True):
     #    global executed_modules
@@ -215,7 +216,6 @@ class memory_effect(module_base):
 #        for i in range(len(image)):
 #            shift += [ti.get_cross_correlation_2d(image[i], image[0])]
         
-        mm_per_pixel = 25/(4096*3)
         shift_mm = []
         std_mm = []
         
@@ -275,7 +275,7 @@ class memory_effect(module_base):
                                           self.path_intermediate_data)
                 
                 file_path = self.path_intermediate_data + "/" + correlation_image_file_name + ".bmp"
-                buffer_pos, buffer_std = __save_intersection_image_and_calc_relative_max_pos(shift[0,:,:,0], mm_per_pixel, file_path)
+                buffer_pos, buffer_std = __save_intersection_image_and_calc_relative_max_pos(shift[0,:,:,0], self.mm_per_pixel, file_path)
                 # ~ export cross correlation
                 
 #                buffer_pos, buffer_std = ti.get_max_position(shift, relative_position=position)
@@ -373,7 +373,7 @@ class memory_effect(module_base):
                     x_column=0, y_column=[2])
     
     def run(self):
-        toolbox.copy("script/memory_effect/f2_scatter_plate_microscope", "config/f2",
+        toolbox.copy("script/memory_effect/f2_thick_scatter_plate", "config/f2",
                      replace=True)
         
         executed_modules = []

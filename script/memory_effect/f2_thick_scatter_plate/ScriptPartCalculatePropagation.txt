@@ -63,69 +63,59 @@ EndSub
 
 
 ! -------- create spot --------
-    ax(1:sam,1:sam)=Cmplx[1,0]
-    Grid ax,p1,p2,p3,p4  
-    
-    ! Thorlabs SM450
-    ! Core-Cladding Concentricity 0.75*mu
-    ! Numerical Aperture (Nominal) 0.10–0.14
-    a2=Illumination ax,Gauss, 1,0,0.75*mu,{py_point_source_xpos}*mu,{py_point_source_ypos}*mu,0,lam
-    
-    na=0.12
-    ? "NA: ",'(F0.7)'na
-    
-    Call export_with_argument(a2, ePixelX, ePixelY, 0)
+ax(1:sam,1:sam)=Cmplx[1,0]
+Grid ax,p1,p2,p3,p4  
+
+! Thorlabs SM450
+! Core-Cladding Concentricity 0.75*mu
+! Numerical Aperture (Nominal) 0.10–0.14
+a2=Illumination ax,Gauss, 1,0,0.75*mu,{py_point_source_xpos}*mu,{py_point_source_ypos}*mu,0,lam
+
+na=0.12
+? "NA: ",'(F0.7)'na
+
        
 ! -------- propagte to scatter plate --------
-    PwPropagationNF a2,lam,dp,dp,na,30*mm ! Propagiert Feld a2 mit FFT-Beampropagation
-   
-! -------- set scatter plate --------
-naProp=0.009999500037496875 ! math.sin(math.atan(6/2/500))
-
-numberOfLayers=4
-layerDistance=1*mm
-Do j=1,numberOfLayers
-    ax(1:sam,1:sam)=Cmplx[1,0]
-    Grid ax,p1,p2,p3,p4
-     
-    xAll=Load "{py_scatterPlateRandomX}"
-    yAll=Load "{py_scatterPlateRandomY}"
-     
-    x=xAll(:,1)
-    y=yAll(:,1)
-    Sphere ax,x,y,d/2,d/2,nwasser,0,lam
-     
-    PupilFilter a2,ax ! belegt Array mit Filter
-    
-    ? " Propagete ", j, "NA ", naProp
-    PwPropagationNF a2,lam,dp,dp,naProp,layerDistance ! Propagiert Feld a3 mit FFT-Beampropagation
-EndDo
-    
-    Call export_with_argument(a2, ePixelX, ePixelY, 3)
+PwPropagationNF a2,lam,dp,dp,na,30*mm ! Propagiert Feld a2 mit FFT-Beampropagation
+Call export_with_argument(a2, ePixelX, ePixelY, 0)
 
 ! -------- propagate --------
+naProp=0.009999500037496875 ! math.sin(math.atan(10/2/500))
 
-start=4
+xAll=Load "{py_scatterPlateRandomX}"
+yAll=Load "{py_scatterPlateRandomY}"
+
+start=1
 Do j,start,max
-    a3=CopyArray a2   ! start every time at the scatter plate
-    
-    ? " Propagete ", j, "NA ", naProp
-    
-    If j .EQ. start
-        PwPropagationNF a3,lam,dp,dp,naProp,x0*(j-start+1)-numberOfLayers*layerDistance ! Propagiert Feld a3 mit FFT-Beampropagation
-
-        Call export_with_argument(a3, ePixelX, ePixelY, j)
+    If j <= numberOfLayers
+        ax(1:sam,1:sam)=Cmplx[1,0]
+        Grid ax,p1,p2,p3,p4
+                 
+        x=xAll(:,j)
+        y=yAll(:,j)
+        Sphere ax,x,y,d/2,d/2,nwasser,0,lam
+         
+        PupilFilter a2,ax ! belegt Array mit Filter
+        
+        ? " Propagete ", j, "NA ", naProp
+        PwPropagationNF a2,lam,dp,dp,naProp,x0 ! Propagiert Feld a3 mit FFT-Beampropagation
+        
+        If MOD[j,{py_save_every_no_layer}] .EQ. 0
+            Call export(a2, ePixelX, ePixelY, j)
+        EndIf
+        
     Else
-        PwPropagationNF a3,lam,dp,dp,naProp,x0*(j-start+1) ! Propagiert Feld a3 mit FFT-Beampropagation
-
-        If j .EQ. start+1
-            Call export_with_argument(a3, ePixelX, ePixelY, j)
-        Else
-            If MOD[j,{py_save_every_no_layer}] .EQ. 0
-                Call export(a3, ePixelX, ePixelY, j)
-            EndIf
+        a3=CopyArray a2   ! start every time at the last scatter layer
+    
+        ? " Propagete ", j, "NA ", naProp
+        
+        If MOD[j,{py_save_every_no_layer}] .EQ. 0
+            PwPropagationNF a3,lam,dp,dp,naProp,x0*(j-start+1) ! Propagiert Feld a3 mit FFT-Beampropagation
+            Call export(a3, ePixelX, ePixelY, j)
         EndIf
     EndIf
+
+    
     
     a0=EnergyDensity a3
     b=Pupil a3,lam,dp,dp,1 ! FourierTransfo

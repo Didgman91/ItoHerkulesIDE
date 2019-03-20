@@ -23,13 +23,13 @@ nwasser=1.3280
 
 !**************************** Nebelparameter
 d=20*mu
-rhon=20 !g/m**3
+rhon=40 !g/m**3
 dist={py_distance}*mm
 dp=25*mm    ! Simulationsgebiet
 sam=4096*3      ! Sampling
 max={py_numberOfLayers}       ! Anzahl Schichten
 
-numberOfLayers=max
+numberOfLayers=96
 !****************************
 
 

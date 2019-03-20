@@ -87,7 +87,7 @@ yAll=Load "{py_scatterPlateRandomY}"
 
 start=1
 Do j,start,max
-    If j <= numberOfLayers
+    If j .le. numberOfLayers
         ax(1:sam,1:sam)=Cmplx[1,0]
         Grid ax,p1,p2,p3,p4
                  
@@ -101,8 +101,27 @@ Do j,start,max
         PwPropagationNF a2,lam,dp,dp,naProp,x0 ! Propagiert Feld a3 mit FFT-Beampropagation
         
         If MOD[j,{py_save_every_no_layer}] .EQ. 0
-            Call export(a2, ePixelX, ePixelY, j)
+            Call export_with_argument(a2, ePixelX, ePixelY, j)
         EndIf
+        
+        ! --- auxiliary output ---
+        a0=EnergyDensity a2
+        b=Pupil a2,lam,dp,dp,1 ! FourierTransfo
+         
+        c0=IntegralIntensity b  ! Gesamtintensität
+        d0=Intensity[b(#+1,#+1)]    ! Kollimierte Transmission
+        b(#+1,#+1)=Cmplx[0]
+        e0=IntegralIntensity b  ! Diffuse Transmission 
+        f0=d0+e0                ! Totale Transmission
+         
+        erg1(j)=a0
+        erg2(j)=c0
+        erg3(j)=d0/c0
+        erg4(j)=e0/c0
+        erg5(j)=f0/c0
+        
+        ? '(F0.7)'erg1(j),'(1X,E9.2)'erg2(j),'(2X,F0.7)'erg3(j),'(2X,F0.7)'erg4(j),'(2X,F0.7)'erg5(j)
+        ! ~~~ auxiliary output ~~~
         
     Else
         a3=CopyArray a2   ! start every time at the last scatter layer
@@ -113,25 +132,25 @@ Do j,start,max
             PwPropagationNF a3,lam,dp,dp,naProp,x0*(j-start+1) ! Propagiert Feld a3 mit FFT-Beampropagation
             Call export(a3, ePixelX, ePixelY, j)
         EndIf
+        
+        ! --- auxiliary output ---
+        a0=EnergyDensity a3
+        b=Pupil a3,lam,dp,dp,1 ! FourierTransfo
+         
+        c0=IntegralIntensity b  ! Gesamtintensität
+        d0=Intensity[b(#+1,#+1)]    ! Kollimierte Transmission
+        b(#+1,#+1)=Cmplx[0]
+        e0=IntegralIntensity b  ! Diffuse Transmission 
+        f0=d0+e0                ! Totale Transmission
+         
+        erg1(j)=a0
+        erg2(j)=c0
+        erg3(j)=d0/c0
+        erg4(j)=e0/c0
+        erg5(j)=f0/c0
+        
+        ? '(F0.7)'erg1(j),'(1X,E9.2)'erg2(j),'(2X,F0.7)'erg3(j),'(2X,F0.7)'erg4(j),'(2X,F0.7)'erg5(j)
+        ! ~~~ auxiliary output ~~~
     EndIf
-
-    
-    
-    a0=EnergyDensity a3
-    b=Pupil a3,lam,dp,dp,1 ! FourierTransfo
-     
-    c0=IntegralIntensity b  ! Gesamtintensität
-    d0=Intensity[b(#+1,#+1)]    ! Kollimierte Transmission
-    b(#+1,#+1)=Cmplx[0]
-    e0=IntegralIntensity b  ! Diffuse Transmission 
-    f0=d0+e0                ! Totale Transmission
-     
-    erg1(j)=a0
-    erg2(j)=c0
-    erg3(j)=d0/c0
-    erg4(j)=e0/c0
-    erg5(j)=f0/c0
-    
-    ? '(F0.7)'erg1(j),'(1X,E9.2)'erg2(j),'(2X,F0.7)'erg3(j),'(2X,F0.7)'erg4(j),'(2X,F0.7)'erg5(j)
 
 EndDo ! j

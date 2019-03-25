@@ -43,12 +43,13 @@ plot_settings = {'suptitle': 'shift',
                   'skip_rows': 1}
 
 def fit(path, plot_settings, x_column = 0, y_column = [1],
-        fit_section=[0,0]):
+        fit_section=[0,0], plot_save_path=""):
     
     a = np.loadtxt(path, delimiter=plot_settings['delimiter'],
                        skiprows=plot_settings['skip_rows'])
 
-    p = []
+    p = plt.figure()
+    poly = []
     for y in y_column:
         label = toolbox.get_file_name(path) + "_c{}".format(y)
         x_value = a[:,x_column] * plot_settings['xmul']
@@ -77,9 +78,11 @@ def fit(path, plot_settings, x_column = 0, y_column = [1],
         print("{} [{}, {}]".format(label, fit_section[0], fit_section[1]))
         print(p1)
         xp = np.linspace(min(x_value), max(x_value))
-        plt.plot(xp, p1(xp), '--', label=label + " (fit)")
+        plt.plot(xp, p1(xp), '--',
+                 label=label + " (fit)\n{:.3}x + {:.3}".format(p1.coefficients[0],
+                                 p1.coefficients[1]))
         
-        p += p1
+        poly += p1
     plt.xlabel(plot_settings['xlabel'])
     plt.ylabel(plot_settings['ylabel'])
     
@@ -87,10 +90,30 @@ def fit(path, plot_settings, x_column = 0, y_column = [1],
     
     plt.suptitle(plot_settings['suptitle'])
     
-    return p
+    if plot_save_path != "":
+        p.savefig(plot_save_path)
+    
+    return poly
 
-path = "data/memory_effect/output/shift/shift_125,0.csv"
+folder = "data/memory_effect/output/shift"
 
+files = toolbox.get_file_path_with_extension(folder, ["csv"])
 
-p = fit(path, plot_settings, y_column=[2], fit_section=[0.256,0])
+fit_section=[0.256,0]
 
+p = []
+for f in files :
+    filename = toolbox.get_file_name(f, with_extension=False)    
+    
+    p += [fit(f, plot_settings, y_column=[2], fit_section=[0.256,0],
+              plot_save_path=folder + "/" + filename + "_fit.pdf")]
+
+export = []
+for poly in p:
+    export += [poly.coefficients]
+
+export = np.stack(export)
+
+header = ["a", "b"]
+
+toolbox.save_as_csv(export, folder + "/fit_{}_{}.csv".format(fit_section), header)

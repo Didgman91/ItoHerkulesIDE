@@ -17,12 +17,14 @@ m=1000*mm
 rho=997*1000 !dichte Wasser g/m**3
 nwasser=1.33
 
+simGebietFaktor=1.25
+
 !**************************** Nebelparameter
 d=20*mu
-rhon=2 !g/m**3
+rhon=0.20 !g/m**3
 dist={py_distance}*mm
-dp=25*mm    ! Simulationsgebiet
-sam=4096*3      ! Sampling
+dp=25*mm*simGebietFaktor    ! Simulationsgebiet
+sam=4096*3*simGebietFaktor      ! Sampling
 max={py_numberOfLayers}       ! Anzahl Schichten
 !****************************
 
@@ -32,6 +34,9 @@ lam=905
 iPixelX=64!640
 iPixelY=iPixelX!400
 
+naSpot=0.12
+
+naProp=0.09950371902099893 ! math.sin(math.atan(10/100))
 
 !**************************** Exportparameter
 ePixelX=4096

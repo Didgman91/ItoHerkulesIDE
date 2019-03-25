@@ -1,4 +1,4 @@
-x=RandomReal p1,p2,streuanz,max
-y=RandomReal p3,p4,streuanz,max
+x=RandomReal p1/2,p2/2,streuanz,max
+y=RandomReal p3/2,p4/2,streuanz,max
 Save "{py_pathScatterPlateX}", x
 Save "{py_pathScatterPlateY}", y

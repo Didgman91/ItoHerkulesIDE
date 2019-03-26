@@ -30,6 +30,8 @@ class memory_effect(module_base):
        self.save_every_no_layer = 10 # saves the first and second one and if layer % save_every_no_layer == 0
        self.distance = 500  # [mm]
        self.mm_per_pixel = 25/(4096)
+       
+       self.fit_section=[0.256,0] # [m]
 
     def f2_main(self, folder, shift, generate_scatter_plate = True):
     #    global executed_modules
@@ -356,6 +358,49 @@ class memory_effect(module_base):
         
         return shift_mm, std_mm, shift_folder_name
     
+    def create_fit(self, folder):
+        from lib.toolbox import math as tm
+
+
+
+
+        plot_settings = {'suptitle': 'shift',
+                          'xlabel': 'distance / m',
+                          'xmul': 1,
+                          'ylabel': 'calculated shift / um',
+                          'ymul': 1000,
+                          'delimiter': ',',
+                          'skip_rows': 1}
+        
+        output_folder = "fit/"
+        
+        files = toolbox.get_file_path_with_extension(folder, ["csv"])
+        
+        folder = folder + output_folder
+        toolbox.create_folder(folder)
+        
+        p = []
+        for f in files :
+            filename = toolbox.get_file_name(f, with_extension=False)    
+            
+            p += [tm.csv_fit_and_plot(f, plot_settings, y_column=[2],
+                                   fit_section=self.fit_section,
+                                   plot_save_path=folder + filename + "_fit.pdf")]
+        
+        export = []
+        for poly in p:
+            export += [poly.coefficients]
+        
+        export = np.stack(export)
+        
+        header = ["a (ax+b)", "b (ax+b)"]
+        
+        toolbox.save_as_csv(export,
+                            folder + "fit_{}_{}.csv".format(self.fit_section[0],
+                                                            self.fit_section[1]),
+                            header)
+
+    
     def create_overview(self):
         plot_settings = {'suptitle': 'x shift',
                  'xlabel': 'distance / m',
@@ -385,11 +430,10 @@ class memory_effect(module_base):
         r = range(1,5)
         for i in r:
             for ii in [0]:
-                if i!=0:# and ii!=0:
-                    executed_modules += ["f2"]
-                    folder, path, layer = self.f2_main("", [5**i, 0], False)
+                executed_modules += ["f2"]
+                folder, path, layer = self.f2_main("", [5**i, 0], False)
                     
-                    self.evaluate_data([folder_0, folder])
+                self.evaluate_data([folder_0, folder])
         
         r = [50,200]
         for i in r:
@@ -402,7 +446,7 @@ class memory_effect(module_base):
                     self.evaluate_data([folder_0, folder])
         
         self.create_overview()
-        
+        self.create_fit(self.path_ouput + self.shift_folder_name)
         
 #        todo: f2 -> class f2
 #        self.load_input_from_module()

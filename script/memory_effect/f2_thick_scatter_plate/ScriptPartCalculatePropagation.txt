@@ -101,7 +101,7 @@ Do j,start,max
         PwPropagationNF a2,lam,dp,dp,naProp,x0 ! Propagiert Feld a3 mit FFT-Beampropagation
         
         If MOD[j,{py_save_every_no_layer}] .EQ. 0
-            Call export_with_argument(a2, ePixelX, ePixelY, j)
+            Call export(a2, ePixelX, ePixelY, j)
         EndIf
         
         ! --- auxiliary output ---

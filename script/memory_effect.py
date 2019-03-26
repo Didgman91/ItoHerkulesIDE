@@ -78,15 +78,15 @@ class memory_effect(module_base):
     #    image_path = toolbox.get_file_path_with_extension(
     #        "data/f2/input/nist/", ["bmp"])
     
-        parameters = {"point_source_x_pos": shift,
-                      "point_source_y_pos": 0}
+        parameters = {"point_source_x_pos": shift[0],
+                      "point_source_y_pos": shift[1]}
     
         f2.calculate_propagation(
             [], scatter_plate_random, self.number_of_layers, self.distance, parameters=parameters, save_every_no_layer=self.save_every_no_layer)
     
     #    path = []
     #    layer = []
-        folder, path, layer = f2.sortToFolderByLayer(subfolder="{},0/".format(shift))
+        folder, path, layer = f2.sortToFolderByLayer(subfolder="{},{}/".format(shift[0], shift[1]))
     
         #import matplotlib.pyplot as plt
         #
@@ -183,7 +183,7 @@ class memory_effect(module_base):
                 f.savefig("{}_intersection_x.pdf".format(img_path[:-4]))
             
             # axis 1
-            intersection = ti.get_intersection(img, axis=0)
+            intersection = ti.get_intersection(img, axis=1)
             
             maximum = np.max(intersection)
             intersection = intersection / maximum
@@ -357,11 +357,11 @@ class memory_effect(module_base):
         return shift_mm, std_mm, shift_folder_name
     
     def create_overview(self):
-        plot_settings = {'suptitle': 'shift',
+        plot_settings = {'suptitle': 'x shift',
                  'xlabel': 'distance / m',
                  'xmul': 1,
                  'ylabel': 'calculated shift / um',
-                 'ymul': 1000,  # 2/3 correction of wrong evaluation sam parameter
+                 'ymul': 1000,
                  'delimiter': ',',
                  'skip_rows': 1}
 
@@ -369,27 +369,37 @@ class memory_effect(module_base):
         files = toolbox.get_file_path_with_extension(path, ["csv"])
         files.sort()
         
-        toolbox.csv_to_plot(files, path + "/shift.pdf", plot_settings=plot_settings,
+        toolbox.csv_to_plot(files, path + "/shift_x.pdf", plot_settings=plot_settings,
                     x_column=0, y_column=[2])
+        
+        toolbox.csv_to_plot(files, path + "/shift_y.pdf", plot_settings=plot_settings,
+                    x_column=0, y_column=[1])
     
     def run(self):
         toolbox.copy("script/memory_effect/f2_thick_scatter_plate", "config/f2",
                      replace=True)
         
         executed_modules = []
-        folder_0, path_0, layer_0 = self.f2_main("", 0)
+        folder_0, path_0, layer_0 = self.f2_main("", [0,0])
         executed_modules += ["f2"]
-        for i in range(1,5):
-            executed_modules += ["f2"]
-            folder, path, layer = self.f2_main("", 5**i, False)
-            
-            self.evaluate_data([folder_0, folder])
+        r = range(1,5)
+        for i in r:
+            for ii in [0]:
+                if i!=0:# and ii!=0:
+                    executed_modules += ["f2"]
+                    folder, path, layer = self.f2_main("", [5**i, 0], False)
+                    
+                    self.evaluate_data([folder_0, folder])
         
-        folder, path, layer = self.f2_main("", 50, False)
-        self.evaluate_data([folder_0, folder])
-        
-        folder, path, layer = self.f2_main("", 200, False)
-        self.evaluate_data([folder_0, folder])
+        r = [50,200]
+        for i in r:
+            for ii in [0]:
+                if i!=0:# and ii!=0:
+                    folder, path, layer = self.f2_main("", [i, ii], False)
+                    self.evaluate_data([folder_0, folder])
+                    
+                    folder, path, layer = self.f2_main("", [i,ii], False)
+                    self.evaluate_data([folder_0, folder])
         
         self.create_overview()
         

@@ -352,6 +352,7 @@ class neuronal_network_class:
         return path
 
     def load_ground_truth_data(self, image_path,
+                               prefix=[],
                                load_multiple_times_with_prefix=[],
                                resize=False,
                                x_pixel=64,
@@ -372,6 +373,10 @@ class neuronal_network_class:
         Returns
         ----
             a list of the copied images
+            
+        todo
+        ----
+            load multiple times with prefix: -> combine prefix with prefix_mul
         """
         path = []
         if load_multiple_times_with_prefix == []:
@@ -381,14 +386,15 @@ class neuronal_network_class:
                 self.path_input_training_data_ground_truth,
                 resize=resize,
                 x_pixel=x_pixel,
-                y_pixel=y_pixel)
+                y_pixel=y_pixel,
+                prefix=prefix)
         else:
-            for prefix in load_multiple_times_with_prefix:
+            for prefix_mul in load_multiple_times_with_prefix:
                 path += toolbox.load_image(
                     image_path,
                     self.path_data +
                     self.path_input_training_data_ground_truth,
-                    prefix="{}_".format(prefix),
+                    prefix="{}_".format(prefix_mul),
                     resize=resize,
                     x_pixel=x_pixel,
                     y_pixel=y_pixel)
@@ -500,7 +506,8 @@ class neuronal_network_class:
     def load_validation_ground_truth_data(
             self, image_path, load_multiple_with_prefix=[], resize=False,
                x_pixel=64,
-               y_pixel=64):
+               y_pixel=64,
+               prefix=[]):
         """Loads the ground truth test data and copies the listed files under
         _image_path_ into the input folder.
 
@@ -526,15 +533,16 @@ class neuronal_network_class:
                 self.path_input_validation_data_ground_truth,
                 resize=resize,
                 x_pixel=x_pixel,
-                y_pixel=y_pixel)
+                y_pixel=y_pixel,
+                prefix=prefix)
         else:
-            for prefix in load_multiple_with_prefix:
+            for prefix_mul in load_multiple_with_prefix:
                 destination = self.path_data \
                                 + self.path_input_validation_data_ground_truth
                 path += toolbox.load_image(
                         image_path,
                         destination,
-                        prefix="{}_".format(prefix),
+                        prefix="{}_".format(prefix_mul),
                         resize=resize,
                         x_pixel=x_pixel,
                         y_pixel=y_pixel)

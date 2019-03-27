@@ -164,7 +164,7 @@ def load_image(source_path, destination_path, invert_color=False,
             number of pixels in x direction, if the image is to be resized
         y_pixel
             number of pixels in y direction, if the image is to be resized
-        prefix
+        prefix: [string, list<string>]
             adds an optional prefix to the file_name
 
     Retruns
@@ -174,12 +174,12 @@ def load_image(source_path, destination_path, invert_color=False,
     os.makedirs(destination_path, 0o777, True)
 
     rv = []
-    for ip in source_path:
-        print("load image: {}".format(ip))
+    for i in range(len(source_path)):
+        print("load image: {}".format(source_path[i]))
         
-        file_extension = os.path.splitext(ip)[-1]
+        file_extension = os.path.splitext(source_path[i])[-1]
 
-        im = Image.open(ip)
+        im = Image.open(source_path[i])
 
         im = im.convert("RGB")  # 24 bit: required by F2
 
@@ -189,16 +189,19 @@ def load_image(source_path, destination_path, invert_color=False,
         if invert_color is True:
             im = ImageOps.invert(im)
 
-        base = os.path.basename(ip)
+        base = os.path.basename(source_path[i])
         name = os.path.splitext(base)
 
         if destination_path[-1] != "/":
             destination_path += "/"
 
-        if prefix == "":
-            path = destination_path + name[0] + file_extension
-        else:
+        if type(prefix) is str:
             path = destination_path + prefix + name[0] + file_extension
+        elif type(prefix) is list:
+            if len(prefix) == len(source_path):
+                path = destination_path + prefix[i] + name[0] + file_extension
+        else:
+            path = destination_path + name[0] + file_extension
 
         im.save(path)
         rv = rv + [path]
@@ -446,6 +449,12 @@ def replace(text, dictionary):
         dictionary
             Dictionary used to replace placeholders.
 
+    Dictionary
+    -----
+        Example Dictionary:
+            >>> dictionary = {'replace this': 'with that',
+            >>>              'one': 'two'}
+        
     Returns
     ----
         a text without placeholders, if the dictonary contains all

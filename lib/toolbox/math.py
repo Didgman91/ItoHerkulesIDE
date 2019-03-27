@@ -43,8 +43,8 @@ def csv_fit_and_plot(path, plot_settings, x_column = 0, y_column = [1],
     """
     Arguments
     ----
-        path: string
-            csv file path
+        path: list<string>
+            csv file path list
         plot_settings: dictionary
             refere section Plot settings
         x_column: integer
@@ -73,52 +73,65 @@ def csv_fit_and_plot(path, plot_settings, x_column = 0, y_column = [1],
             A list of one-dimensional polynomial class.
     """
     
-    a = np.loadtxt(path, delimiter=plot_settings['delimiter'],
-                       skiprows=plot_settings['skip_rows'])
-
     p = plt.figure()
     poly = []
-    for y in y_column:
-        label = toolbox.get_file_name(path) + "_c{}".format(y)
-        x_value = a[:,x_column] * plot_settings['xmul']
-        y_value = a[:,y] * plot_settings['ymul']
-        
-        plt.plot(x_value, y_value, '.', label=label)
+    for f in path:
+        a = np.loadtxt(f, delimiter=plot_settings['delimiter'],
+                           skiprows=plot_settings['skip_rows'])
 
-        if fit_section == [0,0]:
-            p1 = get_polynomial_fit(x_value, y_value,1)
-        else:
-            start = np.where(x_value >= fit_section[0])[0]
-            if fit_section[1] > fit_section[0]:
-                stop = np.where(x_value <= fit_section[1])[0]
-                r = toolbox.get_intersection(start.tolist(), stop.tolist())
-                start = r[0]
-                stop = r[-1]
-            else:
-                start = start[0]
-                stop = len(x_value)-1
-            p1 = get_polynomial_fit(x_value[start:stop],
-                                       y_value[start:stop],1)
+        
+        for y in y_column:
+            label = toolbox.get_file_name(f) + "_c{}".format(y)
+            x_value = a[:,x_column] * plot_settings['xmul']
+            y_value = a[:,y] * plot_settings['ymul']
             
-            plt.axvspan(x_value[start], x_value[stop], facecolor='gray',
-                        alpha=0.15)
-        
-        print("{} [{}, {}]".format(label, fit_section[0], fit_section[1]))
-        print(p1)
-        xp = np.linspace(min(x_value), max(x_value))
-        plt.plot(xp, p1(xp), '--',
-                 label=label + " (fit)\n{:.3}x + {:.3}".format(p1.coefficients[0],
-                                 p1.coefficients[1]))
-        
-        poly += p1
+            line, = plt.plot(x_value, y_value, '.', label=label)
+
+            if fit_section == [0,0]:
+                p1 = get_polynomial_fit(x_value, y_value,1)
+            else:
+                start = np.where(x_value >= fit_section[0])[0]
+                if fit_section[1] > fit_section[0]:
+                    stop = np.where(x_value <= fit_section[1])[0]
+                    r = toolbox.get_intersection(start.tolist(), stop.tolist())
+                    start = r[0]
+                    stop = r[-1]
+                else:
+                    start = start[0]
+                    stop = len(x_value)-1
+                p1 = get_polynomial_fit(x_value[start:stop],
+                                           y_value[start:stop],1)
+                
+                plt.axvspan(x_value[start], x_value[stop], facecolor='gray',
+                            alpha=0.15/len(path))
+            
+            print("{} [{}, {}]".format(label, fit_section[0], fit_section[1]))
+            print(p1)
+            xp = np.linspace(min(x_value), max(x_value))
+            
+            if len(path == 1):
+                plt.plot(xp, p1(xp), '--',
+                         label=label + " (fit)\n{:.3}x + {:.3}".format(p1.coefficients[0],
+                                         p1.coefficients[1]))
+            else:
+                plt.plot(xp, p1(xp), '--',
+                         color = line.get_color(),
+                         label=label + " (fit)\n{:.3}x + {:.3}".format(p1.coefficients[0],
+                                         p1.coefficients[1]))
+            
+            poly += p1
     plt.xlabel(plot_settings['xlabel'])
     plt.ylabel(plot_settings['ylabel'])
     
-    plt.legend(loc='best')
+    if len(path) == 1:
+        plt.legend(loc='best')
+    else:
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.12), ncol=2)
     
     plt.suptitle(plot_settings['suptitle'])
     
     if plot_save_path != "":
-        p.savefig(plot_save_path)
+        p.savefig(plot_save_path, bbox_inches='tight')
     
     return poly
+

@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 from lib.f2 import f2
 from lib.toolbox import toolbox
 from lib.toolbox import images as ti
+from lib.toolbox import math as tm
 
 from lib.module_base.module_base import module_base
 
@@ -359,10 +360,7 @@ class memory_effect(module_base):
         return shift_mm, std_mm, shift_folder_name
     
     def create_fit(self, folder):
-        from lib.toolbox import math as tm
-
-
-
+        
 
         plot_settings = {'suptitle': 'shift',
                           'xlabel': 'distance / m',
@@ -380,25 +378,36 @@ class memory_effect(module_base):
         toolbox.create_folder(folder)
         
         p = []
+        shift = []
         for f in files :
             filename = toolbox.get_file_name(f, with_extension=False)    
+            
+            sf = filename.split('_')
+            s = sf[-1].split(',')
+            s = list(map(int, s))
+            shift += [s]
             
             p += [tm.csv_fit_and_plot(f, plot_settings, y_column=[2],
                                    fit_section=self.fit_section,
                                    plot_save_path=folder + filename + "_fit.pdf")]
         
         export = []
-        for poly in p:
-            export += [poly.coefficients]
+        for i in range(len(p)):
+            export += [[shift[i][0], shift[i][1], p[i].coefficients[0], p[i].coefficients[1]]]
         
-        export = np.stack(export)
+        export = np.array(export)
         
-        header = ["a (ax+b)", "b (ax+b)"]
+        header = ["shift x", "shift y", "a (ax+b)", "b (ax+b)"]
         
         toolbox.save_as_csv(export,
                             folder + "fit_{}_{}.csv".format(self.fit_section[0],
                                                             self.fit_section[1]),
                             header)
+                            
+        tm.csv_fit_and_plot(files, plot_settings, y_column=[2],
+                            fit_section=self.fit_section,
+                            plot_save_path=folder + "overview_fit_{}_{}.pdf".format(self.fit_section[0],
+                                                        self.fit_section[1]))
 
     
     def create_overview(self):

@@ -78,62 +78,64 @@ class memory_effect_nn(module_base):
         print("done")
     
 # ----- TEST ----- nn.load data from file system
-        print("the training and test datasets are loading...")
-        image_path, relative_path = get_image_paths_from_other_runs(external_module_paths,
-                                                                    external_module_label)
-        
-        for i in range(len(relative_path)):
-            relative_path[i] = relative_path[i].replace('/','_')
-            relative_path[i] = relative_path[i].replace(',', '_')
+        reload_images = True
+        if reload_images is True:
+            print("the training and test datasets are loading...")
+            image_path, relative_path = get_image_paths_from_other_runs(external_module_paths,
+                                                                        external_module_label)
+            
+            for i in range(len(relative_path)):
+                relative_path[i] = relative_path[i].replace('/','_')
+                relative_path[i] = relative_path[i].replace(',', '_')
+                    
+            
+            
+            # split data sets: parameter: relative_path change -> shift change e.g. 0_0 -> 125_0
+            dataset = []
+            dataset_buffer = []
+            para_old = ""
+            for i in range(len(image_path)):
+                if (relative_path[i] != para_old and i != 0) or i == len(image_path)-1:
+                    dataset += [dataset_buffer]
+                    dataset_buffer = []
+                    
+                dataset_buffer += [[image_path[i], relative_path[i]]]
+                para_old = relative_path[i]
                 
-        
-        
-        # split data sets: parameter: relative_path change -> shift change e.g. 0_0 -> 125_0
-        dataset = []
-        dataset_buffer = []
-        para_old = ""
-        for i in range(len(image_path)):
-            if (relative_path[i] != para_old and i != 0) or i == len(image_path)-1:
-                dataset += [dataset_buffer]
-                dataset_buffer = []
+            del dataset_buffer
+            
+            # d example
+            # d = [[image_path_layer0000, relative_path_layer0000],
+            #      [image_path_layer0010, relative_path_layer0010]]
+            for d in dataset:
+                # split image_path into two lists for training and validation
+                d_1, d_2, r_element = toolbox.split_list_randome(d[1:],
+                                                                 percentage=90)
                 
-            dataset_buffer += [[image_path[i], relative_path[i]]]
-            para_old = relative_path[i]
-            
-        del dataset_buffer
-        
-        # d example
-        # d = [[image_path_layer0000, relative_path_layer0000],
-        #      [image_path_layer0010, relative_path_layer0010]]
-        for d in dataset:
-            # split image_path into two lists for training and validation
-            d_1, d_2, r_element = toolbox.split_list_randome(d[1:],
-                                                             percentage=90)
-            
-            # load data
-            prefix = d[0][1] + "_"
-            nn.load_ground_truth_data([d[0][0]],
-                                      prefix=prefix,
-                                      resize=True,
-                                      x_pixel=pixel, y_pixel=pixel)
-            nn.load_validation_ground_truth_data([d[0][0]],
-                                                 prefix=prefix,
-                                                 resize=True,
-                                                 x_pixel=pixel, y_pixel=pixel)
-            
-            ground_truth_filename = prefix + toolbox.get_file_name(d[0][0])
-            for data in d_1:
-                nn.load_training_data([data[0]],
-                                      ground_truth_filename,
-                                      prefix = prefix,#data[1],
-                                      resize=True,
-                                      x_pixel=pixel, y_pixel=pixel)
-            for data in d_2:
-                nn.load_validation_data([data[0]],
-                                        ground_truth_filename,
-                                        prefix = prefix,#data[1],
-                                        resize=True,
-                                        x_pixel=pixel, y_pixel=pixel)
+                # load data
+                prefix = d[0][1] + "_"
+                nn.load_ground_truth_data([d[0][0]],
+                                          prefix=prefix,
+                                          resize=True,
+                                          x_pixel=pixel, y_pixel=pixel)
+                nn.load_validation_ground_truth_data([d[0][0]],
+                                                     prefix=prefix,
+                                                     resize=True,
+                                                     x_pixel=pixel, y_pixel=pixel)
+                
+                ground_truth_filename = prefix + toolbox.get_file_name(d[0][0])
+                for data in d_1:
+                    nn.load_training_data([data[0]],
+                                          ground_truth_filename,
+                                          prefix = prefix,#data[1],
+                                          resize=True,
+                                          x_pixel=pixel, y_pixel=pixel)
+                for data in d_2:
+                    nn.load_validation_data([data[0]],
+                                            ground_truth_filename,
+                                            prefix = prefix,#data[1],
+                                            resize=True,
+                                            x_pixel=pixel, y_pixel=pixel)
         
         # ---------------------------------------------
         # NEURONAL NETWORK: train network
@@ -149,11 +151,11 @@ class memory_effect_nn(module_base):
         
             return train, ground_truth
         
-        batch_size = 8
+        batch_size = 16
         optimizer = m.get_optimizer([batch_size])
         nn.train_network([], [],
                          'sparse_categorical_crossentropy', optimizer,
-                         fit_epochs=1, fit_batch_size=batch_size,
+                         fit_epochs=100, fit_batch_size=batch_size,
                          process_data=process)
         
         # ---------------------------------------------

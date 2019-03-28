@@ -11,6 +11,7 @@ Created on Tue Nov 13 15:22:54 2018
 from lib.toolbox import toolbox
 
 import script.memory_effect as me
+from script.neuronal_network_todo import memory_effect_nn
 
 #import script.fog_simulation as fs
 
@@ -27,8 +28,14 @@ executed_modules = []
 
 #fs.run()
 
-m = me.memory_effect()
-executed_modules = m.run()
+#m = me.memory_effect()
+#executed_modules = m.run()
+
+ext = ["/home/Grid/itodaiber/KW17/thickSP_500mm_memory_effect_25_mm_fog_d_20_rhon_40_NA_0_12_lam_905_dist_500mm_NAprop_0_01_fog_100m_rhon_0_20/data/f2/output/speckle"]
+label = ["KW17_thickSP_500_"]
+menn = memory_effect_nn()
+
+menn.run(ext, label)
 
 
 #path = "data/f2/output/speckle"

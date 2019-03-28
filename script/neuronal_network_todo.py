@@ -26,12 +26,13 @@ class memory_effect_nn(module_base):
     def __init__(self, **kwds):
        super(memory_effect_nn, self).__init__(name="memory_effect_nn", **kwds)
     
-    def init(self):
+    def nn_init(self):
         neuronal_network.set_tf_gpu_fraction()
 #       neuronal_network.set_tf_gpu_allow_growth()
 
 
     def nn_main(self, external_module_paths, external_module_label):
+        self.nn_init()
         def get_image_paths_from_other_runs(external_folders, external_label):
             """
             Arguments
@@ -71,7 +72,8 @@ class memory_effect_nn(module_base):
         m = model_deep_specle_correlation_class()
     
 #        nn = neuronal_network.neuronal_network_class([])
-        nn = neuronal_network.neuronal_network_class(m.get_model())
+        pixel = 128
+        nn = neuronal_network.neuronal_network_class(m.get_model(pixel))
 #       model = nn.load_weights()
         print("done")
     
@@ -113,28 +115,25 @@ class memory_effect_nn(module_base):
             nn.load_ground_truth_data([d[0][0]],
                                       prefix=prefix,
                                       resize=True,
-                                      x_pixel=256, y_pixel=256)
+                                      x_pixel=pixel, y_pixel=pixel)
             nn.load_validation_ground_truth_data([d[0][0]],
-                                                 prefix=d[0][1],
+                                                 prefix=prefix,
                                                  resize=True,
-                                                 x_pixel=256, y_pixel=256)
+                                                 x_pixel=pixel, y_pixel=pixel)
             
             ground_truth_filename = prefix + toolbox.get_file_name(d[0][0])
             for data in d_1:
                 nn.load_training_data([data[0]],
                                       ground_truth_filename,
-                                      prefix = data[1],
+                                      prefix = prefix,#data[1],
                                       resize=True,
-                                      x_pixel=256, y_pixel=256)
+                                      x_pixel=pixel, y_pixel=pixel)
             for data in d_2:
                 nn.load_validation_data([data[0]],
                                         ground_truth_filename,
-                                        prefix = data[1],
+                                        prefix = prefix,#data[1],
                                         resize=True,
-                                        x_pixel=256, y_pixel=256)
-#  ~~~~ TEST ~~~~
-        
-        nn.get_training_file_paths()
+                                        x_pixel=pixel, y_pixel=pixel)
         
         # ---------------------------------------------
         # NEURONAL NETWORK: train network
@@ -150,11 +149,11 @@ class memory_effect_nn(module_base):
         
             return train, ground_truth
         
-        batch_size = 16
+        batch_size = 8
         optimizer = m.get_optimizer([batch_size])
         nn.train_network([], [],
                          'sparse_categorical_crossentropy', optimizer,
-                         fit_epochs=2, fit_batch_size=batch_size,
+                         fit_epochs=1, fit_batch_size=batch_size,
                          process_data=process)
         
         # ---------------------------------------------
@@ -162,6 +161,8 @@ class memory_effect_nn(module_base):
         # ---------------------------------------------
         toolbox.print_program_section_name("NEURONAL NETWORK: validate network")
     
+#        path = nn.path_intermediate_data_trained_weights + "/weights.hdf5"
+#        nn.validate_network(trained_weights_path=path)
         nn.validate_network()
         
         # ---------------------------------------------

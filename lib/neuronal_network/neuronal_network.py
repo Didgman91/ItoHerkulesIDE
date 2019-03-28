@@ -809,16 +809,18 @@ class neuronal_network_class:
         filenames = []
         if validation_data == "":            
             ground_truth, validation = self.get_validation_file_paths()
-            files = toolbox.get_file_path_with_extension(validation, extension)
-            filenames = toolbox.get_file_name(files)
-            validation_data = ti.get_image_as_npy(files)
+            filenames = toolbox.get_file_name(validation)
+            validation_data = ti.get_image_as_npy(validation)
         else:
             filenames = toolbox.get_file_name(validation_data)
-            validation_data = ti.get_image_as_npy(files)
+            validation_data = ti.get_image_as_npy(validation_data)
         
         pred = self.__predict(
             validation_data,
             trained_weights_path)
+        
+        print("validate NN:")
+        print("  pred type: {}".format(type(pred)))
         
         path = self.path_data + self.path_output_validation_data_prediction
         prediction_path = ti.save_4D_npy_as_bmp(pred, filenames, path)
@@ -870,14 +872,14 @@ class neuronal_network_class:
         ----
             use of stored trained weights
         """
-#        if trained_weights_path == "":
-#            self.model.save_weights(
-#                self.path_data +
-#                self.path_intermediate_data_trained_weights +
-#                "/" +
-#                self.file_name_trained_weights)
+        if trained_weights_path == "":
+            self.model.load_weights(
+                self.path_data +
+                self.path_intermediate_data_trained_weights +
+                "/" +
+                self.file_name_trained_weights)
 
-        pred = self.model.predict(data)
+        pred = self.model.predict(data, batch_size=2)
 
         return pred
 

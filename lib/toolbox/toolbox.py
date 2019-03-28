@@ -109,7 +109,7 @@ def get_file_name(path, with_extension = False):
 
     Arguments
     ----
-        path
+        path: [list<string>, string]
             path to file
 
         with_extension
@@ -117,13 +117,24 @@ def get_file_name(path, with_extension = False):
 
     Returns
     ----
-        the file name
+        file_name: [list<string>, string]
+            the file name
     """
-    base = os.path.basename(path)
-    file_name = os.path.splitext(base)[0]
-    
-    if with_extension is True:
-        file_name += os.path.splitext(base)[1]
+    def __get_name(path):
+        base = os.path.basename(path)
+        file_name = os.path.splitext(base)[0]
+        
+        if with_extension is True:
+            file_name += os.path.splitext(base)[1]
+        
+        return file_name
+
+    file_name = []
+    if type(path) is str:
+        file_name = __get_name(path)
+    elif type(path) is list:
+        for p in path:
+            file_name += [__get_name(p)]
 
     return file_name
 
@@ -363,7 +374,7 @@ def get_intersection(list_1, list_2, str_diff_exact=True):
         lsit_2: list
             1-dimensional list of objects
         str_diff_exact: boolean, optinal
-            If *True* and the lists are lists of strings, then the string of a
+            If *False* and the lists are lists of strings, then the string of a
             *list_2* element can be a substring of a *list_1* element. This is
             then also taken into account at the intersection of bouth lists.
     Returns
@@ -617,7 +628,8 @@ def save_as_csv(array, path, header):
 
 def csv_to_plot(csv_file_path_list, plot_save_path,
                 plot_settings,
-                x_column = 0, y_column = [1]):
+                x_column = 0, y_column = [1],
+                label = []):
     """reads multiple csv files and plots specific columns.
     Arguments
     ----
@@ -644,11 +656,14 @@ def csv_to_plot(csv_file_path_list, plot_save_path,
         a = np.loadtxt(f, delimiter=plot_settings['delimiter'],
                        skiprows=plot_settings['skip_rows'])
         
-        for y in y_column:
-            label = get_file_name(f) + "_c{}".format(y)
+        for i in range(len(y_column)):
+            if label == []:
+                label_buffer = get_file_name(f) + "_c{}".format(y_column[i])
+            else:
+                label_buffer = label[i]
             x_value = a[:,x_column] * plot_settings['xmul']
-            y_value = a[:,y] * plot_settings['ymul']
-            plt.plot(x_value, y_value, label=label)
+            y_value = a[:,y_column[i]] * plot_settings['ymul']
+            plt.plot(x_value, y_value, label=label_buffer)
         
         plt.xlabel(plot_settings['xlabel'])
         plt.ylabel(plot_settings['ylabel'])
@@ -658,3 +673,41 @@ def csv_to_plot(csv_file_path_list, plot_save_path,
         plt.suptitle(plot_settings['suptitle'])
         
     p.savefig(plot_save_path)
+    
+def create_array_from_columns(columns):
+    """
+    Creates an array from several 1-dimensional lists.
+    
+    Arguments
+    ----
+        columns: list
+            list of 1-dimensional lists
+        
+    Returns
+    ----
+        array: list
+            2-dimensional
+    """
+    # http://stackoverflow.com/q/3844948/
+    def checkEqualIvo(lst):
+        return not lst or lst.count(lst[0]) == len(lst)
+    
+    column_len = []
+    for c in columns:
+        column_len += [len(c)]
+        
+    array = []
+    if checkEqualIvo(column_len) is True:
+        cols = len(columns)
+        rows = column_len[0]
+        
+        array = [[0] * cols for i in range(rows)]
+        
+        for row in range(rows):
+            for col in range(cols):
+                array[row][col] = columns[col][row]
+    else:
+        print("create_array_from_columns: ERROR")
+        print("  unequal column lengths")
+        
+    return array

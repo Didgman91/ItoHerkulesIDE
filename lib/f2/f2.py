@@ -12,6 +12,8 @@ import time
 from PIL import Image
 from PIL import ImageOps
 
+import numpy as np
+
 from ..toolbox import toolbox
 
 #from ..DataIO import mnistLib as mnist
@@ -25,6 +27,7 @@ pathScatterPlate = pathData + "/f2/intermediate_data/scatter_plate"
 
 pathInput = "/f2/input"
 pathInputNIST = "/f2/input/nist"
+pathIntermediateAuxInfo = "/f2/intermediate_data/aux_info"
 pathIntermediateDataScatterPlate = "/f2/intermediate_data/scatter_plate"
 pathIntermediateDataScript = "/f2/intermediate_data/script"
 pathIntermediateDataStdout = "/f2/intermediate_data"
@@ -66,6 +69,7 @@ def run_script(path, printStdout = True):
 def generate_folder_structure(path="data"):
     "Creats folders and subfolders related to the F2 process in the folder _path_."
     os.makedirs(path+pathInput, 0o777, True)
+    os.makedirs(path+pathIntermediateAuxInfo, 0o777, True)
     os.makedirs(path+pathIntermediateDataScatterPlate, 0o777, True)
     os.makedirs(path+pathIntermediateDataScript, 0o777, True)
     os.makedirs(path+pathIntermediateDataStdout, 0o777, True)
@@ -143,6 +147,9 @@ def calculate_propagation(pupil_function, scatterPlateRandom, numberOfLayers, di
     
         print("F2 propagation calculation")
         run_script(pathScript + "/" + fileNameScriptCalculatePropagation)
+    
+    plot_aux_info(pathData + pathIntermediateAuxInfo,
+                  pathData + pathIntermediateAuxInfo)
     
     return 
 
@@ -263,7 +270,8 @@ def get_f2_script_propagete(fileName, scatterPlateRandom, parameters,
                     py_scatterPlateRandomY=scatterPlateRandom[1],
                     py_outputPath=outputPath,
                     py_fileName=name,
-                    py_save_every_no_layer=save_every_no_layer)
+                    py_save_every_no_layer=save_every_no_layer,
+                    py_aux_info=pathData + pathIntermediateAuxInfo)
     else:
         for i in range(len(lines)):
             lines[i] = lines[i].format(
@@ -273,6 +281,42 @@ def get_f2_script_propagete(fileName, scatterPlateRandom, parameters,
                     py_fileName=name,
                     py_save_every_no_layer=save_every_no_layer,
                     py_point_source_xpos="{}".format(parameters['point_source_x_pos']),
-                    py_point_source_ypos="{}".format(parameters['point_source_y_pos']))
+                    py_point_source_ypos="{}".format(parameters['point_source_y_pos']),
+                    py_aux_info_path=pathData + pathIntermediateAuxInfo)
             
     return lines
+
+
+def plot_aux_info(path, output):
+    ergAll = toolbox.get_file_path_with_extension(path,
+                                                  ["npy"])
+    ergAll.sort()
+    
+    
+    
+    # load numpy files: erg
+    erg_loaded = []
+    filenames = []
+    for i in range(len(ergAll)):
+        erg_loaded += [np.load(ergAll[i])]
+        filenames += [toolbox.get_file_name(ergAll[i])]
+    # make array
+    export = toolbox.create_array_from_columns(erg_loaded)
+    
+    header = filenames
+    csv_path = output + "/aux_info.csv"
+    toolbox.save_as_csv(export, csv_path, header)
+    
+    plot_settings = {'suptitle': 'Intensity',
+                     'xlabel': 'distance / m',
+                     'xmul': 1,
+                     'ylabel': 'Intensity / 1',
+                     'ymul': 1,
+                     'delimiter': ',',
+                     'skip_rows': 1}
+    
+    plot_path = output + "/aux_info.pdf"
+    toolbox.csv_to_plot([csv_path], plot_path,
+                        plot_settings,
+                        x_column=0,y_column=[2],
+                        label=["Ip"])

@@ -8,6 +8,7 @@
 winkel=0
 
 ac(1:sam,1:sam)=Cmplx[1,0]
+erg0(1:max)=0.0
 erg1(1:max)=0.0
 erg2(1:max)=0.0
 erg3(1:max)=0.0
@@ -87,6 +88,8 @@ yAll=Load "{py_scatterPlateRandomY}"
 
 start=1
 Do j,start,max
+    erg0(j)=j*x0/m
+    
     If j .le. numberOfLayers
         ax(1:sam,1:sam)=Cmplx[1,0]
         Grid ax,p1,p2,p3,p4
@@ -154,3 +157,12 @@ Do j,start,max
     EndIf
 
 EndDo ! j
+
+
+! "IFeld     ","Ip        ","Tk        ","Td        ","Ttot"
+SaveNPY "{py_aux_info_path}/erg0_dist.npy", erg0
+SaveNPY "{py_aux_info_path}/erg1_IFeld.npy", erg1
+SaveNPY "{py_aux_info_path}/erg2_Ip.npy", erg2
+SaveNPY "{py_aux_info_path}/erg3_Tk.npy", erg3
+SaveNPY "{py_aux_info_path}/erg4_Td.npy", erg4
+SaveNPY "{py_aux_info_path}/erg5_Ttot.npy", erg5

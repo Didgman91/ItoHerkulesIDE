@@ -320,7 +320,10 @@ class neuronal_network_class:
 
         return self.model
 
-    def load_training_data(self, image_path, prefix="", resize=False,
+    def load_training_data(self, image_path,
+                           ground_truth_filename,
+                           prefix="",
+                           resize=False,
                            x_pixel=64,
                            y_pixel=64):
         """
@@ -332,8 +335,9 @@ class neuronal_network_class:
             image_path
                 List of relative paths to the training data images in the
                 parent folder _path_data_.
-
-            prefix
+            ground_thuth_filename: string
+                Name of the corresponding image of the ground truth
+            prefix: [string, list<string>]
                 A prefix can be added to the image file during the copy
                 operation.
 
@@ -341,10 +345,12 @@ class neuronal_network_class:
         ----
             a list of the copied images
         """
+        
         path = toolbox.load_image(
             image_path,
             self.path_data +
-            self.path_input_training_data,
+            self.path_input_training_data + 
+            "/" + ground_truth_filename,
             prefix=prefix,
             resize=resize,
             x_pixel=x_pixel,
@@ -353,7 +359,6 @@ class neuronal_network_class:
 
     def load_ground_truth_data(self, image_path,
                                prefix=[],
-                               load_multiple_times_with_prefix=[],
                                resize=False,
                                x_pixel=64,
                                y_pixel=64):
@@ -366,43 +371,30 @@ class neuronal_network_class:
                 List of relative paths to the ground truth training data images
                 in the parent folder _path_data_.
 
-            load_multiple_times_with_prefix
-                If this is set, than all images listed under _image_path_ are
-                saved multiple times with the listed prefix.
-
+            prefix: [list<string>, string]
+                A prefix can be added to the image file during the copy
+                operation.
         Returns
         ----
             a list of the copied images
             
-        todo
-        ----
-            load multiple times with prefix: -> combine prefix with prefix_mul
         """
         path = []
-        if load_multiple_times_with_prefix == []:
-            path = toolbox.load_image(
-                image_path,
-                self.path_data +
-                self.path_input_training_data_ground_truth,
-                resize=resize,
-                x_pixel=x_pixel,
-                y_pixel=y_pixel,
-                prefix=prefix)
-        else:
-            for prefix_mul in load_multiple_times_with_prefix:
-                path += toolbox.load_image(
-                    image_path,
-                    self.path_data +
-                    self.path_input_training_data_ground_truth,
-                    prefix="{}_".format(prefix_mul),
-                    resize=resize,
-                    x_pixel=x_pixel,
-                    y_pixel=y_pixel)
+        path = toolbox.load_image(
+            image_path,
+            self.path_data +
+            self.path_input_training_data_ground_truth,
+            resize=resize,
+            x_pixel=x_pixel,
+            y_pixel=y_pixel,
+            prefix=prefix)
+        
         return path
 
-    def load_test_data(self, image_path, prefix="", resize=False,
-                       x_pixel=64,
-                       y_pixel=64):
+    def load_test_data(self, image_path,
+                       ground_thuth_filename,
+                       prefix="",
+                       resize=False, x_pixel=64, y_pixel=64):
         """Loads the test data and copies the listed files under _image_path_
         into the input folder.
 
@@ -411,7 +403,8 @@ class neuronal_network_class:
             image_path
                 List of relative paths to the test data images in the parent
                 folder _path_data_.
-
+            ground_thuth_filename: string
+                Name of the corresponding image of the ground truth
             prefix
                 A prefix can be added to the image file during the copy
                 operation.
@@ -423,7 +416,8 @@ class neuronal_network_class:
         path = toolbox.load_image(
             image_path,
             self.path_data +
-            self.path_input_test_data,
+            self.path_input_test_data +
+            "/" + ground_thuth_filename,
             prefix=prefix,
             resize=resize,
             x_pixel=x_pixel,
@@ -431,9 +425,11 @@ class neuronal_network_class:
         return path
 
     def load_test_ground_truth_data(
-            self, image_path, load_multiple_with_prefix=[], resize=False,
-               x_pixel=64,
-               y_pixel=64):
+            self, image_path,
+            prefix = "",
+            resize=False,
+            x_pixel=64,
+            y_pixel=64):
         """Loads the ground truth test data and copies the listed files under
         _image_path_ into the input folder.
 
@@ -442,40 +438,28 @@ class neuronal_network_class:
             image_path
                 List of relative paths to the ground truth test data images in
                 the parent folder _path_data_.
-
-            load_multiple_times_with_prefix
-                If this is set, than all images listed under _image_path_ are
-                saved multiple times with the listed prefix.
+            prefix: [list<string>, string]
+                A prefix can be added to the image file during the copy
+                operation.
 
         Returns
         ----
             a list of the copied images
         """
         path = []
-        if load_multiple_with_prefix == []:
-            path = toolbox.load_image(
-                image_path,
-                self.path_data +
-                self.path_input_test_data_ground_truth,
-                resize=resize,
-                x_pixel=x_pixel,
-                y_pixel=y_pixel)
-        else:
-            for prefix in load_multiple_with_prefix:
-                destination = self.path_data \
-                                + self.path_input_test_data_ground_truth
-                path += toolbox.load_image(
-                        image_path,
-                        destination,
-                        prefix="{}_".format(prefix),
-                        resize=resize,
-                        x_pixel=x_pixel,
-                        y_pixel=y_pixel)
+        path = toolbox.load_image(image_path,
+                                 self.path_data +
+                                 self.path_input_test_data_ground_truth,
+                                 resize=resize,
+                                 x_pixel=x_pixel,
+                                 y_pixel=y_pixel)
+            
         return path
 
-    def load_validation_data(self, image_path, prefix="", resize=False,
-                               x_pixel=64,
-                               y_pixel=64):
+    def load_validation_data(self, image_path,
+                             ground_thuth_filename,
+                             prefix="",
+                             resize=False, x_pixel=64, y_pixel=64):
         """Loads the validation data and copies the listed files under
         _image_path_ into the input folder.
 
@@ -484,8 +468,9 @@ class neuronal_network_class:
             image_path
                 List of relative paths to the validataion data images in the
                 parent folder _path_data_.
-
-            prefix
+            ground_thuth_filename: string
+                Name of the corresponding image of the ground truth
+            prefix: [list<string>, string]
                 A prefix can be added to the image file during the copy
                 operation.
 
@@ -496,7 +481,8 @@ class neuronal_network_class:
         path = toolbox.load_image(
                 image_path,
                 self.path_data +
-                self.path_input_validation_data,
+                self.path_input_validation_data +
+                "/" + ground_thuth_filename,
                 prefix=prefix,
                 resize=resize,
                 x_pixel=x_pixel,
@@ -504,10 +490,10 @@ class neuronal_network_class:
         return path
 
     def load_validation_ground_truth_data(
-            self, image_path, load_multiple_with_prefix=[], resize=False,
-               x_pixel=64,
-               y_pixel=64,
-               prefix=[]):
+            self, image_path, prefix="",
+            resize=False,
+            x_pixel=64,
+            y_pixel=64):
         """Loads the ground truth test data and copies the listed files under
         _image_path_ into the input folder.
 
@@ -516,37 +502,191 @@ class neuronal_network_class:
             image_path
                 List of relative paths to the ground truth test data images in
                 the parent folder _path_data_.
-
-            load_multiple_times_with_prefix
-                If this is set, than all images listed under _image_path_ are
-                saved multiple times with the listed prefix.
+            prefix: [list<string>, string]
+                A prefix can be added to the image file during the copy
+                operation.
 
         Returns
         ----
             a list of the copied images
         """
         path = []
-        if load_multiple_with_prefix == []:
-            path = toolbox.load_image(
-                image_path,
-                self.path_data +
-                self.path_input_validation_data_ground_truth,
-                resize=resize,
-                x_pixel=x_pixel,
-                y_pixel=y_pixel,
-                prefix=prefix)
-        else:
-            for prefix_mul in load_multiple_with_prefix:
-                destination = self.path_data \
-                                + self.path_input_validation_data_ground_truth
-                path += toolbox.load_image(
-                        image_path,
-                        destination,
-                        prefix="{}_".format(prefix_mul),
-                        resize=resize,
-                        x_pixel=x_pixel,
-                        y_pixel=y_pixel)
+        path = toolbox.load_image(image_path,
+                                  self.path_data +
+                                  self.path_input_validation_data_ground_truth,
+                                  resize=resize,
+                                  x_pixel=x_pixel,
+                                  y_pixel=y_pixel,
+                                  prefix=prefix)
+
         return path
+    
+    def __get_file_tuples(self, folder_1, folder_2, extension):
+        """
+        Returns the ground truth data (*folder_1*) and training (*folder_2*) tupels.
+        
+        Arguments
+        ----
+            extension: list<str> (optional)
+                search pattern parameter
+                
+        Returns
+        ----
+            rv_ground_truth_path: list<str>
+                file path list
+            rv_training_file_path: list<str>
+                file path list
+                
+        Example
+        ----
+            Folder hierarchey
+            
+            - trainning_data
+                - ground_truth
+                    - file_1.bmp
+                    - file_2.bmp
+                - file_1
+                    - image_1.bmp
+                    - image_2.bmp
+            
+            >>> rv_ground_truth_path
+            >>> ['training_data/file_1.bmp',
+            >>>  'training_data/file_1.bmp']
+            
+            >>> rv_training_file_path
+            >>> ['training_data/file_1/image_1.bmp',
+            >>>  'training_data/file_1/image_2.bmp']
+                        
+        """
+        # get all ground truth files
+        ground_truth_files = toolbox.get_file_path_with_extension(
+                            folder_1,
+                            extension)
+        ground_truth_filenames = toolbox.get_file_name(ground_truth_files)
+        ground_truth_filenames.sort()
+        
+        # get all training folders
+        training_folders = toolbox.get_subfolders(folder_2)
+        
+        # get the intersection of training data and ground truth data
+        # -> intersection contains a list with "valid" trainig data
+        #    valid means each training data (set) has a ground trouth
+        intersection = toolbox.get_intersection(training_folders,
+                                                ground_truth_filenames)
+        
+        del ground_truth_filenames
+        
+        training_folders = intersection
+        training_folders.sort()
+        
+        intersection = toolbox.get_intersection(ground_truth_files,
+                                                training_folders,
+                                                False)
+        ground_truth_files = intersection
+        
+        rv_ground_truth_path = []
+        rv_training_file_path = []
+        for i in range(len(training_folders)):
+            path = folder_2 + "/" + training_folders[i]
+            buffer_training = toolbox.get_file_path_with_extension(path,
+                                                                   extension)
+            for b in buffer_training:
+                rv_ground_truth_path += [ground_truth_files[i]]
+            
+            rv_training_file_path += buffer_training
+        
+        
+        return rv_ground_truth_path, rv_training_file_path
+    
+    def get_training_file_paths(self, extension=["bmp"]):
+        """
+        Returns the training and ground truth data tupels.
+        
+        Arguments
+        ----
+            extension: list<str> (optional)
+                search pattern parameter
+                
+        Returns
+        ----
+            rv_ground_truth_path: list<str>
+                file path list
+            rv_training_file_path: list<str>
+                file path list
+                
+        Example
+        ----
+            Folder hierarchey
+            
+            - trainning_data
+                - ground_truth
+                    - file_1.bmp
+                    - file_2.bmp
+                - file_1
+                    - image_1.bmp
+                    - image_2.bmp
+            
+            >>> rv_ground_truth_path
+            >>> ['training_data/file_1.bmp',
+            >>>  'training_data/file_1.bmp']
+            
+            >>> rv_training_file_path
+            >>> ['training_data/file_1/image_1.bmp',
+            >>>  'training_data/file_1/image_2.bmp']
+                        
+        """
+        
+        rv_ground_truth_path, rv_training_file_path = self.__get_file_tuples(
+                self.path_data + self.path_input_training_data_ground_truth,
+                self.path_data + self.path_input_training_data,
+                extension)
+        
+        return rv_ground_truth_path, rv_training_file_path
+    
+    def get_validation_file_paths(self, extension=["bmp"]):
+        """
+        Returns the validation and ground truth data tupels.
+        
+        Arguments
+        ----
+            extension: list<str> (optional)
+                search pattern parameter
+                
+        Returns
+        ----
+            rv_ground_truth_path: list<str>
+                file path list
+            rv_validation_file_path: list<str>
+                file path list
+                
+        Example
+        ----
+            Folder hierarchey
+            
+            - validation_data
+                - ground_truth
+                    - file_1.bmp
+                    - file_2.bmp
+                - file_1
+                    - image_1.bmp
+                    - image_2.bmp
+            
+            >>> rv_ground_truth_path
+            >>> ['validation_data/file_1.bmp',
+            >>>  'validation_data/file_1.bmp']
+            
+            >>> rv_validation_file_path
+            >>> ['validation_data/file_1/image_1.bmp',
+            >>>  'validation_data/file_1/image_2.bmp']
+                        
+        """
+        
+        rv_ground_truth_path, rv_validation_file_path = self.__get_file_tuples(
+                self.path_data + self.path_input_validation_data_ground_truth,
+                self.path_data + self.path_input_validation_data,
+                extension)
+        
+        return rv_ground_truth_path, rv_validation_file_path
 
     def train_network(self, training_data, ground_truth,
                       loss, optimizer,
@@ -604,35 +744,18 @@ class neuronal_network_class:
             y
                 Numpy array of target (label) data (Keras)
         """
-        if training_data == []:
-            training_data = toolbox.get_file_path_with_extension(
-                    self.path_data + self.path_input_training_data, ["bmp"])
-            
-            training_data.sort()
-        
-        if ground_truth == []:
-            ground_truth = toolbox.get_file_path_with_extension(
-                    self.path_data + self.path_input_training_data_ground_truth,
-                    ["bmp"])
-            
-            ground_truth.sort()
-            
-            no_training_data = len(training_data)
-            no_ground_truth = len(ground_truth)
-            if no_training_data > no_ground_truth:
-                if no_training_data % no_ground_truth == 0:
-                    factor = no_training_data / no_ground_truth
-                    for i in range(factor):
-                        training_data += training_data
-                
-        
-        
-        
         use_fit_generator = False;
 
         if process_data != []:
             use_fit_generator = True
-
+        
+        if training_data == [] and ground_truth == []:
+            ground_truth, training_data = self.get_training_file_paths()
+            
+            if use_fit_generator is False:
+                ground_truth = ti.get_image_as_npy(ground_truth)
+                training_data = ti.get_image_as_npy(training_data)
+            
         # Compile model
         self.model.compile(loss=loss, optimizer=optimizer)
 
@@ -662,13 +785,17 @@ class neuronal_network_class:
                 + self.path_intermediate_data_trained_weights
                 + "/" + self.file_name_trained_weights)
 
-    def validate_network(self, validation_data, trained_weights_path=""):
+    def validate_network(self, validation_data="", trained_weights_path="",
+                         extension=["bmp"]):
         """Calculates predictions based on the validation dataset.
 
         Arguments
         ----
             validation_data_path
                 list of paths to images
+                
+            prediction_folder_path
+                folder where the prediction shoud be stored
 
             trained_weights_path
                 If a path is specified, the model uses these weights instead
@@ -676,15 +803,27 @@ class neuronal_network_class:
 
         Returns
         ----
-            the prediction.
+            prediction_path: list<str>
+                path list of the predictions
         """
+        filenames = []
+        if validation_data == "":            
+            ground_truth, validation = self.get_validation_file_paths()
+            files = toolbox.get_file_path_with_extension(validation, extension)
+            filenames = toolbox.get_file_name(files)
+            validation_data = ti.get_image_as_npy(files)
+        else:
+            filenames = toolbox.get_file_name(validation_data)
+            validation_data = ti.get_image_as_npy(files)
+        
         pred = self.__predict(
             validation_data,
             trained_weights_path)
         
-        output_path = self.path_data + self.path_output_validation_data_prediction
+        path = self.path_data + self.path_output_validation_data_prediction
+        prediction_path = ti.save_4D_npy_as_bmp(pred, filenames, path)
         
-        return pred, output_path
+        return prediction_path
 
     def test_network(self, test_data, trained_weights_path=""):
         """Calculates predictions based on the test dataset.
@@ -715,11 +854,9 @@ class neuronal_network_class:
 
         Arguments
         ----
-            data_path
-                path of the input data
-
-            prediction_folder_path
-                folder where the prediction shoud be stored
+            data_path: [np.array, list<np.array>]
+                The input data, as a Numpy array
+                (or list of Numpy arrays if the model has multiple inputs).
 
             trained_weights_path
                 If a path is specified, the model uses these weights instead
@@ -727,14 +864,18 @@ class neuronal_network_class:
 
         Returns
         ----
-            the prediction.
+            Numpy array(s) of predictions.
+            
+        todo
+        ----
+            use of stored trained weights
         """
-        if trained_weights_path == "":
-            self.model.save_weights(
-                self.path_data +
-                self.path_intermediate_data_trained_weights +
-                "/" +
-                self.file_name_trained_weights)
+#        if trained_weights_path == "":
+#            self.model.save_weights(
+#                self.path_data +
+#                self.path_intermediate_data_trained_weights +
+#                "/" +
+#                self.file_name_trained_weights)
 
         pred = self.model.predict(data)
 
@@ -927,8 +1068,8 @@ class neuronal_network_class:
         ----
             list of method returns, if any.
         """
-        path_ground_truth.sort()
-        path_prediction.sort()
+#        path_ground_truth.sort()
+#        path_prediction.sort()
 
         rv = []
 

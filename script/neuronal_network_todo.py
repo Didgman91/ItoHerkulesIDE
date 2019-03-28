@@ -6,7 +6,7 @@ Created on Tue Jan 15 21:59:04 2019
 @author: maxdh
 """
 import os
-import random
+
 
 from lib.toolbox import toolbox
 from lib.toolbox import images as ti
@@ -17,6 +17,11 @@ from config.neuronal_network.model.model import model_deep_specle_correlation_cl
 
 from lib.module_base.module_base import module_base
 
+class data_struct():
+    def __init__(self, training_data_path, ground_truth_data_path):
+        self.__training_data_path = training_data_path
+        self.__ground_truth_data_path
+
 class memory_effect_nn(module_base):
     def __init__(self, **kwds):
        super(memory_effect_nn, self).__init__(name="memory_effect_nn", **kwds)
@@ -26,8 +31,8 @@ class memory_effect_nn(module_base):
 #       neuronal_network.set_tf_gpu_allow_growth()
 
 
-    def nn_main(self, external_module_paths):
-        def get_image_paths_from_other_runs(external_folders):
+    def nn_main(self, external_module_paths, external_module_label):
+        def get_image_paths_from_other_runs(external_folders, external_label):
             """
             Arguments
             ----
@@ -43,36 +48,18 @@ class memory_effect_nn(module_base):
             
             path = []
             relative_path = []
-            for f in external_folders: # f2/output/speckle
-                path_buffer = toolbox.get_file_path_with_extension_include_subfolders(f, ["bmp"])
+            for i in range(len(external_folders)): # f2/output/speckle
+                path_buffer = toolbox.get_file_path_with_extension_include_subfolders(external_folders[i], ["bmp"])
                 path_buffer = __filter(path_buffer, "Intensity")
                 path += path_buffer
                 for b in path_buffer:
                     filename = toolbox.get_file_name(b, with_extension=True)
-                    relative_path += [b[len(f)+1:-len(filename)-1-len("_layer0000")]]
+                    relative_path += [ external_label[i] + b[len(external_folders[i])+1:-len(filename)-1-len("_layer0000")]]
                 
             
             return path, relative_path
         
-        def split_list_randome(l, percentage=90, r_element = []):
-            
-            if r_element == []:
-                size = int(percentage/100.0*len(l))
-                r_element = random.sample(range(1, len(l)), size)
-                
-            list_1 = []
-            list_2 = []
-            for i in range(len(l)):
-                found = False
-                for r in r_element:
-                    if r == i:
-                        list_1 += [l[i]]
-                        found = True
-                        break
-                if found is False:
-                    list_2 += [l[i]]
-                    
-            return list_1, list_2, r_element
+        
                 
         
         # ---------------------------------------------
@@ -80,35 +67,121 @@ class memory_effect_nn(module_base):
         # ---------------------------------------------
         toolbox.print_program_section_name("NEURONAL NETWORK: load data")
     
-#        print("the model is loading...")
-#        m = model_deep_specle_correlation_class()
-#    
-#        nn = neuronal_network.neuronal_network_class(m.get_model())
-##       model = nn.load_weights()
+        print("the model is loading...")
+        m = model_deep_specle_correlation_class()
+    
+#        nn = neuronal_network.neuronal_network_class([])
+        nn = neuronal_network.neuronal_network_class(m.get_model())
+#       model = nn.load_weights()
         print("done")
     
+# ----- TEST ----- nn.load data from file system
         print("the training and test datasets are loading...")
-        image_path, relative_path = get_image_paths_from_other_runs(external_module_paths)
+        image_path, relative_path = get_image_paths_from_other_runs(external_module_paths,
+                                                                    external_module_label)
         
         for i in range(len(relative_path)):
             relative_path[i] = relative_path[i].replace('/','_')
             relative_path[i] = relative_path[i].replace(',', '_')
                 
-        path_1, path_2, r_element = split_list_randome(image_path[1:21], # todo remove
-                                                       percentage=90)
-        prefix_1, prefix_2, r_element = split_list_randome(relative_path[1:21], # todo remove
-                                                           r_element=r_element)
-        
-        image_ground_truth_path = nn.load_ground_truth_data(
-                                    image_path[:1], resize=False,
-                                    prefix=relative_path[:1])
-        image_validation_ground_truth_path = nn.load_validation_ground_truth_data(
-                                    image_path[:1], resize=False,
-                                    prefix=relative_path[:1])
         
         
-    def run(self, external_module_paths):
-        self.nn_main(external_module_paths)
+        # split data sets: parameter: relative_path change -> shift change e.g. 0_0 -> 125_0
+        dataset = []
+        dataset_buffer = []
+        para_old = ""
+        for i in range(len(image_path)):
+            if (relative_path[i] != para_old and i != 0) or i == len(image_path)-1:
+                dataset += [dataset_buffer]
+                dataset_buffer = []
+                
+            dataset_buffer += [[image_path[i], relative_path[i]]]
+            para_old = relative_path[i]
+            
+        del dataset_buffer
+        
+        # d example
+        # d = [[image_path_layer0000, relative_path_layer0000],
+        #      [image_path_layer0010, relative_path_layer0010]]
+        for d in dataset:
+            # split image_path into two lists for training and validation
+            d_1, d_2, r_element = toolbox.split_list_randome(d[1:],
+                                                             percentage=90)
+            
+            # load data
+            prefix = d[0][1] + "_"
+            nn.load_ground_truth_data([d[0][0]],
+                                      prefix=prefix,
+                                      resize=True,
+                                      x_pixel=256, y_pixel=256)
+            nn.load_validation_ground_truth_data([d[0][0]],
+                                                 prefix=d[0][1],
+                                                 resize=True,
+                                                 x_pixel=256, y_pixel=256)
+            
+            ground_truth_filename = prefix + toolbox.get_file_name(d[0][0])
+            for data in d_1:
+                nn.load_training_data([data[0]],
+                                      ground_truth_filename,
+                                      prefix = data[1],
+                                      resize=True,
+                                      x_pixel=256, y_pixel=256)
+            for data in d_2:
+                nn.load_validation_data([data[0]],
+                                        ground_truth_filename,
+                                        prefix = data[1],
+                                        resize=True,
+                                        x_pixel=256, y_pixel=256)
+#  ~~~~ TEST ~~~~
+        
+        nn.get_training_file_paths()
+        
+        # ---------------------------------------------
+        # NEURONAL NETWORK: train network
+        # ---------------------------------------------
+        toolbox.print_program_section_name("NEURONAL NETWORK: train network")
+        
+#        training_data = ti.get_image_as_npy(image_speckle_path)
+#        ground_truth = ti.get_image_as_npy(image_ground_truth_path)
+        
+        def process(training_path, ground_truth_path):
+            train = ti.get_image_as_npy(training_path)
+            ground_truth = ti.get_image_as_npy(ground_truth_path)
+        
+            return train, ground_truth
+        
+        batch_size = 16
+        optimizer = m.get_optimizer([batch_size])
+        nn.train_network([], [],
+                         'sparse_categorical_crossentropy', optimizer,
+                         fit_epochs=2, fit_batch_size=batch_size,
+                         process_data=process)
+        
+        # ---------------------------------------------
+        # NEURONAL NETWORK: validata network
+        # ---------------------------------------------
+        toolbox.print_program_section_name("NEURONAL NETWORK: validate network")
+    
+        nn.validate_network()
+        
+        # ---------------------------------------------
+        # NEURONAL NETWORK: Evaluation
+        # ---------------------------------------------
+        image_ground_truth_path, image_prediction_path = nn.get_validation_file_paths()
+        nn.evaluate_network([nn.jaccard_index, nn.pearson_correlation_coefficient],
+                            image_ground_truth_path,
+                            image_prediction_path)
+
+        # ---------------------------------------------
+        # NEURONAL NETWORK: test network
+        # ---------------------------------------------
+    #    toolbox.print_program_section_name("NEURONAL NETWORK: test network")
+    
+    #    nn.test_network(image_test_speckle_path, model)
+        
+        
+    def run(self, external_module_paths, external_module_label):
+        self.nn_main(external_module_paths, external_module_label)
 
 def nn_main(layer, neuronal_network_path_extension_pretrained_weights=""):
 #    global executed_modules

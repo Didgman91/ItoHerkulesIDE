@@ -12,6 +12,7 @@ import subprocess
 import time
 
 import errno
+import random
 
 import re
 
@@ -392,15 +393,14 @@ def get_intersection(list_1, list_2, str_diff_exact=True):
     # creat list with relative complement
     if str_diff_exact is False:
         if type(list_1[0]) is str and type(list_2[0]) is str:
+            buffer = []
             for b in list_2:
-                buffer = []
                 for a in list_1:
                     if b in a:
                         buffer += [a]
                     else:
                         continue
-                list_1 = buffer
-            return list_1
+            return buffer
         else:
             _intersection(list_1, list_2)
             return
@@ -711,3 +711,41 @@ def create_array_from_columns(columns):
         print("  unequal column lengths")
         
     return array
+
+def split_list_randome(l, percentage=90, r_element = []):
+    """
+    Arguments
+    ----
+        l: list
+            1-dimensional list
+        percentage: float (optinal)
+            first proportion of list *l*
+        r_element: list<integer> (optional)
+            defines which list element should be in *list_1*
+    
+    Returns
+    ----
+        list_1: list
+            first proportion of list *l* (*percentage*)
+        list_2: list
+            secon proportion of list *l* (1-*percentage*)
+        r_element: integer
+            element numbers of the list *l* that are on the list *list_1*.
+    """
+    if r_element == []:
+        size = int(percentage/100.0*len(l))
+        r_element = random.sample(range(1, len(l)), size)
+        
+    list_1 = []
+    list_2 = []
+    for i in range(len(l)):
+        found = False
+        for r in r_element:
+            if r == i:
+                list_1 += [l[i]]
+                found = True
+                break
+        if found is False:
+            list_2 += [l[i]]
+            
+    return list_1, list_2, r_element

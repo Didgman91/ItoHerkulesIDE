@@ -22,6 +22,8 @@ from PIL import ImageOps
 import keras.backend as K
 import tensorflow as tf
 
+from keras import metrics
+
 from ..toolbox import toolbox
 from ..toolbox import images as ti
 
@@ -195,7 +197,7 @@ class neuronal_network_class:
 
         self.file_name_trained_weights = "weights.hdf5"
         self.file_name_predictions = "prediction.npy"
-        self.file_name_history = "history.pkl"
+        self.file_name_history = "train_history.pkl"
 
         # create input folders
         os.makedirs(self.path_data + self.path_input, 0o777, True)
@@ -743,37 +745,51 @@ class neuronal_network_class:
 
             y
                 Numpy array of target (label) data (Keras)
+                
+        Todo
+        ----
+            - remove arguments: training_data, ground_truth
         """
         use_fit_generator = False;
 
         if process_data != []:
             use_fit_generator = True
         
+        ground_truth_validation = []
+        validation_data = []
         if training_data == [] and ground_truth == []:
             ground_truth, training_data = self.get_training_file_paths()
             
             if use_fit_generator is False:
                 ground_truth = ti.get_image_as_npy(ground_truth)
                 training_data = ti.get_image_as_npy(training_data)
+                
+        if validation_data == [] and ground_truth_validation == []:    
+            ground_truth_validation, validation_data = self.get_validation_file_paths()
+            
+            if use_fit_generator is False:
+                ground_truth_validation = ti.get_image_as_npy(ground_truth_validation)
+                validation_data = ti.get_image_as_npy(validation_data)
             
         # Compile model
         self.model.compile(loss=loss, optimizer=optimizer)
+#        self.model.compile(loss=loss, optimizer=optimizer,
+#                           metrics=[metrics.sparse_categorical_accuracy])
 
         # Fit the model
         history = []
         if use_fit_generator is True:
             history = self.model.fit_generator(generate_arrays_from_list(training_data, ground_truth, fit_batch_size, process_data),
-                                               steps_per_epoch=fit_batch_size,
-                                               epochs=fit_epochs)
+                                               steps_per_epoch=len(training_data) // fit_batch_size,
+                                               epochs=fit_epochs,
+                                               validation_data = generate_arrays_from_list(validation_data, ground_truth_validation, fit_batch_size, process_data),
+                                               validation_steps=len(validation_data))
         else:
             history = self.model.fit(training_data,
                                      ground_truth,
                                      epochs=fit_epochs,
                                      batch_size=fit_batch_size,
-                                     verbose=2)
-# todo:
-#        history = model.fit_generator(generate_arrays(training_data_path, ground_truth_path, fit_batch_size),
-#                      steps_per_epoch=fit_batch_size, epochs=fit_epochs)
+                                     validation_data=[validation_data, ground_truth_validation]) # todo: test validation
 
         # saving the history
         with open(self.path_data + self.path_intermediate_data_history + "/"
@@ -784,6 +800,9 @@ class neuronal_network_class:
                 self.path_data
                 + self.path_intermediate_data_trained_weights
                 + "/" + self.file_name_trained_weights)
+        
+        # plot the history
+        self.plot_history()
 
     def validate_network(self, validation_data="", trained_weights_path="",
                          extension=["bmp"]):
@@ -818,9 +837,6 @@ class neuronal_network_class:
         pred = self.__predict(
             validation_data,
             trained_weights_path)
-        
-        print("validate NN:")
-        print("  pred type: {}".format(type(pred)))
         
         path = self.path_data + self.path_output_validation_data_prediction
         prediction_path = ti.save_4D_npy_as_bmp(pred, filenames, path)
@@ -1106,6 +1122,39 @@ class neuronal_network_class:
 
 #        return rv
 
-    def loadHistory():
-        with open('history.pkl', 'rb') as handle:
+    def plot_history(self):
+        path = self.path_data + self.path_intermediate_data_history
+        file = path + "/" + self.file_name_history
+        with open(file, 'rb') as handle:
             hist = pickle.load(handle)
+            
+            output_folder = "/loss"
+            
+            folder = path + output_folder
+            toolbox.create_folder(folder)
+            
+            plot_settings = {'suptitle': 'loss',
+                          'xlabel': 'epoch / 1',
+                          'xmul': 1,
+                          'ylabel': 'loss / 1',
+                          'ymul': 1,
+                          'delimiter': ',',
+                          'skip_rows': 1}
+            
+            loss = hist['loss']
+            val_loss = hist['val_loss']
+            epoch = []
+            for i in range(len(loss)):
+                epoch += [i+1]
+                
+            export = toolbox.create_array_from_columns([epoch, loss, val_loss])
+            header = ["epoch", "loss", "val_loss"]
+            
+            file = folder + "/train.csv"
+            toolbox.save_as_csv(export,
+                                file,
+                                header)
+            
+            toolbox.csv_to_plot([file], folder + "/loss.pdf", plot_settings,
+                                x_column=0, y_column=[1,2],
+                                label = ["loss", "val_loss"])

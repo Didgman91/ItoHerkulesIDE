@@ -651,7 +651,9 @@ def csv_to_plot(csv_file_path_list, plot_save_path,
             >>>                  'ylabel': 'calculated shift / um',
             >>>                  'ymul': 1000,
             >>>                  'delimiter': ',',
-            >>>                  'skip_rows': 1}
+            >>>                  'skip_rows': 1,
+            >>>                  'log x', False,  # optional
+            >>>                  'log y', False}  # optional
     """
     p = plt.figure()
     
@@ -667,6 +669,19 @@ def csv_to_plot(csv_file_path_list, plot_save_path,
             x_value = a[:,x_column] * plot_settings['xmul']
             y_value = a[:,y_column[i]] * plot_settings['ymul']
             plt.plot(x_value, y_value, label=label_buffer)
+        
+        try: 
+            if plot_settings['log y'] is True:
+                plt.yscale('log')        
+        except KeyError:
+            pass
+        
+        try:
+            if plot_settings['log x'] is True:
+                    plt.xscale('log')
+        except KeyError:
+            pass
+        
         
         plt.xlabel(plot_settings['xlabel'])
         plt.ylabel(plot_settings['ylabel'])

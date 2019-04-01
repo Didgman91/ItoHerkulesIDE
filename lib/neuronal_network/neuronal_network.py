@@ -1139,7 +1139,8 @@ class neuronal_network_class:
                           'ylabel': 'loss / 1',
                           'ymul': 1,
                           'delimiter': ',',
-                          'skip_rows': 1}
+                          'skip_rows': 1,
+                          'log y': True}
             
             loss = hist['loss']
             val_loss = hist['val_loss']

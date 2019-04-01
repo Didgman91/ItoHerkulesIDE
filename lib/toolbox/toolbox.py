@@ -217,7 +217,8 @@ def load_image(source_path, destination_path, invert_color=False,
 
         im.save(path)
         rv = rv + [path]
-
+        
+        
     return rv
 
 
@@ -606,11 +607,13 @@ def save_as_csv(array, path, header):
     
     export = []
     if len(array_shape) == 1:
+        header = ["automatically generated numbers"] + header
         for ii in range(len(array)):
             export += [np.array([ii+1, array[ii]])]
     elif len(array_shape) == 2:
         export = array
     elif len(array_shape) > 2:
+        print("save_as_csv (max. 2-dimensional array): wrong shape {}".format(np.shape(array_shape)))
         return 
     
     delemiter = ","

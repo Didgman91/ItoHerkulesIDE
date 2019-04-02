@@ -79,12 +79,8 @@ class memory_effect_nn(module_base):
         resize = True
         nn = neuronal_network.neuronal_network_class(m.get_model(pixel))
 #        nn = neuronal_network.neuronal_network_class([])
-#       model = nn.load_weights()
         print("done")
         
-#        nn.plot_history()
-#        
-#        return 
         # nn.load data from file system
         reload_images = False
         if reload_images is True:
@@ -163,10 +159,11 @@ class memory_effect_nn(module_base):
         nn.train_network([], [],
                          'sparse_categorical_crossentropy', optimizer,
                          fit_epochs=fit_epochs, fit_batch_size=batch_size,
-                         process_data=process)
-#        nn.train_network(training_data, ground_truth,
-#                         'sparse_categorical_crossentropy', optimizer,
-#                         fit_epochs=fit_epochs, fit_batch_size=batch_size)
+                         process_data=process,
+                         filter_layer_number=[[1,10]])
+##        nn.train_network(training_data, ground_truth,
+##                         'sparse_categorical_crossentropy', optimizer,
+##                         fit_epochs=fit_epochs, fit_batch_size=batch_size)
         
         # ---------------------------------------------
         # NEURONAL NETWORK: validata network

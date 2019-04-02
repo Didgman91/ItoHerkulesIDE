@@ -20,7 +20,8 @@ import imageio
 
 def get_image_as_npy(image_path):
     """ Opens the images listed under _image_path_ and returns them as a
-    list of numpy arrays.
+    list of numpy arrays. The 8-bit pixel values are mapped to values from
+    0 to 1.
 
     Arguments
     ----
@@ -48,7 +49,13 @@ def get_image_as_npy(image_path):
 #            img = Image.open(ip).convert('L')
 #            img.load()
             img = cv2.imread(ip,cv2.IMREAD_GRAYSCALE)
-            data = np.asarray(img, dtype="uint8")
+            data = np.asarray(img, dtype="uint8") / 255
+#            # debug
+#            print("----------------")
+#            print(ip)
+#            print("value max: {}".format(data.max()))
+#            print("value min: {}".format(data.min()))
+#            print("----------------")
         elif (file_extension == ".npy") | (file_extension == ".bin"):
             data = np.load(ip)
 #            data = Image.fromarray(np.uint8(data * 255)).convert('L')

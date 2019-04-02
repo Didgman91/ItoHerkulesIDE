@@ -198,7 +198,9 @@ class neuronal_network_class:
         self.file_name_trained_weights = "weights.hdf5"
         self.file_name_predictions = "prediction.npy"
         self.file_name_history = "train_history.pkl"
-
+        
+        self.path_loaded_trained_weights = ""
+        
         # create input folders
         os.makedirs(self.path_data + self.path_input, 0o777, True)
         os.makedirs(self.path_data + self.path_input_model, 0o777, True)
@@ -300,7 +302,7 @@ class neuronal_network_class:
 
         Arguments
         ----
-            path
+            path: string
                 path to the hdf5 file
 
         Returns
@@ -308,17 +310,22 @@ class neuronal_network_class:
             the model with the pretrained weights.
         """
         if path == "":
-            path = self.path_data \
-                    + self.path_intermediate_data_trained_weights \
-                    + "/" + self.file_name_trained_weights
-        else:
-            copyfile(
-                path,
-                self.path_data
-                + self.path_input_pretrained_weights
-                + "/" + self.file_name_trained_weights)
+            if self.path_loaded_trained_weights == "":
+                path = self.path_data + self.path_input_pretrained_weights
+                path = toolbox.get_file_path_with_extension(path, ["hdf5"])
+                
+                if len(path) > 0:
+                    path = path[0]
+                    self.model.load_weights(path)
+                    self.path_loaded_trained_weights = path
+        elif path != self.path_loaded_trained_weights:
+            input_path = self.path_data \
+                         + self.path_input_pretrained_weights \
+                         + "/" + self.file_name_trained_weights
+            copyfile(path,input_path)
 
-        self.model.load_weights(path)
+            self.model.load_weights(input_path)
+            self.model.load_weights = input_path
 
         return self.model
 
@@ -693,7 +700,8 @@ class neuronal_network_class:
     def train_network(self, training_data, ground_truth,
                       loss, optimizer,
                       fit_epochs, fit_batch_size,
-                      process_data=[]):
+                      process_data=[],
+                      filter_layer_number=[]):
         """ Runs the routine to train the network.
 
         Arguments
@@ -727,6 +735,14 @@ class neuronal_network_class:
             process_data
                 if it is specified, then fit_generator() is used instead of
                 fit().
+            
+            filter_layer_number: list<list<integer>>
+                list of start and end layer numbers
+                
+                e.g. [[0,3]] produces the following layer filter:
+                
+                >>> layer
+                >>> ['layer0000', 'layer0001', 'layer0002', 'layer0003']
 
         process_data
         ----
@@ -750,6 +766,26 @@ class neuronal_network_class:
         ----
             - remove arguments: training_data, ground_truth
         """
+        def layer_filter(filter_layer_number, list_1, list_2 = []):
+            # generate layer filter
+            buffer_list_1 = []
+            buffer_list_2 = []
+            layer = []
+            for l in filter_layer_number:
+                for i in range(l[0], l[1]+1):
+                    layer += ["layer{:04}".format(i)]
+            
+            for i in range(len(list_1)):
+                list_intersection = toolbox.get_intersection([list_1[i]],
+                                                             layer,
+                                                             str_diff_exact=False)
+                if len(list_intersection) > 0:
+                    buffer_list_1 += [list_1[i]]
+                    if list_2 != []:
+                        buffer_list_2 += [list_2[i]]
+            
+            return buffer_list_1, buffer_list_2
+        
         use_fit_generator = False;
 
         if process_data != []:
@@ -760,12 +796,24 @@ class neuronal_network_class:
         if training_data == [] and ground_truth == []:
             ground_truth, training_data = self.get_training_file_paths()
             
+            
+            if filter_layer_number != []: # [[start, end]]
+                training_data, ground_truth = layer_filter(filter_layer_number,
+                                                           training_data,
+                                                           ground_truth)
+            
             if use_fit_generator is False:
                 ground_truth = ti.get_image_as_npy(ground_truth)
                 training_data = ti.get_image_as_npy(training_data)
                 
         if validation_data == [] and ground_truth_validation == []:    
             ground_truth_validation, validation_data = self.get_validation_file_paths()
+            
+            if filter_layer_number != []: # [[start, end]]
+                validation_data, ground_truth_validation = layer_filter(
+                                                           filter_layer_number,
+                                                           validation_data,
+                                                           ground_truth_validation)
             
             if use_fit_generator is False:
                 ground_truth_validation = ti.get_image_as_npy(ground_truth_validation)
@@ -796,10 +844,11 @@ class neuronal_network_class:
                   + self.file_name_history, "wb") as f:
             pickle.dump(history.history, f)
 
-        self.model.save_weights(
-                self.path_data
-                + self.path_intermediate_data_trained_weights
-                + "/" + self.file_name_trained_weights)
+        path_weights = self.path_data \
+                        + self.path_intermediate_data_trained_weights \
+                        + "/" + self.file_name_trained_weights
+        self.model.save_weights(path_weights)
+        self.path_loaded_trained_weights = path_weights
         
         # plot the history
         self.plot_history()
@@ -827,19 +876,22 @@ class neuronal_network_class:
         """
         filenames = []
         if validation_data == "":            
-            ground_truth, validation = self.get_validation_file_paths()
-            filenames = toolbox.get_file_name(validation)
-            validation_data = ti.get_image_as_npy(validation)
+            ground_truth, validation_data = self.get_validation_file_paths()
+            filenames = toolbox.get_file_name(validation_data)
         else:
             filenames = toolbox.get_file_name(validation_data)
             validation_data = ti.get_image_as_npy(validation_data)
         
-        pred = self.__predict(
-            validation_data,
-            trained_weights_path)
+        prediction_path = []
+        for i in range(len(validation_data)):
+            image = ti.get_image_as_npy([validation_data[i]])
         
-        path = self.path_data + self.path_output_validation_data_prediction
-        prediction_path = ti.save_4D_npy_as_bmp(pred, filenames, path)
+            pred = self.__predict(
+                image,
+                trained_weights_path)
+            
+            path = self.path_data + self.path_output_validation_data_prediction
+            prediction_path += ti.save_4D_npy_as_bmp(pred, [filenames[i]], path)
         
         return prediction_path
 
@@ -888,12 +940,7 @@ class neuronal_network_class:
         ----
             use of stored trained weights
         """
-        if trained_weights_path == "":
-            self.model.load_weights(
-                self.path_data +
-                self.path_intermediate_data_trained_weights +
-                "/" +
-                self.file_name_trained_weights)
+#        self.load_weights(trained_weights_path)
 
         pred = self.model.predict(data, batch_size=2)
 

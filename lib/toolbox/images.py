@@ -496,3 +496,96 @@ def get_histogram(image_path, bins=10):
         histogram += [hist]
     
     return histogram
+
+def get_OTF(image):
+    """
+    Calculates the optical transferfuntion.
+    
+    
+        H_I = FT(|h|^2) / integral(|h|^2) (2.288)
+    
+    refere lecture: "Optische Inforamtionsverarbeitung" on page OInf-16-6: 30
+    
+    Called functions:
+        - np.fft.fft2
+        - np.fft.fftshift
+    
+    Arguments
+    ----
+        image: array_like
+            Image of the point spread function (Input array, can be complex)
+    
+    Returns
+    ----
+        the fourier transformation of the *image*.
+    """    
+    shape = np.shape(image)
+    
+    fft = []
+    if len(shape) == 2:
+        fft = np.fft.fft2(image)
+        fft = np.fft.fftshift(fft)
+    elif len(shape) == 1:
+        fft = np.fft.fft(image)
+        fft = np.fft.fftshift(fft)
+    
+    fft = fft / sum(image)
+    
+    return fft
+    
+def get_mtf_and_ptf(image):
+    """
+    Arguments
+    ----
+        image: array_like (2d)
+            Image of the point spread function (Input array, can be complex)
+    
+    Returns
+    ----
+        mtf: array_like (1d)
+            modulation transfer function
+        
+        ptf: array_like (1d)
+            phase transfer funtion
+    """
+    fft2 = get_OTF(image)
+    
+    # MTF
+    abs_fft2 = abs(fft2)
+    i = []
+    
+    if len(np.shape(fft2)) == 2:
+        i = get_intersection(abs_fft2)
+    else:
+        i = abs_fft2
+    i = i / i.max()
+    mid = len(i) // 2
+    
+    mtf = i[mid:]
+    
+    # PTF
+    arg_fft2 = np.angle(fft2)    
+    
+    if len(np.shape(fft2)) == 2:
+        i = get_intersection(arg_fft2)
+    else:
+        i = arg_fft2
+    ptf = i[mid:]
+    
+    return mtf, ptf
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

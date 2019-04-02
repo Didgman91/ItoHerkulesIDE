@@ -109,7 +109,7 @@ def csv_fit_and_plot(path, plot_settings, x_column = 0, y_column = [1],
             print(p1)
             xp = np.linspace(min(x_value), max(x_value))
             
-            if len(path == 1):
+            if len(path) == 1:
                 plt.plot(xp, p1(xp), '--',
                          label=label + " (fit)\n{:.3}x + {:.3}".format(p1.coefficients[0],
                                          p1.coefficients[1]))
@@ -133,5 +133,6 @@ def csv_fit_and_plot(path, plot_settings, x_column = 0, y_column = [1],
     if plot_save_path != "":
         p.savefig(plot_save_path, bbox_inches='tight')
     
+    plt.close(p)
     return poly
 

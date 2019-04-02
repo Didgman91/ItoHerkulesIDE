@@ -33,6 +33,13 @@ class memory_effect(module_base):
        self.mm_per_pixel = 25/(4096)
        
        self.fit_section=[0.256,0] # [m]
+       
+       self.path_intermediate_data_mtf = self.path_intermediate_data + "/mtf"
+       self.path_intermediate_data_correlation = self.path_intermediate_data \
+                                                 + "/correlation"
+                                                 
+       toolbox.create_folder(self.path_intermediate_data_mtf)
+       toolbox.create_folder(self.path_intermediate_data_correlation)
 
     def f2_main(self, folder, shift, generate_scatter_plate = True):
     #    global executed_modules
@@ -184,7 +191,12 @@ class memory_effect(module_base):
             
             if img_path != "":
                 f.savefig("{}_intersection_x.pdf".format(img_path[:-4]))
-            
+                header = ["intersection_x"]
+                toolbox.save_as_csv(intersection,
+                                    "{}_intersection_x.csv".format(img_path[:-4]),
+                                    header)
+            plt.close(f)
+
             # axis 1
             intersection = ti.get_intersection(img, axis=1)
             
@@ -203,9 +215,65 @@ class memory_effect(module_base):
             
             if img_path != "":
                 f.savefig("{}_intersection_y.pdf".format(img_path[:-4]))
-            
+                header = ["intersection_y"]
+                toolbox.save_as_csv(intersection,
+                                    "{}_intersection_y.csv".format(img_path[:-4]),
+                                    header)
+                
+            plt.close(f)
             return relative_pos, std
         
+        def __generate_mtf_and_ptf(image, image_file_path):
+            mtf_csv_file = "{}_mtf_x.csv".format(image_file_path)
+            mtf_pdf_file = "{}_mtf_x.pdf".format(image_file_path)
+            
+            ptf_csv_file = "{}_ptf_x.csv".format(image_file_path)
+            ptf_pdf_file = "{}_ptf_x.pdf".format(image_file_path)
+            
+            
+            
+            mtf, ptf = ti.get_mtf_and_ptf(image)
+            
+            x_axis = []
+            l = len(mtf)
+            for i in range(l):
+                x_axis += [i * self.mm_per_pixel]
+            
+            # mtf export
+            export = toolbox.create_array_from_columns([x_axis, mtf])
+            header = ["u / 1/mm","mtf / 1"]
+            toolbox.save_as_csv(export, mtf_csv_file, header)
+            
+            plot_settings = {'suptitle': 'MTF',
+                             'xlabel': 'u / 1/mm',
+                             'xmul': 1,
+                             'ylabel': 'MTF / 1',
+                             'ymul': 1,
+                             'delimiter': ',',
+                             'skip_rows': 1,
+                             'log x': False,  # optional
+                             'log y': False}  # optional
+            
+            toolbox.csv_to_plot([mtf_csv_file], mtf_pdf_file,
+                                plot_settings)
+            
+            # ptf export
+            export = toolbox.create_array_from_columns([x_axis, ptf])
+            header = ["u / 1/mm","mtf / 1"]
+            toolbox.save_as_csv(export, ptf_csv_file, header)
+            
+            plot_settings = {'suptitle': 'PTF',
+                             'xlabel': 'u / 1/mm',
+                             'xmul': 1,
+                             'ylabel': 'PTF / 1',
+                             'ymul': 1,
+                             'delimiter': ',',
+                             'skip_rows': 1,
+                             'log x': False,  # optional
+                             'log y': False}  # optional
+            
+            toolbox.csv_to_plot([ptf_csv_file], ptf_pdf_file,
+                                plot_settings)
         
 #        image = []
 #        for p in path:
@@ -262,6 +330,15 @@ class memory_effect(module_base):
                 # ~ image_0
                 
                 image = __load(path[i] + "/" + folders_layers[ii], "Intensity")
+                
+                # export mtf and ptf
+                correlation_image_file_name = "{}_{}".format(shift_folder,
+                                            folders_layers[ii])
+                file_path = self.path_intermediate_data_mtf \
+                            + "/" + correlation_image_file_name
+                __generate_mtf_and_ptf(image[0,:,:,0], file_path)
+                # ~ export mtf and ptf ~
+                
                 shift = ti.get_cross_correlation_2d(image, image_0)
                 
                 del image_0
@@ -277,7 +354,8 @@ class memory_effect(module_base):
                                           [correlation_image_file_name],
                                           self.path_intermediate_data)
                 
-                file_path = self.path_intermediate_data + "/" + correlation_image_file_name + ".bmp"
+                file_path = self.path_intermediate_data_correlation \
+                            + "/" + correlation_image_file_name + ".bmp"
                 buffer_pos, buffer_std = __save_intersection_image_and_calc_relative_max_pos(shift[0,:,:,0], self.mm_per_pixel, file_path)
                 # ~ export cross correlation
                 
@@ -357,6 +435,8 @@ class memory_effect(module_base):
         plt.grid(True)
         f.savefig("{}/shift_overview{}.pdf".format(shift_path, file_name_extension))
         
+        plt.close(f)
+        
         return shift_mm, std_mm, shift_folder_name
     
     def create_fit(self, folder):
@@ -370,7 +450,7 @@ class memory_effect(module_base):
                           'delimiter': ',',
                           'skip_rows': 1}
         
-        output_folder = "fit/"
+        output_folder = "/fit"
         
         files = toolbox.get_file_path_with_extension(folder, ["csv"])
         
@@ -387,9 +467,10 @@ class memory_effect(module_base):
             s = list(map(int, s))
             shift += [s]
             
-            p += [tm.csv_fit_and_plot(f, plot_settings, y_column=[2],
+            p += [tm.csv_fit_and_plot([f], plot_settings, y_column=[2],
                                    fit_section=self.fit_section,
-                                   plot_save_path=folder + filename + "_fit.pdf")]
+                                   plot_save_path=folder + "/" \
+                                                   + filename + "_fit.pdf")]
         
         export = []
         for i in range(len(p)):
@@ -400,17 +481,19 @@ class memory_effect(module_base):
         header = ["shift x", "shift y", "a (ax+b)", "b (ax+b)"]
         
         toolbox.save_as_csv(export,
-                            folder + "fit_{}_{}.csv".format(self.fit_section[0],
-                                                            self.fit_section[1]),
+                            folder + "/" \
+                            + "fit_{}_{}.csv".format(self.fit_section[0],
+                                                         self.fit_section[1]),
                             header)
                             
         tm.csv_fit_and_plot(files, plot_settings, y_column=[2],
                             fit_section=self.fit_section,
-                            plot_save_path=folder + "overview_fit_{}_{}.pdf".format(self.fit_section[0],
+                            plot_save_path=folder + "/" \
+                                           + "overview_fit_{}_{}.pdf".format(self.fit_section[0],
                                                         self.fit_section[1]))
-
     
     def create_overview(self):
+        # shift  calculation
         plot_settings = {'suptitle': 'x shift',
                  'xlabel': 'distance / m',
                  'xmul': 1,
@@ -419,7 +502,8 @@ class memory_effect(module_base):
                  'delimiter': ',',
                  'skip_rows': 1}
 
-        path = "data/memory_effect/output/shift"
+        
+        path = self.path_ouput + "/shift"
         files = toolbox.get_file_path_with_extension(path, ["csv"])
         files.sort()
         
@@ -428,6 +512,46 @@ class memory_effect(module_base):
         
         toolbox.csv_to_plot(files, path + "/shift_y.pdf", plot_settings=plot_settings,
                     x_column=0, y_column=[1])
+        
+        # ~ shift  calculation ~
+        
+        # mtf calculation
+        def overview_mtf(files, folder):
+            mtf_pdf_file = "{}/overview_mtf.pdf".format(folder)
+            
+            plot_settings = {'suptitle': 'MTF',
+                             'xlabel': 'u / 1/mm',
+                             'xmul': 1,
+                             'ylabel': 'MTF / 1',
+                             'ymul': 1,
+                             'delimiter': ',',
+                             'skip_rows': 1,
+                             'log x': True,  # optional
+                             'log y': False}  # optional
+            
+            toolbox.csv_to_plot(files, mtf_pdf_file,
+                                plot_settings,
+                                label_box_anchor=(0.5, -0.18))
+        
+        folder = self.path_intermediate_data_mtf
+        files_all = toolbox.get_file_path_with_extension(folder, ["csv"])
+        files_all = toolbox.get_intersection(files_all, ["_mtf_"], False)
+        
+        l = len(files_all)
+        no_of_plots = 5
+        if l < no_of_plots:
+            overview_mtf(files_all, folder)
+        elif l >= no_of_plots:
+            step = l // no_of_plots
+            files = []
+            for i in range(0,l,step):
+                files  += [files_all[i]]
+            
+            if np.mod(l, no_of_plots) != 0:
+                files  += [files_all[-1]]
+            
+            overview_mtf(files, folder)
+        # ~ mtf calculation ~
     
     def run(self):
         toolbox.copy("script/memory_effect/f2_thick_scatter_plate", "config/f2",
@@ -436,26 +560,26 @@ class memory_effect(module_base):
         executed_modules = []
         folder_0, path_0, layer_0 = self.f2_main("", [0,0])
         executed_modules += ["f2"]
-        r = range(1,5)
-        for i in r:
-            for ii in [0]:
-                executed_modules += ["f2"]
-                folder, path, layer = self.f2_main("", [5**i, 0], False)
-                    
-                self.evaluate_data([folder_0, folder])
-        
-        r = [50,200]
-        for i in r:
-            for ii in [0]:
-                if i!=0:# and ii!=0:
-                    folder, path, layer = self.f2_main("", [i, ii], False)
-                    self.evaluate_data([folder_0, folder])
-                    
-                    folder, path, layer = self.f2_main("", [i,ii], False)
-                    self.evaluate_data([folder_0, folder])
+#        r = range(1,5)
+#        for i in r:
+#            for ii in [0]:
+#                executed_modules += ["f2"]
+#                folder, path, layer = self.f2_main("", [5**i, 0], False)
+#                    
+#                self.evaluate_data([folder_0, folder])
+#        
+#        r = [50,200]
+#        for i in r:
+#            for ii in [0]:
+#                if i!=0:# and ii!=0:
+#                    folder, path, layer = self.f2_main("", [i, ii], False)
+#                    self.evaluate_data([folder_0, folder])
+#                    
+#                    folder, path, layer = self.f2_main("", [i,ii], False)
+#                    self.evaluate_data([folder_0, folder])
         
         self.create_overview()
-        self.create_fit(self.path_ouput + self.shift_folder_name)
+#        self.create_fit(self.path_ouput + self.shift_folder_name)
         
 #        todo: f2 -> class f2
 #        self.load_input_from_module()

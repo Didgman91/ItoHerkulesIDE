@@ -632,7 +632,7 @@ def save_as_csv(array, path, header):
 def csv_to_plot(csv_file_path_list, plot_save_path,
                 plot_settings,
                 x_column = 0, y_column = [1],
-                label = []):
+                label = [], label_box_anchor = []):
     """reads multiple csv files and plots specific columns.
     Arguments
     ----
@@ -652,8 +652,8 @@ def csv_to_plot(csv_file_path_list, plot_save_path,
             >>>                  'ymul': 1000,
             >>>                  'delimiter': ',',
             >>>                  'skip_rows': 1,
-            >>>                  'log x', False,  # optional
-            >>>                  'log y', False}  # optional
+            >>>                  'log x': False,  # optional
+            >>>                  'log y': False}  # optional
     """
     p = plt.figure()
     
@@ -686,11 +686,15 @@ def csv_to_plot(csv_file_path_list, plot_save_path,
         plt.xlabel(plot_settings['xlabel'])
         plt.ylabel(plot_settings['ylabel'])
         
-        plt.legend(loc='best')
+        if label_box_anchor == []:
+            plt.legend(loc='best')
+        else:
+            plt.legend(loc='upper center', bbox_to_anchor=label_box_anchor, ncol=2)
         
         plt.suptitle(plot_settings['suptitle'])
         
-    p.savefig(plot_save_path)
+    p.savefig(plot_save_path, bbox_inches='tight')
+    plt.close(p)
     
 def create_array_from_columns(columns):
     """

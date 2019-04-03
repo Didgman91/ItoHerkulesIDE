@@ -529,7 +529,9 @@ def get_OTF(image):
         fft = np.fft.fft(image)
         fft = np.fft.fftshift(fft)
     
-    fft = fft / sum(image)
+    s = image.sum()
+    if s != 0:
+        fft = fft / image.sum()
     
     return fft
     
@@ -558,7 +560,7 @@ def get_mtf_and_ptf(image):
         i = get_intersection(abs_fft2)
     else:
         i = abs_fft2
-    i = i / i.max()
+#    i = i / i.max()
     mid = len(i) // 2
     
     mtf = i[mid:]
@@ -573,19 +575,3 @@ def get_mtf_and_ptf(image):
     ptf = i[mid:]
     
     return mtf, ptf
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    

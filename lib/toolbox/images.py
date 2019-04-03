@@ -535,7 +535,7 @@ def get_OTF(image):
     
     return fft
     
-def get_mtf_and_ptf(image):
+def get_mtf_and_ptf(image, axis=0):
     """
     Arguments
     ----
@@ -557,7 +557,7 @@ def get_mtf_and_ptf(image):
     i = []
     
     if len(np.shape(fft2)) == 2:
-        i = get_intersection(abs_fft2)
+        i = get_intersection(abs_fft2, axis=axis)
     else:
         i = abs_fft2
 #    i = i / i.max()
@@ -569,7 +569,7 @@ def get_mtf_and_ptf(image):
     arg_fft2 = np.angle(fft2)    
     
     if len(np.shape(fft2)) == 2:
-        i = get_intersection(arg_fft2)
+        i = get_intersection(arg_fft2, axis=axis)
     else:
         i = arg_fft2
     ptf = i[mid:]

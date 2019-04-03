@@ -31,6 +31,7 @@ pathIntermediateAuxInfo = "/f2/intermediate_data/aux_info"
 pathIntermediateDataScatterPlate = "/f2/intermediate_data/scatter_plate"
 pathIntermediateDataScript = "/f2/intermediate_data/script"
 pathIntermediateDataStdout = "/f2/intermediate_data"
+pathOutput = "/f2/output"
 pathOutputSpeckle = "/f2/output/speckle"
 pathOutputDocumentation = "/f2/output/documentation"
 
@@ -75,7 +76,44 @@ def generate_folder_structure(path="data"):
     os.makedirs(path+pathIntermediateDataStdout, 0o777, True)
     os.makedirs(path+pathOutputSpeckle, 0o777, True)
     os.makedirs(path+pathOutputDocumentation, 0o777, True)
+
+def get_f2_script(path, dictionary={}):
+    """
+    Arguments
+    ----
+        path: string
+        
+        dictionary: dict
     
+    Returns
+    ----
+        lines: list<string>
+    """
+    textFile = open(path, "r")
+    lines = textFile.readlines()
+    
+    for i in range(len(lines)):
+        lines[i] = lines[i].format(**dictionary)
+    
+    return lines
+
+def write_f2_script(lines, filename):
+    """
+    Arguments
+    ----
+        lines: list<string>
+        
+        filename: string
+    """
+    path = pathScript + "/" + filename
+    with open(path, "w") as text_file:
+        for ii in range(len(lines)):
+            if lines[ii][-1] == '\n':
+                lines[ii] = lines[ii][:-1]
+            print(lines[ii], file=text_file)
+                
+    return path
+
 def create_scatter_plate(numberOfLayers, distance, parameter="",
                          path="config/f2/ScriptPartCreateScatterPlate.txt"):
     "Creats the scatterplate and saves it in the folder _path_."
@@ -225,7 +263,6 @@ def load_image(imagePath, invertColor=False, resize=False, xPixel=0, yPixel=0):
         rv = rv + [ path ]
     
     return rv
-    
 
 def get_f2_script_parameter(numberOfLayers, distance, path="config/f2/ScriptPartSetParameters.txt"):
     

@@ -82,6 +82,26 @@ def generate_arrays_from_list(train, ground_truth, batch_size, process):
 
             yield x, y
 
+def layer_filter(filter_layer_number, list_1, list_2 = []):
+    # generate layer filter
+    buffer_list_1 = []
+    buffer_list_2 = []
+    layer = []
+    for l in filter_layer_number:
+        for i in range(l[0], l[1]+1):
+            layer += ["layer{:04}".format(i)]
+    
+    for i in range(len(list_1)):
+        list_intersection = toolbox.get_intersection([list_1[i]],
+                                                     layer,
+                                                     str_diff_exact=False)
+        if len(list_intersection) > 0:
+            buffer_list_1 += [list_1[i]]
+            if list_2 != []:
+                buffer_list_2 += [list_2[i]]
+    
+    return buffer_list_1, buffer_list_2
+
 # def generate_arrays(data, ground_truth, batch_size):
 #    L = len(data)
 #
@@ -696,7 +716,7 @@ class neuronal_network_class:
                 extension)
         
         return rv_ground_truth_path, rv_validation_file_path
-
+        
     def train_network(self, training_data, ground_truth,
                       loss, optimizer,
                       fit_epochs, fit_batch_size,
@@ -766,25 +786,6 @@ class neuronal_network_class:
         ----
             - remove arguments: training_data, ground_truth
         """
-        def layer_filter(filter_layer_number, list_1, list_2 = []):
-            # generate layer filter
-            buffer_list_1 = []
-            buffer_list_2 = []
-            layer = []
-            for l in filter_layer_number:
-                for i in range(l[0], l[1]+1):
-                    layer += ["layer{:04}".format(i)]
-            
-            for i in range(len(list_1)):
-                list_intersection = toolbox.get_intersection([list_1[i]],
-                                                             layer,
-                                                             str_diff_exact=False)
-                if len(list_intersection) > 0:
-                    buffer_list_1 += [list_1[i]]
-                    if list_2 != []:
-                        buffer_list_2 += [list_2[i]]
-            
-            return buffer_list_1, buffer_list_2
         
         use_fit_generator = False;
 
@@ -798,9 +799,10 @@ class neuronal_network_class:
             
             
             if filter_layer_number != []: # [[start, end]]
-                training_data, ground_truth = layer_filter(filter_layer_number,
-                                                           training_data,
-                                                           ground_truth)
+                training_data, ground_truth = layer_filter(
+                                              filter_layer_number,
+                                              training_data,
+                                              ground_truth)
             
             if use_fit_generator is False:
                 ground_truth = ti.get_image_as_npy(ground_truth)
@@ -824,11 +826,11 @@ class neuronal_network_class:
 #        self.model.compile(loss=loss, optimizer=optimizer,
 #                           metrics=[metrics.sparse_categorical_accuracy])
 
-        # Fit the model
+#        # Fit the model
         history = []
         if use_fit_generator is True:
             history = self.model.fit_generator(generate_arrays_from_list(training_data, ground_truth, fit_batch_size, process_data),
-                                               steps_per_epoch=len(training_data) // fit_batch_size,
+                                               steps_per_epoch=math.ceil(len(training_data) / fit_batch_size),
                                                epochs=fit_epochs,
                                                validation_data = generate_arrays_from_list(validation_data, ground_truth_validation, fit_batch_size, process_data),
                                                validation_steps=len(validation_data))

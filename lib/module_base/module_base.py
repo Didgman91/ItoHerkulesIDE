@@ -68,7 +68,7 @@ class module_base(object):
         if subfolder != "":
             if subfolder[0] != "/":
                 subfolder = "/" + subfolder
-            self.__create_folder(self.path_input + subfolder)
+            toolbox.create_folder(self.path_input + subfolder)
             
         if type(path) is list:
             for p in path:

@@ -39,7 +39,7 @@ environment = env.herkules
 
 # additional execute after compression and copying
 # For example:
-remote_command = "source activate keras_20190207 && python3.6 main.py"
+remote_command = "source activate keras && python3.6 main.py"
 #remote_command = "echo hello grid"
 
 remote_user = "itodaiber"

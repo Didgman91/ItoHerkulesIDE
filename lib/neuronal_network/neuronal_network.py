@@ -20,6 +20,10 @@ from PIL import Image
 from PIL import ImageOps
 
 import keras.backend as K
+from keras.callbacks import ModelCheckpoint
+from keras.callbacks import ReduceLROnPlateau
+from keras.callbacks import TensorBoard
+from keras.callbacks import TerminateOnNaN
 import tensorflow as tf
 
 from keras import metrics
@@ -29,6 +33,8 @@ from ..toolbox import images as ti
 
 from .losses import pcc
 from .losses import jd
+
+from .callbacks import intermediateValidationExport
 
 #from __future__ import print_function
 #
@@ -205,6 +211,8 @@ class neuronal_network_class:
             neuronal_network_path_extension + "/intermediate_data/trained_weights"
         self.path_intermediate_data_history = self.path_neuronal_network_data + \
             neuronal_network_path_extension + "/intermediate_data/history"
+        self.path_intermediate_data_tensorboard = self.path_neuronal_network_data + \
+            neuronal_network_path_extension + "/intermediate_data/tensorboard"
 
         self.path_output_validation_data_prediction = self.path_neuronal_network_data + \
             neuronal_network_path_extension + "/output/validation_data_predictions"
@@ -250,6 +258,11 @@ class neuronal_network_class:
         os.makedirs(
             self.path_data +
             self.path_intermediate_data_history,
+            0o777,
+            True)
+        os.makedirs(
+            self.path_data +
+            self.path_intermediate_data_tensorboard,
             0o777,
             True)
 
@@ -315,8 +328,8 @@ class neuronal_network_class:
 #            self.model.load_weights(path)
 
         return self.model
-
     def load_weights(self, path=""):
+
         """
         Loads the weights out of an hdf5 file. The model must be loaded first.
 
@@ -826,6 +839,43 @@ class neuronal_network_class:
 #        self.model.compile(loss=loss, optimizer=optimizer,
 #                           metrics=[metrics.sparse_categorical_accuracy])
 
+        # Callbacks
+        path_weights = self.path_data \
+                        + self.path_intermediate_data_trained_weights \
+                        + "/checkpointer_" + self.file_name_trained_weights
+        checkpointer = ModelCheckpoint(filepath=path_weights,
+                                       verbose=1,
+                                       save_best_only=True,
+                                       period=10)
+        
+        reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2,
+                              patience=5, min_lr=0.00001)
+        
+        dir_tensorboard = self.path_data \
+                          + self.path_intermediate_data_tensorboard 
+                           
+        tensorboard = TensorBoard(log_dir=dir_tensorboard,
+                                  histogram_freq=0,
+                                  batch_size=fit_batch_size,
+                                  write_graph=True,
+                                  write_grads=False,
+                                  write_images=True,
+                                  embeddings_freq=10,
+                                  embeddings_layer_names=None,
+                                  embeddings_metadata=None,
+                                  embeddings_data=None,
+                                  update_freq='epoch')
+        
+        terminate = TerminateOnNaN()
+        
+        exportInter = intermediateValidationExport()
+        
+        callbacks_list = [checkpointer,
+                          reduce_lr,
+                          terminate,
+                          exportInter]#,
+#                          tensorboard]
+        
 #        # Fit the model
         history = []
         if use_fit_generator is True:
@@ -833,14 +883,30 @@ class neuronal_network_class:
                                                steps_per_epoch=math.ceil(len(training_data) / fit_batch_size),
                                                epochs=fit_epochs,
                                                validation_data = generate_arrays_from_list(validation_data, ground_truth_validation, fit_batch_size, process_data),
-                                               validation_steps=len(validation_data))
+                                               validation_steps=len(validation_data),
+                                               callbacks=callbacks_list)
         else:
             history = self.model.fit(training_data,
                                      ground_truth,
                                      epochs=fit_epochs,
                                      batch_size=fit_batch_size,
                                      validation_data=[validation_data, ground_truth_validation]) # todo: test validation
-
+        
+        # Fit the model
+        
+#        ---TEST---
+#        training_data = ti.get_image_as_npy(training_data)
+#        ground_truth = ti.get_image_as_npy(ground_truth)
+#        
+#        validation_data = ti.get_image_as_npy(validation_data)
+#        ground_truth_validation = ti.get_image_as_npy(ground_truth_validation)
+#        
+#        history = self.model.fit(training_data,
+#                                 ground_truth,
+#                                 epochs=fit_epochs,
+#                                 batch_size=fit_batch_size,
+#                                 validation_data=[validation_data, ground_truth_validation]) # todo: test validation
+#        ~~~TEST~~~
         # saving the history
         with open(self.path_data + self.path_intermediate_data_history + "/"
                   + self.file_name_history, "wb") as f:

@@ -1,0 +1,65 @@
+Subroutine export(a2sub, ePixelXsub, ePixelYsub, path)
+    Tic
+    BMPInit ePixelXsub,ePixelYsub
+    BMPSetPen 255,255,255
+    BMPSetPen2 128,128,128
+       
+    BMPPlot a2sub, ePixelXsub, ePixelYsub
+    BMPSave path
+       
+    BMPClear
+    Print "export: ", path
+    Print "  wall time [s]: ", Toc[0]
+EndSub  
+
+Subroutine resizeAndExport(aSub, pixelX, pixelY, path)
+    jMax=pixelX
+    jjMax=pixelY
+    Do j,0,pixelX
+        Do jj,0,pixelY
+            If aSub(j,jj) .eq. 0
+                If jMax .gt. j
+                    jMax=j
+                EndIf
+                If jjMax .gt. jj
+                    jjMax=jj
+                EndIf
+            EndIf
+        EndDo
+    EndDo
+    
+    r=aSub(0:jMax,0:jjMax)
+    
+    Call export(r,jMax,jjMax, path)
+EndSub
+
+
+BMPInit {py_Pixel_x},{py_Pixel_y}
+BMPLoad "{py_input_image_path}" ! 24Bit RGB
+BMP2Array obj
+
+Tic
+a=FWT2D obj
+Print "FWT2D wall time [s]",Toc[0]
+
+Call export(a, {py_Pixel_x}, {py_Pixel_y}, "{py_output_fwt_pre_c_path}")
+
+Compression2D a,{py_compress_f}
+Print "Kompression [%]         :",(1-MatrixNonZeros[a]/({py_Pixel_x}*{py_Pixel_y}))*100
+
+Call export(a, {py_Pixel_x}, {py_Pixel_y}, "{py_output_fwt_post_c_path}")
+!Call resizeAndExport(a, {py_Pixel_x}, {py_Pixel_y}, "{py_output_fwt_post_c_npy_path}")
+
+Tic
+img=IFWT2D a
+Print "IFWT2D wall time [s]",Toc[0]
+
+Call export(img, {py_Pixel_x}, {py_Pixel_y}, "{py_output_image_path}")
+
+nrm=0
+MatrixDifferenzNorm obj,img,nrm
+Print "Abweichung [froeb Norm] :",nrm
+
+
+End
+

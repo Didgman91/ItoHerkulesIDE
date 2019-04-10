@@ -848,8 +848,8 @@ class neuronal_network_class:
                                        save_best_only=True,
                                        period=10)
         
-        reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2,
-                              patience=5, min_lr=0.00001)
+        reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5,
+                              patience=5, min_lr=1.0e-12)
         
 #        dir_tensorboard = self.path_data \
 #                          + self.path_intermediate_data_tensorboard 
@@ -911,7 +911,20 @@ class neuronal_network_class:
         with open(self.path_data + self.path_intermediate_data_history + "/"
                   + self.file_name_history, "wb") as f:
             pickle.dump(history.history, f)
-
+        
+        # save history as csv
+        columns = []
+        header = []
+        for key in history.history:
+            header += ["{}".format(key)]
+            columns += [history.history[key]]
+        
+        export = toolbox.create_array_from_columns(columns)
+            
+        file = self.path_data + self.path_intermediate_data_history + "/"\
+               + self.file_name_history[:-3] + "csv"
+        toolbox.save_as_csv(export, file, header)
+        
         path_weights = self.path_data \
                         + self.path_intermediate_data_trained_weights \
                         + "/" + self.file_name_trained_weights
@@ -922,7 +935,7 @@ class neuronal_network_class:
         self.plot_history()
 
     def validate_network(self, validation_data="", trained_weights_path="",
-                         extension=["bmp"]):
+                         extension=["bmp"], pred_invert_colors=False):
         """Calculates predictions based on the validation dataset.
 
         Arguments
@@ -959,7 +972,8 @@ class neuronal_network_class:
                 trained_weights_path)
             
             path = self.path_data + self.path_output_validation_data_prediction
-            prediction_path += ti.save_4D_npy_as_bmp(pred, [filenames[i]], path)
+            prediction_path += ti.save_4D_npy_as_bmp(pred, [filenames[i]], path,
+                                                     invert_color=pred_invert_colors)
         
         return prediction_path
 

@@ -31,8 +31,10 @@ executed_modules = []
 #m = me.memory_effect()
 #executed_modules = m.run()
 
-ext = ["/home/Grid/itodaiber/KW17/thickSP_500mm_memory_effect_25_mm_fog_d_20_rhon_40_NA_0_12_lam_905_dist_500mm_NAprop_0_01_fog_100m_rhon_0_20/data/f2/output/speckle"]
-label = ["KW17_thickSP_500_"]
+ext = ["/home/Grid/itodaiber/KW18/thickSP_256mm_memory_effect_25_mm_fog_d_20_rhon_40_NA_0_12_lam_905_dist_500mm_NAprop_0_01_fog_100m_rhon_0_20_set_3/data/f2/output/speckle"]
+label = ["KW18_thickSP_256mm_me_set_3_"]
+#ext = ["/home/Grid/itodaiber/KW19/181209_1414_neuronalNetwork_F2"]
+#label = [""]
 menn = memory_effect_nn()
 
 menn.run(ext, label)

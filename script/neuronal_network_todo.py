@@ -30,7 +30,7 @@ class memory_effect_nn(module_base):
     
     def nn_init(self):
         K.set_floatx('float32')
-        neuronal_network.set_tf_gpu_fraction(0.24)
+        neuronal_network.set_tf_gpu_fraction(0.12)
 #       neuronal_network.set_tf_gpu_allow_growth()
 
 
@@ -75,14 +75,14 @@ class memory_effect_nn(module_base):
         m = model_deep_specle_correlation_class()
     
 #        nn = neuronal_network.neuronal_network_class([])
-        pixel = 256
+        pixel = 64
         resize = True
         nn = neuronal_network.neuronal_network_class(m.get_model(pixel))
 #        nn = neuronal_network.neuronal_network_class([])
         print("done")
         
         # nn.load data from file system
-        reload_images = False
+        reload_images = True
         if reload_images is True:
             print("the training and test datasets are loading...")
             image_path, relative_path = get_image_paths_from_other_runs(external_module_paths,
@@ -148,19 +148,21 @@ class memory_effect_nn(module_base):
         
         def process(training_path, ground_truth_path):
             train = ti.get_image_as_npy(training_path)
+            train /= train.max()
             ground_truth = ti.get_image_as_npy(ground_truth_path)
+            ground_truth /= ground_truth.max()
         
             return train, ground_truth
         
-        batch_size = 4
-        fit_epochs = 280
+        batch_size = 16
+        fit_epochs = 200
         optimizer = m.get_optimizer([fit_epochs])
 #        optimizer = m.get_optimizer()
         nn.train_network([], [],
                          'sparse_categorical_crossentropy', optimizer,
                          fit_epochs=fit_epochs, fit_batch_size=batch_size,
                          process_data=process,
-                         filter_layer_number=[[1,10]])
+                         filter_layer_number=[[150,257]])
 ##        nn.train_network(training_data, ground_truth,
 ##                         'sparse_categorical_crossentropy', optimizer,
 ##                         fit_epochs=fit_epochs, fit_batch_size=batch_size)

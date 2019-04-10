@@ -207,16 +207,18 @@ def load_image(source_path, destination_path, invert_color=False,
         if destination_path[-1] != "/":
             destination_path += "/"
 
-        if type(prefix) is str:
+        path = ""
+        if type(prefix) is str and prefix != "":
             path = destination_path + prefix + name[0] + file_extension
-        elif type(prefix) is list:
+        elif type(prefix) is list and prefix != []:
             if len(prefix) == len(source_path):
                 path = destination_path + prefix[i] + name[0] + file_extension
         else:
             path = destination_path + name[0] + file_extension
 
-        im.save(path)
-        rv = rv + [path]
+        if path != "":
+            im.save(path)
+            rv = rv + [path]
         
         
     return rv

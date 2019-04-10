@@ -24,9 +24,10 @@ class env:
 # settings
 # ---------------------------------------------
 
-subfolder="KW19"
+subfolder="KW20"
 
-project_name = "memory_effect_25_mm_fog_NA_0.0015"
+project_name = "NN_KW17_thickSP_256mm_set3_64px_layer_150_257"
+#project_name = "NN_rerun_181209_layer_1_20"
 
 # zip settings
 zip_settings = {'zip_File_Name': "herkules.zip",
@@ -44,6 +45,8 @@ remote_command = "source activate keras && python3.6 main.py"
 
 remote_user = "itodaiber"
 
+# condition ignore value: -1
+condition_job_id_ended = -1
 
 # Hint
 # check your key files
@@ -96,7 +99,12 @@ def get_sftp_settings(project_name, environment, remote_user, remote_command):
                          'key_File': key_file_path,
                          'path_Remote': "/home/{}/{}/{}/".format(remote_user, subfolder, project_name),
                          'file': zip_settings['zip_File_Name']}
-        execute = "bsub -J {} '{}'".format(project_name, remote_command)
+        if condition_job_id_ended == -1:            
+            execute = "bsub -J {} '{}'".format(project_name, remote_command)
+        else:
+            execute = "bsub -w \"ended({})\" -J {} '{}'".format(condition_job_id_ended,
+                                                          project_name,
+                                                          remote_command)
     else:
         key_file_path = os.path.normpath("{}/.ssh/herkules2".format(user_Dir))
         sftp_settings = {'host': "herkules2.ito.uni-stuttgart.de",
@@ -105,7 +113,13 @@ def get_sftp_settings(project_name, environment, remote_user, remote_command):
                          'key_File': key_file_path,
                          'path_Remote': "/home/Grid/{}/{}/{}/".format(remote_user, subfolder, project_name),
                          'file': zip_settings['zip_File_Name']}
-        execute = "bsub -R\"select[hname={}]\" -n2 -J {} '{}'".format(environment, project_name, remote_command)
+        if condition_job_id_ended == -1:
+            execute = "bsub -R\"select[hname={}]\" -n2 -J {} '{}'".format(environment, project_name, remote_command)
+        else:
+            execute = "bsub -w \"ended({})\" -R\"select[hname={}]\" -n2 -J {} '{}'".format(condition_job_id_ended,
+                                                                                      environment,
+                                                                                      project_name,
+                                                                                      remote_command)
     
     
     

@@ -851,29 +851,29 @@ class neuronal_network_class:
         reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2,
                               patience=5, min_lr=0.00001)
         
-        dir_tensorboard = self.path_data \
-                          + self.path_intermediate_data_tensorboard 
+#        dir_tensorboard = self.path_data \
+#                          + self.path_intermediate_data_tensorboard 
                            
-        tensorboard = TensorBoard(log_dir=dir_tensorboard,
-                                  histogram_freq=0,
-                                  batch_size=fit_batch_size,
-                                  write_graph=True,
-                                  write_grads=False,
-                                  write_images=True,
-                                  embeddings_freq=10,
-                                  embeddings_layer_names=None,
-                                  embeddings_metadata=None,
-                                  embeddings_data=None,
-                                  update_freq='epoch')
+#        tensorboard = TensorBoard(log_dir=dir_tensorboard,
+#                                  histogram_freq=0,
+#                                  batch_size=fit_batch_size,
+#                                  write_graph=True,
+#                                  write_grads=False,
+#                                  write_images=True,
+#                                  embeddings_freq=10,
+#                                  embeddings_layer_names=None,
+#                                  embeddings_metadata=None,
+#                                  embeddings_data=None,
+#                                  update_freq='epoch')
         
         terminate = TerminateOnNaN()
         
-        exportInter = intermediateValidationExport()
+#        exportInter = intermediateValidationExport()
         
         callbacks_list = [checkpointer,
                           reduce_lr,
-                          terminate,
-                          exportInter]#,
+                          terminate]#,
+#                          exportInter]#,
 #                          tensorboard]
         
 #        # Fit the model
@@ -1035,6 +1035,9 @@ class neuronal_network_class:
         parameter[0]: export_images
             export the Jaccard index as images [default: True]
         """
+        
+        toolbox.print_program_section_name("evaluate network: jaccard index")
+        
         if parameter != []:
             export_images = parameter[0]
         else:
@@ -1132,6 +1135,9 @@ class neuronal_network_class:
         parameter[0]: use_tensorflow
             use the tensorflow library instead of scipy [default: False]
         """
+        
+        toolbox.print_program_section_name("evaluate network: pearson correlation coefficient")
+        
         if parameter != []:
             use_tensorflow = parameter[0]
         else:

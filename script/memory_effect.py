@@ -560,26 +560,26 @@ class memory_effect(module_base):
         executed_modules = []
         folder_0, path_0, layer_0 = self.f2_main("", [0,0])
         executed_modules += ["f2"]
-#        r = range(1,5)
-#        for i in r:
-#            for ii in [0]:
-#                executed_modules += ["f2"]
-#                folder, path, layer = self.f2_main("", [5**i, 0], False)
-#                    
-#                self.evaluate_data([folder_0, folder])
-#        
-#        r = [50,200]
-#        for i in r:
-#            for ii in [0]:
-#                if i!=0:# and ii!=0:
-#                    folder, path, layer = self.f2_main("", [i, ii], False)
-#                    self.evaluate_data([folder_0, folder])
-#                    
-#                    folder, path, layer = self.f2_main("", [i,ii], False)
-#                    self.evaluate_data([folder_0, folder])
+        r = range(1,5)
+        for i in r:
+            for ii in [0]:
+                executed_modules += ["f2"]
+                folder, path, layer = self.f2_main("", [5**i, 0], False)
+                    
+                self.evaluate_data([folder_0, folder])
+        
+        r = [50,200]
+        for i in r:
+            for ii in [0]:
+                if i!=0:# and ii!=0:
+                    folder, path, layer = self.f2_main("", [i, ii], False)
+                    self.evaluate_data([folder_0, folder])
+                    
+                    folder, path, layer = self.f2_main("", [i,ii], False)
+                    self.evaluate_data([folder_0, folder])
         
         self.create_overview()
-#        self.create_fit(self.path_ouput + self.shift_folder_name)
+        self.create_fit(self.path_ouput + self.shift_folder_name)
         
 #        todo: f2 -> class f2
 #        self.load_input_from_module()

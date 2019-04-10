@@ -67,12 +67,12 @@ EndSub
 ax(1:sam,1:sam)=Cmplx[1,0]
 Grid ax,p1,p2,p3,p4  
 
-! Thorlabs SM450
-! Core-Cladding Concentricity 0.75*mu
-! Numerical Aperture (Nominal) 0.10–0.14
-a2=Illumination ax,Gauss, 1,0,0.75*mu,{py_point_source_xpos}*mu,{py_point_source_ypos}*mu,0,lam
+! Thorlabs 780HP
+! Core Diameter 4.4 um
+! Numerical Aperture (Nominal) 0.13
+a2=Illumination ax,Gauss, 1,0,4.4*mu,{py_point_source_xpos}*mu,{py_point_source_ypos}*mu,0,lam
 
-na=0.12
+na=0.13
 ? "NA: ",'(F0.7)'na
 
        
